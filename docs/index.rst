@@ -10,15 +10,14 @@ N.B., this package is in a very early stage of development.
 - Documentation: http://anhima.readthedocs.org
 - Examples: http://nbviewer.ipython.org/github/alimanfoo/anhima/tree/master/examples/
 
-Contents:
+**Contents**
 
 .. toctree::
     :maxdepth: 2
 
     ld
 
-Indices and tables
-------------------
+**Indices and tables**
 
 * :ref:`genindex`
 * :ref:`modindex`
