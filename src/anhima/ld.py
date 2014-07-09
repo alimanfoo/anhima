@@ -339,6 +339,8 @@ def plot_ld_separation(r_squared,
     # tidy up
     ax.set_xlim(left=1, right=max_separation)
     ax.set_ylim(0, 1)
+    ax.set_xlabel('separation')
+    ax.set_ylabel('$r^2$', rotation=0)
     
     return ax
     
