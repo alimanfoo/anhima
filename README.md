@@ -1,5 +1,5 @@
-anhima - Analyse genetic variation data in Python
-=================================================
+anhima - Analyse genetic variation
+==================================
 
 N.B., this package is in a very early stage of development.
 

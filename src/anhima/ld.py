@@ -19,32 +19,35 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
     Parameters
     ----------
     
-    n_variants : integer
+    n_variants : int
         The number of variants to simulate data for.
-    n_samples : integer
+    n_samples : int
         The number of individuals to simulate data for.
-    correlation: float 
+    correlation : float
         The fraction of samples to copy genotypes between neighbouring 
         variants.
         
     Returns
     -------
-    
-    A 2-dimensional array of genotypes, where the first dimension is
-    variants, the second dimension is samples, and each genotype call
-    is coded as a single integer counting the number of non-reference
-    alleles (0 is homozygous reference, 1 is heterozygous, and 2 is
-    homozygous alternate).
+
+    array
+        A 2-dimensional array of genotypes, where the first dimension is
+        variants, the second dimension is samples, and each genotype call
+        is coded as a single integer counting the number of non-reference
+        alleles (0 is homozygous reference, 1 is heterozygous, and 2 is
+        homozygous alternate).
     
     """
     
     # initialise an array of random genotypes
-    g = np.random.randint(size=(n_variants, n_samples), low=0, high=3).astype('i1')
-    
+    g = np.random.randint(size=(n_variants, n_samples), low=0, high=3)
+    g = g.astype('i1')
+
     # determine the number of samples to copy genotypes for
     n_copy = int(correlation*n_samples)
     
-    # introduce linkage disequilibrium by copying genotypes from one sample to the next
+    # introduce linkage disequilibrium by copying genotypes from one sample to
+    # the next
     for i in range(1, n_variants):
         
         # randomly pick the samples to copy from
@@ -73,7 +76,7 @@ def pairwise_genotype_ld(g):
     Parameters
     ----------
     
-    g : array
+    g : array_like
         A 2-dimensional array of genotypes, where the first dimension is
         variants, the second dimension is samples, and each genotype call
         is coded as a single integer counting the number of non-reference
@@ -83,9 +86,10 @@ def pairwise_genotype_ld(g):
         
     Returns
     -------
-    
-    A 2-dimensional array of squared correlation coefficients between
-    each pair of variants.
+
+    array
+        A 2-dimensional array of squared correlation coefficients between
+        each pair of variants.
     
     """
     
@@ -101,20 +105,23 @@ def plot_ld(r_squared, cmap='Greys', flip=True, ax=None):
     Parameters
     ----------
     
-    r_squared : array
+    r_squared : array_like
         A square 2-dimensional array of squared correlation coefficients between 
         pairs of variants.
-    cmap : color map (optional)
-        The color map to use when plotting. Defaults to 'Greys' (0=white, 1=black).
-    flip : bool (optional)
+    cmap : color map, optional
+        The color map to use when plotting. Defaults to 'Greys' (0=white,
+        1=black).
+    flip : bool, optional
         If True, draw the triangle upside down.
-    ax : axes (optional)
-        The axes on which to draw. If not provided, a new figure will be created.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
         
     Returns
     -------
-    
-    The axes on which the plot was drawn
+
+    axes
+        The axes on which the plot was drawn
     
     """
 
@@ -161,28 +168,29 @@ def ld_prune_pairwise(g, window_size=100, window_step=10, max_r_squared=.2):
     Parameters
     ----------
     
-    g : array
+    g : array_like
         A 2-dimensional array of genotypes, where the first dimension is
         variants, the second dimension is samples, and each genotype call
         is coded as a single integer counting the number of non-reference
         alleles (for diploids, 0 is homozygous reference, 1 is heterozygous,
         and 2 is homozygous alternate). A missing genotype should be coded as 
         a negative number.
-    window_size : integer
+    window_size : int, optional
         The number of variants to work with at a time.
-    window_step : integer
+    window_step : int, optional
         The number of variants to shift the window by.
-    max_r_squared : float
+    max_r_squared : float, optional
         The maximum value of the genotype correlation coefficient, above which
         variants will be excluded.
         
     Returns
     -------
-    
-    A boolean array of the same length as the number of variants,
-    where a True value indicates the variant at the corresponding
-    index is included, and a False value indicates the corresponding
-    variant is excluded.
+
+    array
+        A boolean array of the same length as the number of variants,
+        where a True value indicates the variant at the corresponding
+        index is included, and a False value indicates the corresponding
+        variant is excluded.
         
     """
     
@@ -229,19 +237,20 @@ def ld_separation(r_squared):
     Parameters
     ----------
     
-    r_squared : array
+    r_squared : array_like
         A square 2-dimensional array of squared correlation coefficients between 
         pairs of variants.
 
     Returns
     -------
-    
-    A pair of arrays (`sep`, `cor`), where each element in the array
-    corresponds to a distinct pair of variants, and the value of `sep`
-    at that index is the separation between the two variants (in
-    number of variants), and the value of `cor` is the squared
-    correlation coefficient between the two variants.
-    
+
+    sep : array
+        Each element in the array is the separation (in number of variants)
+        between a distinct pair of variants.
+    cor : array
+        Each element in the array is the squared genotype correlation
+        coefficient between a distinct pair of variants.
+
     """
     
     # determine the number of variants
@@ -275,24 +284,25 @@ def plot_ld_separation(r_squared,
     Parameters
     ----------
     
-    r_squared : array
+    r_squared : array_like
         A square 2-dimensional array of squared correlation coefficients between 
         pairs of variants.
-    max_separation : integer (optional)
+    max_separation : int, optional
         Maximum separation to consider.
-    percentiles : sequence of integers (optional)
+    percentiles : sequence of integers, optional
         Percentiles to plot in addition to the median.
-    ax : axes (optional)
+    ax : axes, optional
         Axes on which to draw.
-    median_plot_kwargs : dictionary
+    median_plot_kwargs : dict, optional
         Keyword arguments to pass through when plotting the median line.
-    percentiles_plot_kwargs : dictionary
+    percentiles_plot_kwargs : dict, optional
         Keyword arguments to pass through when plotting the percentiles.
         
     Returns
     -------
-    
-    The axes on which the plot was drawn. 
+
+    axes
+        The axes on which the plot was drawn.
     
     """
 
@@ -306,7 +316,8 @@ def plot_ld_separation(r_squared,
     # set up arrays for plotting
     cor_median = np.zeros((max_separation,), dtype='f4')
     if len(percentiles) > 0:
-        cor_percentiles = np.zeros((max_separation, len(percentiles)), dtype='f4')
+        cor_percentiles = np.zeros((max_separation, len(percentiles)),
+                                   dtype='f4')
 
     # iterate over separations, compiling data
     for i in range(max_separation):
@@ -343,5 +354,3 @@ def plot_ld_separation(r_squared,
     ax.set_ylabel('$r^2$', rotation=0)
     
     return ax
-    
-
