@@ -15,6 +15,7 @@ N.B., this package is in a very early stage of development.
 .. toctree::
     :maxdepth: 2
 
+    loc
     ld
 
 **Indices and tables**
