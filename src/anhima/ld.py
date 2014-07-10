@@ -17,9 +17,9 @@ import anhima
 
 
 def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
-    """
-    A very simple function to simulate a set of genotypes, where variants are
-    in some degree of linkage disequilibrium with their neighbours.
+    """A very simple function to simulate a set of genotypes, where
+    variants are in some degree of linkage disequilibrium with their
+    neighbours.
     
     Parameters
     ----------
@@ -73,9 +73,9 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
 
 
 def pairwise_genotype_ld(g):
-    """
-    Given a set of genotypes at biallelic variants, calculate the square of
-    the correlation coefficient between all distinct pairs of variants.
+    """Given a set of genotypes at biallelic variants, calculate the
+    square of the correlation coefficient between all distinct pairs
+    of variants.
     
     Parameters
     ----------
@@ -102,8 +102,7 @@ def pairwise_genotype_ld(g):
 
 
 def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
-    """
-    Make a classic triangular linkage disequilibrium plot, given an
+    """Make a classic triangular linkage disequilibrium plot, given an
     array of pairwise correlation coefficients between variants.
     
     Parameters
@@ -158,8 +157,7 @@ def plot_ld(g, pos, bins, percentiles=(5, 95),
             ax=None,
             median_plot_kwargs=dict(),
             percentiles_plot_kwargs=dict()):
-    """
-    Plot average LD within non-overlapping genome windows.
+    """Plot average LD within non-overlapping genome windows.
 
     Parameters
     ----------
@@ -262,9 +260,8 @@ def plot_ld(g, pos, bins, percentiles=(5, 95),
 
 
 def ld_prune_pairwise(g, window_size=100, window_step=10, max_r_squared=.2):
-    """
-    Given a set of genotypes at biallelic variants, find a subset of
-    the variants which are in approximate linkage equilibrium with
+    """Given a set of genotypes at biallelic variants, find a subset
+    of the variants which are in approximate linkage equilibrium with
     each other.
     
     The algorithm is as follows. A window of `window_size` variants is
@@ -346,9 +343,8 @@ def ld_prune_pairwise(g, window_size=100, window_step=10, max_r_squared=.2):
 
 
 def pairwise_ld_decay(r_squared, pos, step=1):
-    """
-    Compile data on linkage disequilibrium, separation (in number of
-    variants), and physical distance between pairs of variants.
+    """Compile data on linkage disequilibrium, separation (in number
+    of variants), and physical distance between pairs of variants.
     
     Parameters
     ----------
@@ -398,9 +394,8 @@ def pairwise_ld_decay(r_squared, pos, step=1):
 
 
 def windowed_ld_decay(g, pos, window_size, step=1):
-    """
-    Compile data on linkage disequilibrium, separation (in number of
-    variants), and physical distance between pairs of variants.
+    """Compile data on linkage disequilibrium, separation (in number
+    of variants), and physical distance between pairs of variants.
 
     Similar to :func:`pairwise_ld_decay` except that not all pairs of
     variants are sampled to speed up computation and use less memory. Variants
@@ -479,9 +474,8 @@ def plot_ld_decay_by_separation(cor, sep,
                                 ax=None,
                                 median_plot_kwargs=dict(),
                                 percentiles_plot_kwargs=dict()):
-    """
-    Plot the decay of linkage disequilibrium with separation between
-    variants.
+    """Plot the decay of linkage disequilibrium with separation
+    between variants.
     
     Parameters
     ----------
@@ -566,9 +560,8 @@ def plot_ld_decay_by_distance(cor, dist, bins,
                               ax=None,
                               median_plot_kwargs=dict(),
                               percentiles_plot_kwargs=dict()):
-    """
-    Plot the decay of linkage disequilibrium with physical distance between
-    variants.
+    """Plot the decay of linkage disequilibrium with physical distance
+    between variants.
 
     Parameters
     ----------
@@ -636,7 +629,4 @@ def plot_ld_decay_by_distance(cor, dist, bins,
     ax.grid(axis='y')
 
     return ax
-
-
-
 

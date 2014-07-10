@@ -5,9 +5,8 @@ import bisect
 
 
 def locate_region(pos, start, stop):
-    """
-    Locate the start and stop indices within the `pos` array that include all
-    positions within the `start` and `stop` range.
+    """Locate the start and stop indices within the `pos` array that
+    include all positions within the `start` and `stop` range.
 
     Parameters
     ----------
