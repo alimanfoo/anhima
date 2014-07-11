@@ -35,18 +35,16 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
     Returns
     -------
 
-    array
-        A 2-dimensional array of genotypes, where the first dimension is
-        variants, the second dimension is samples, and each genotype call
-        is coded as a single integer counting the number of non-reference
-        alleles (0 is homozygous reference, 1 is heterozygous, and 2 is
-        homozygous alternate).
-    
+    gn : ndarray, int8
+        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        element is a genotype call coded as a single integer counting the
+        number of non-reference alleles.
+
     """
 
     # initialise an array of random genotypes
-    g = np.random.randint(size=(n_variants, n_samples), low=0, high=3)
-    g = g.astype('i1')
+    gn = np.random.randint(size=(n_variants, n_samples), low=0, high=3)
+    gn = gn.astype('i1')
 
     # determine the number of samples to copy genotypes for
     n_copy = int(correlation*n_samples)
@@ -59,7 +57,7 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
         sample_indices = random.sample(range(n_samples), n_copy)
         
         # view genotypes from the previous variant for the selected samples
-        c = g[i-1, sample_indices]
+        c = gn[i-1, sample_indices]
         
         # randomly choose whether to invert the correlation
         inv = random.randint(0, 1)
@@ -67,12 +65,12 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
             c = 2-c
             
         # copy across genotypes
-        g[i, sample_indices] = c
+        gn[i, sample_indices] = c
         
-    return g
+    return gn
 
 
-def pairwise_genotype_ld(g):
+def pairwise_genotype_ld(gn):
     """Given a set of genotypes at biallelic variants, calculate the
     square of the correlation coefficient between all distinct pairs
     of variants.
@@ -80,25 +78,22 @@ def pairwise_genotype_ld(g):
     Parameters
     ----------
     
-    g : array_like
-        A 2-dimensional array of genotypes, where the first dimension is
-        variants, the second dimension is samples, and each genotype call is
-        coded as a single integer counting the number of non-reference
-        alleles (for diploids, 0 is homozygous reference, 1 is heterozygous,
-        and 2 is homozygous alternate). A missing genotype should be coded as 
-        a negative number.
+    gn : ndarray, int8
+        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        element is a genotype call coded as a single integer counting the
+        number of non-reference alleles.
         
     Returns
     -------
 
-    array
+    r_squared : ndarray, float
         A 2-dimensional array of squared correlation coefficients between
         each pair of variants.
     
     """
     
     # TODO deal with missing genotypes
-    return np.power(np.corrcoef(g), 2)
+    return np.power(np.corrcoef(gn), 2)
 
 
 def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
@@ -123,7 +118,7 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
     Returns
     -------
 
-    axes
+    ax : axes
         The axes on which the plot was drawn
     
     """
@@ -153,7 +148,7 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
     return ax
 
 
-def plot_ld(g, pos, bins, percentiles=(5, 95),
+def plot_ld(gn, pos, bins, percentiles=(5, 95),
             ax=None,
             median_plot_kwargs=dict(),
             percentiles_plot_kwargs=dict()):
@@ -162,13 +157,10 @@ def plot_ld(g, pos, bins, percentiles=(5, 95),
     Parameters
     ----------
 
-    g : array_like
-        A 2-dimensional array of genotypes, where the first dimension is
-        variants, the second dimension is samples, and each genotype call
-        is coded as a single integer counting the number of non-reference
-        alleles (for diploids, 0 is homozygous reference, 1 is heterozygous,
-        and 2 is homozygous alternate). A missing genotype should be coded as
-        a negative number.
+    gn : ndarray, int8
+        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        element is a genotype call coded as a single integer counting the
+        number of non-reference alleles.
     pos : array_like
         A 1-dimensional array of genomic positions of variants.
     bins : int or sequence of ints
@@ -185,7 +177,7 @@ def plot_ld(g, pos, bins, percentiles=(5, 95),
     Returns
     -------
 
-    axes
+    ax : axes
         The axes on which the plot was drawn.
 
     """
@@ -217,7 +209,7 @@ def plot_ld(g, pos, bins, percentiles=(5, 95),
         if loc.stop - loc.start > 0:
 
             # view genotypes for the current region
-            gw = g[loc, :]
+            gw = gn[loc, :]
 
             # calculate pairwise LD
             r_squared = pairwise_genotype_ld(gw)
@@ -259,31 +251,18 @@ def plot_ld(g, pos, bins, percentiles=(5, 95),
     return ax
 
 
-def ld_prune_pairwise(g, window_size=100, window_step=10, max_r_squared=.2):
+def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
     """Given a set of genotypes at biallelic variants, find a subset
     of the variants which are in approximate linkage equilibrium with
     each other.
     
-    The algorithm is as follows. A window of `window_size` variants is
-    taken from the beginning of the genotypes array. The genotype
-    correlation coefficient is calculated between each pair of
-    variants in the window. The first variant in the window is
-    considered, and any other variants in the window with linkage
-    above `max_r_squared` with respect to the first variant is
-    excluded. The next non-excluded variant in the window is then
-    considered, and so on. The window then shifts along by
-    `window_step` variants, and the process is repeated.
-    
     Parameters
     ----------
     
-    g : array_like
-        A 2-dimensional array of genotypes, where the first dimension is
-        variants, the second dimension is samples, and each genotype call
-        is coded as a single integer counting the number of non-reference
-        alleles (for diploids, 0 is homozygous reference, 1 is heterozygous,
-        and 2 is homozygous alternate). A missing genotype should be coded as 
-        a negative number.
+    gn : ndarray, int8
+        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        element is a genotype call coded as a single integer counting the
+        number of non-reference alleles.
     window_size : int, optional
         The number of variants to work with at a time.
     window_step : int, optional
@@ -295,16 +274,29 @@ def ld_prune_pairwise(g, window_size=100, window_step=10, max_r_squared=.2):
     Returns
     -------
 
-    array
+    included : ndarray, bool
         A boolean array of the same length as the number of variants,
         where a True value indicates the variant at the corresponding
         index is included, and a False value indicates the corresponding
         variant is excluded.
+
+    Notes
+    -----
         
+    The algorithm is as follows. A window of `window_size` variants is
+    taken from the beginning of the genotypes array. The genotype
+    correlation coefficient is calculated between each pair of
+    variants in the window. The first variant in the window is
+    considered, and any other variants in the window with linkage
+    above `max_r_squared` with respect to the first variant is
+    excluded. The next non-excluded variant in the window is then
+    considered, and so on. The window then shifts along by
+    `window_step` variants, and the process is repeated.
+
     """
     
     # set up output array
-    n_variants = g.shape[0]
+    n_variants = gn.shape[0]
     included = np.ones((n_variants,), dtype=np.bool)
 
     # outer loop - iterate over windows
@@ -314,7 +306,7 @@ def ld_prune_pairwise(g, window_size=100, window_step=10, max_r_squared=.2):
         window_stop = min(window_start + window_size, n_variants)
 
         # view genotypes for current window
-        gw = g[window_start:window_stop, :]
+        gw = gn[window_start:window_stop, :]
         
         # calculate pairwise genotype correlation
         r_squared = pairwise_genotype_ld(gw)
@@ -360,15 +352,20 @@ def pairwise_ld_decay(r_squared, pos, step=1):
     Returns
     -------
 
-    cor : array
+    cor : ndarray, float
         Each element in the array is the squared genotype correlation
         coefficient between a distinct pair of variants.
-    sep : array
+    sep : ndarray, int
         Each element in the array is the separation (in number of variants)
         between a distinct pair of variants.
-    dist : array
+    dist : ndarray, int
         Each element in the array is the physical distance between a distinct
         pair of variants.
+
+    See Also
+    --------
+
+    windowed_ld_decay
 
     """
     
@@ -393,25 +390,17 @@ def pairwise_ld_decay(r_squared, pos, step=1):
     return cor, sep, dist
 
 
-def windowed_ld_decay(g, pos, window_size, step=1):
+def windowed_ld_decay(gn, pos, window_size, step=1):
     """Compile data on linkage disequilibrium, separation (in number
     of variants), and physical distance between pairs of variants.
-
-    Similar to :func:`pairwise_ld_decay` except that not all pairs of
-    variants are sampled to speed up computation and use less memory. Variants
-    are divided into non-overlapping windows of size `window_size`. Genotype LD
-    is calculated for all pairs within each window.
 
     Parameters
     ----------
 
-    g : array_like
-        A 2-dimensional array of genotypes, where the first dimension is
-        variants, the second dimension is samples, and each genotype call
-        is coded as a single integer counting the number of non-reference
-        alleles (for diploids, 0 is homozygous reference, 1 is heterozygous,
-        and 2 is homozygous alternate). A missing genotype should be coded as
-        a negative number.
+    gn : ndarray, int8
+        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        element is a genotype call coded as a single integer counting the
+        number of non-reference alleles.
     pos : array_like
         A 1-dimensional array of genomic positions of variants.
     window_size : int, optional
@@ -422,20 +411,33 @@ def windowed_ld_decay(g, pos, window_size, step=1):
     Returns
     -------
 
-    cor : array
+    cor : ndarray, float
         Each element in the array is the squared genotype correlation
         coefficient between a distinct pair of variants.
-    sep : array
+    sep : ndarray, int
         Each element in the array is the separation (in number of variants)
         between a distinct pair of variants.
-    dist : array
+    dist : ndarray, int
         Each element in the array is the physical distance between a distinct
         pair of variants.
+
+    See Also
+    --------
+
+    pairwise_ld_decay
+
+    Notes
+    -----
+
+    Similar to :func:`pairwise_ld_decay` except that not all pairs of
+    variants are sampled to speed up computation and use less memory. Variants
+    are divided into non-overlapping windows of size `window_size`. Genotype LD
+    is calculated for all pairs within each window.
 
     """
 
     # determine number of variants
-    n_variants = g.shape[0]
+    n_variants = gn.shape[0]
 
     # initialise output variables
     all_cor = list()
@@ -449,7 +451,7 @@ def windowed_ld_decay(g, pos, window_size, step=1):
         window_stop = min(window_start + window_size, n_variants)
 
         # view genotypes for the current window
-        gw = g[window_start:window_stop, :]
+        gw = gn[window_start:window_stop, :]
 
         # calculate LD
         r_squared = pairwise_genotype_ld(gw)
@@ -500,7 +502,7 @@ def plot_ld_decay_by_separation(cor, sep,
     Returns
     -------
 
-    axes
+    ax : axes
         The axes on which the plot was drawn.
     
     """
@@ -585,7 +587,7 @@ def plot_ld_decay_by_distance(cor, dist, bins,
     Returns
     -------
 
-    axes
+    ax : axes
         The axes on which the plot was drawn.
 
     """

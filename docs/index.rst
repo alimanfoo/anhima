@@ -16,6 +16,7 @@ N.B., this package is in a very early stage of development.
     :maxdepth: 2
 
     loc
+    gt
     ld
 
 **Indices and tables**

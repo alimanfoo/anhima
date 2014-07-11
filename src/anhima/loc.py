@@ -21,7 +21,7 @@ def locate_region(pos, start, stop):
     Returns
     -------
 
-    slice
+    loc : slice
         A slice object with the start and stop indices that capture all
         positions within the region.
 
@@ -29,6 +29,7 @@ def locate_region(pos, start, stop):
 
     start_index = bisect.bisect_left(pos, start)
     stop_index = bisect.bisect_right(pos, stop)
-    return slice(start_index, stop_index)
+    loc = slice(start_index, stop_index)
+    return loc
 
 
