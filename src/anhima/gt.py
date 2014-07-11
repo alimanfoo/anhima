@@ -12,6 +12,40 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 # third party dependencies
 import numpy as np
+import numexpr
+
+
+def take_variants(a, variants, query):
+    """Extract rows from the array `a` corresponding to a query over variants.
+
+    Parameters
+    ----------
+
+    a :  array_like
+        An array to extract rows from (e.g., genotypes).
+    variants : dict-like
+        The properties of the variants to query.
+    query : string
+        The query to apply. The query will be evaluated by :mod:`numexpr`
+        against the provided `variants` and should return a boolean array of
+        the same length as the first dimension of `a`.
+
+    Returns
+    -------
+
+    b : ndarray
+        An array obtained from `a` by taking rows corresponding to the
+        selected variants.
+
+    """
+
+    # evaluate query against variants
+    is_selected = numexpr.evaluate(query, local_dict=variants)
+
+    # take rows from the input array
+    b = np.compress(is_selected, a, axis=0)
+
+    return b
 
 
 def take_samples(a, all_samples, selected_samples):
@@ -36,13 +70,6 @@ def take_samples(a, all_samples, selected_samples):
     b : ndarray
         An array obtained from `a` by taking columns corresponding to the
         selected samples.
-
-    Notes
-    -----
-
-    Applicable to polyploid genotype calls.
-
-    Applicable to multiallelic variants.
 
     """
 
