@@ -1,6 +1,16 @@
+"""
+Utilities for working with genotype data.
+
+"""
+
+
+from __future__ import division, print_function
+
+
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 
+# third party dependencies
 import numpy as np
 
 
@@ -58,45 +68,6 @@ def take_samples(a, all_samples, selected_samples):
     return b
 
 
-def as_alleles(genotypes):
-    """Reshape an array of genotypes as an array of alleles.
-
-    Parameters
-    ----------
-
-    genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
-        element of the array is an integer corresponding to an allele index
-        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
-        2 = second alternate allele, etc.).
-
-    Returns
-    -------
-
-    alleles : ndarray
-        An array of shape (`n_variants`, `n_samples` * `ploidy`) where the
-        third dimension has been collapsed.
-
-    Notes
-    -----
-
-    Applicable to polyploid genotype calls.
-
-    Applicable to multiallelic variants.
-
-    """
-
-    # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
-
-    # reshape, preserving size of first dimension
-    newshape = (genotypes.shape[0], -1)
-    alleles = np.reshape(genotypes, newshape)
-
-    return alleles
-
-
 def is_called(genotypes):
     """Find non-missing genotype calls.
 
@@ -114,7 +85,7 @@ def is_called(genotypes):
 
     is_called : ndarray, bool
         An array of shape (`n_variants`, `n_samples`) where elements are True
-        where the genotype is non-missing.
+        if the genotype call is non-missing.
 
     See Also
     --------
@@ -157,7 +128,7 @@ def is_hom_ref(genotypes):
 
     is_hom_ref : ndarray, bool
         An array of shape (`n_variants`, `n_samples`) where elements are True
-        where the genotype is homozygous reference.
+        if the genotype call is homozygous reference.
 
     See Also
     --------
@@ -199,7 +170,7 @@ def is_het_diploid(genotypes):
 
     is_het : ndarray, bool
         An array of shape (`n_variants`, `n_samples`) where elements are True
-        where the genotype is heterozygous.
+        if the genotype call is heterozygous.
 
     See Also
     --------
@@ -247,7 +218,7 @@ def is_hom_alt_diploid(genotypes):
 
     is_hom_alt : ndarray, int8
         An array of shape (`n_variants`, `n_samples`) where elements are
-        non-zero where the genotype is homozygous non-reference. The actual
+        non-zero if the genotype call is homozygous non-reference. The actual
         value of the element will be the non-reference allele index.
 
     See Also
@@ -283,7 +254,46 @@ def is_hom_alt_diploid(genotypes):
     return out
 
 
-def as_nalt(genotypes):
+def as_alleles(genotypes):
+    """Reshape an array of genotypes as an array of alleles.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    Returns
+    -------
+
+    alleles : ndarray
+        An array of shape (`n_variants`, `n_samples` * `ploidy`) where the
+        third dimension has been collapsed.
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants.
+
+    """
+
+    # check input array
+    assert hasattr(genotypes, 'ndim')
+    assert genotypes.ndim == 3
+
+    # reshape, preserving size of first dimension
+    newshape = (genotypes.shape[0], -1)
+    alleles = np.reshape(genotypes, newshape)
+
+    return alleles
+
+
+def as_n_alt(genotypes):
     """Transform an array of genotypes as the number of non-reference alleles.
 
     Parameters

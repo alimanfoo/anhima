@@ -1,6 +1,16 @@
+"""
+Utilities for working with genomic locations.
+
+"""
+
+
+from __future__ import division, print_function
+
+
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 
+# standard library dependencies
 import bisect
 
 

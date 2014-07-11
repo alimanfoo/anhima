@@ -4,16 +4,26 @@ Utilities for calculating and plotting linkage disequilbrium.
 """
 
 
+from __future__ import division, print_function
+
+
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 
+# standard library dependencies
+import random
+
+
+# third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import random
 import scipy.stats as stats
 import scipy.spatial.distance as distance
-import anhima
+
+
+# internal dependencies
+import anhima.loc
 
 
 def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):

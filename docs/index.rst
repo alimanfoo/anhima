@@ -17,6 +17,7 @@ N.B., this package is in a very early stage of development.
 
     loc
     gt
+    af
     ld
 
 **Indices and tables**
