@@ -4,7 +4,7 @@ Utilities for working with genotype data.
 """
 
 
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
@@ -12,87 +12,6 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 # third party dependencies
 import numpy as np
-import numexpr
-
-
-def take_variants(a, variants, query):
-    """Extract rows from the array `a` corresponding to a query over variants.
-
-    Parameters
-    ----------
-
-    a :  array_like
-        An array to extract rows from (e.g., genotypes).
-    variants : dict-like
-        The properties of the variants to query.
-    query : string
-        The query to apply. The query will be evaluated by :mod:`numexpr`
-        against the provided `variants` and should return a boolean array of
-        the same length as the first dimension of `a`.
-
-    Returns
-    -------
-
-    b : ndarray
-        An array obtained from `a` by taking rows corresponding to the
-        selected variants.
-
-    """
-
-    # evaluate query against variants
-    is_selected = numexpr.evaluate(query, local_dict=variants)
-
-    # take rows from the input array
-    b = np.compress(is_selected, a, axis=0)
-
-    return b
-
-
-def take_samples(a, all_samples, selected_samples):
-    """Extract columns from the array `a` corresponding to selected samples.
-
-    Parameters
-    ----------
-
-    a : array_like
-        An array with 2 or more dimensions, where the second dimension
-        corresponds to samples.
-    all_samples : sequence
-        A sequence (e.g., list) of sample identifiers corresponding to the
-        second dimension of `a`.
-    selected_samples : sequence
-        A sequence (e.g., list) of sample identifiers corresponding to the
-        columns to be extracted from `a`.
-
-    Returns
-    -------
-
-    b : ndarray
-        An array obtained from `a` by taking columns corresponding to the
-        selected samples.
-
-    """
-
-    # check a is an array of 2 or more dimensions
-    assert hasattr(a, 'ndim')
-    assert a.ndim > 1
-
-    # check length of samples dimension is as expected
-    assert a.shape[1] == len(all_samples)
-
-    # check selections are in all_samples
-    assert all([s in all_samples for s in selected_samples])
-
-    # make sure it's a list
-    all_samples = list(all_samples)
-
-    # determine indices for selected samples
-    indices = [all_samples.index(s) for s in selected_samples]
-
-    # take columns from the array
-    b = np.take(a, indices, axis=1)
-
-    return b
 
 
 def is_called(genotypes):

@@ -6,8 +6,6 @@ Genotype transformations
 
 Utility functions for working with genotype data.
 
-.. autofunction:: take_variants
-.. autofunction:: take_samples
 .. autofunction:: is_called
 .. autofunction:: is_hom_ref
 .. autofunction:: is_het_diploid

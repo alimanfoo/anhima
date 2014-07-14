@@ -4,7 +4,7 @@ Utilities for calculating and plotting linkage disequilbrium.
 """
 
 
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'

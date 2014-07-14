@@ -4,7 +4,7 @@ Allele frequency calculations.
 """
 
 
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
