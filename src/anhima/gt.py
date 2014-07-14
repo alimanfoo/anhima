@@ -21,7 +21,8 @@ def is_called(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -30,13 +31,12 @@ def is_called(genotypes):
     -------
 
     is_called : ndarray, bool
-        An array of shape (`n_variants`, `n_samples`) where elements are True
-        if the genotype call is non-missing.
+        An array where elements are True if the genotype call is non-missing.
 
     See Also
     --------
 
-    is_hom_ref, is_het_diploid, is_hom_alt_diploid
+    is_missing, is_hom_ref, is_het_diploid, is_hom_alt_diploid
 
     Notes
     -----
@@ -47,14 +47,126 @@ def is_called(genotypes):
 
     """
 
-    # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
+    # check input array has 2 or more dimensions
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
 
     # determine output array
-    out = np.all(genotypes >= 0, axis=2)
+    out = np.all(genotypes >= 0, axis=dim_ploidy)
 
     return out
+
+
+def count_called(genotypes, axis=None):
+    """Count non-missing genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of called (i.e., non-missing)
+        genotypes. If `axis` is specified, returns the sum along the given
+        `axis`.
+
+    See Also
+    --------
+    is_called
+
+    """
+
+    n = np.sum(is_called(genotypes), axis=axis)
+    return n
+
+
+def is_missing(genotypes):
+    """Find missing genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    Returns
+    -------
+
+    is_missing: ndarray, bool
+        An array where elements are True if the genotype call is missing.
+
+    See Also
+    --------
+
+    is_called, is_hom_ref, is_het_diploid, is_hom_alt_diploid
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants.
+
+    """
+
+    # check input array has 2 or more dimensions
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
+
+    # determine output array
+    out = np.any(genotypes < 0, axis=dim_ploidy)
+
+    return out
+
+
+def count_missing(genotypes, axis=None):
+    """Count non-missing genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of missing genotypes. If `axis`
+        is specified, returns the sum along the given `axis`.
+
+    See Also
+    --------
+    is_missing
+
+    """
+
+    n = np.sum(is_missing(genotypes), axis=axis)
+    return n
 
 
 def is_hom_ref(genotypes):
@@ -64,7 +176,8 @@ def is_hom_ref(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -73,12 +186,12 @@ def is_hom_ref(genotypes):
     -------
 
     is_hom_ref : ndarray, bool
-        An array of shape (`n_variants`, `n_samples`) where elements are True
-        if the genotype call is homozygous reference.
+        An array where elements are True if the genotype call is homozygous
+        reference.
 
     See Also
     --------
-    is_called, is_het_diploid, is_hom_alt_diploid
+    is_called, is_missing, is_het_diploid, is_hom_alt_diploid
 
     Notes
     -----
@@ -89,24 +202,60 @@ def is_hom_ref(genotypes):
 
     """
 
-    # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
+    # check input array has 2 or more dimensions
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
 
     # determine output array
-    out = np.all(genotypes == 0, axis=2)
+    out = np.all(genotypes == 0, axis=dim_ploidy)
 
     return out
 
 
-def is_het_diploid(genotypes):
-    """Find diploid heterozygous genotype calls.
+def count_hom_ref(genotypes, axis=None):
+    """Count homozygous reference genotype calls.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of homozygous
+        reference genotypes. If `axis` is specified, returns the sum along
+        the given `axis`.
+
+    See Also
+    --------
+    is_hom_ref
+
+    """
+
+    n = np.sum(is_hom_ref(genotypes), axis=axis)
+    return n
+
+
+def is_het_diploid(genotypes):
+    """Find heterozygous genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -115,8 +264,7 @@ def is_het_diploid(genotypes):
     -------
 
     is_het : ndarray, bool
-        An array of shape (`n_variants`, `n_samples`) where elements are True
-        if the genotype call is heterozygous.
+        An array where elements are True if the genotype call is heterozygous.
 
     See Also
     --------
@@ -134,27 +282,64 @@ def is_het_diploid(genotypes):
 
     """
 
-    # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
-    assert genotypes.shape[2] == 2
+    # check input array has 2 or more dimensions
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
+
+    # check diploid
+    assert genotypes.shape[dim_ploidy] == 2
 
     # find hets
-    allele1 = genotypes[:, :, 0]
-    allele2 = genotypes[:, :, 1]
+    allele1 = genotypes[..., 0]
+    allele2 = genotypes[..., 1]
     is_het = allele1 != allele2
 
     return is_het
 
 
-def is_hom_alt_diploid(genotypes):
-    """Find diploid homozygous non-reference genotype calls.
+def count_het_diploid(genotypes, axis=None):
+    """Count heterozygous genotype calls.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of heterozygous genotypes. If
+        `axis` is specified, returns the sum along the given `axis`.
+
+    See Also
+    --------
+    is_het_diploid
+
+    """
+
+    n = np.sum(is_het_diploid(genotypes), axis=axis)
+    return n
+
+
+def is_hom_alt_diploid(genotypes):
+    """Find homozygous non-reference genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -162,10 +347,9 @@ def is_hom_alt_diploid(genotypes):
     Returns
     -------
 
-    is_hom_alt : ndarray, int8
-        An array of shape (`n_variants`, `n_samples`) where elements are
-        non-zero if the genotype call is homozygous non-reference. The actual
-        value of the element will be the non-reference allele index.
+    is_hom_alt : ndarray, bool
+        An array where elements are True if the genotype call is homozygous
+        non-reference.
 
     See Also
     --------
@@ -183,25 +367,59 @@ def is_hom_alt_diploid(genotypes):
 
     """
 
-    # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
-    assert genotypes.shape[2] == 2
+    # check input array has 2 or more dimensions
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
+
+    # check diploid
+    assert genotypes.shape[dim_ploidy] == 2
 
     # find homozygotes
-    n_variants = genotypes.shape[0]
-    n_samples = genotypes.shape[1]
-    out = np.zeros((n_variants, n_samples), dtype='i1')
-    allele1 = genotypes[:, :, 0]
-    allele2 = genotypes[:, :, 1]
+    allele1 = genotypes[..., 0]
+    allele2 = genotypes[..., 1]
     is_hom_alt = (allele1 > 0) & (allele1 == allele2)
-    out[is_hom_alt] = allele1
 
-    return out
+    return is_hom_alt
+
+
+def count_hom_alt_diploid(genotypes, axis=None):
+    """Count homozygous non-reference genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of homozygous non-reference
+        genotypes. If `axis` is specified, returns the sum along the given
+        `axis`.
+
+    See Also
+    --------
+    is_hom_alt_diploid
+
+    """
+
+    n = np.sum(is_hom_alt_diploid(genotypes), axis=axis)
+    return n
 
 
 def as_alleles(genotypes):
-    """Reshape an array of genotypes as an array of alleles.
+    """Reshape an array of genotypes as an array of alleles, collapsing the
+    ploidy dimension.
 
     Parameters
     ----------
@@ -216,8 +434,7 @@ def as_alleles(genotypes):
     -------
 
     alleles : ndarray
-        An array of shape (`n_variants`, `n_samples` * `ploidy`) where the
-        third dimension has been collapsed.
+        An array where the third (ploidy) dimension has been collapsed.
 
     Notes
     -----
@@ -229,7 +446,6 @@ def as_alleles(genotypes):
     """
 
     # check input array
-    assert hasattr(genotypes, 'ndim')
     assert genotypes.ndim == 3
 
     # reshape, preserving size of first dimension
@@ -246,7 +462,8 @@ def as_n_alt(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -255,8 +472,8 @@ def as_n_alt(genotypes):
     -------
 
     gn : ndarray, int8
-        An array of shape (`n_variants`, `n_samples`) where each genotype is
-        coded as a single integer counting the number of alternate alleles.
+        An array where each genotype is coded as a single integer counting
+        the number of alternate alleles.
 
     See Also
     --------
@@ -279,19 +496,19 @@ def as_n_alt(genotypes):
     """
 
     # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
 
     # count number of alternate alleles
-    n_variants = genotypes.shape[0]
-    n_samples = genotypes.shape[1]
-    gn = np.empty((n_variants, n_samples), dtype='i1')
-    np.sum(genotypes > 0, axis=2, out=gn)
+    gn = np.empty(genotypes.shape[:-1], dtype='i1')
+    np.sum(genotypes > 0, axis=dim_ploidy, out=gn)
 
     return gn
 
 
-def as_diploid_012(genotypes):
+def as_diploid_012(genotypes, fill=-1):
     """Transform an array of genotypes recoding homozygous reference calls a
     0, heterozygous calls as 1, homozygous non-reference calls as 2, and
     missing calls as -1.
@@ -300,17 +517,20 @@ def as_diploid_012(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
+    fill : int, optional
+        Default value for missing calls.
 
     Returns
     -------
 
     gn : ndarray, int8
-        An array of shape (`n_variants`, `n_samples`) where each genotype is
-        coded as a single integer as described above.
+        An array  where each genotype is coded as a single integer as
+        described above.
 
     See Also
     --------
@@ -330,15 +550,17 @@ def as_diploid_012(genotypes):
     """
 
     # check input array
-    assert hasattr(genotypes, 'ndim')
-    assert genotypes.ndim == 3
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
+
+    # check diploid
+    assert genotypes.shape[dim_ploidy] == 2
 
     # set up output array
-    n_variants = genotypes.shape[0]
-    n_samples = genotypes.shape[1]
-    gn = np.empty((n_variants, n_samples), dtype='i1')
-    # fill with -1 to start with
-    gn.fill(-1)
+    gn = np.empty(genotypes.shape[:-1], dtype='i1')
+    gn.fill(fill)
 
     # determine genotypes
     gn[is_hom_ref(genotypes)] = 0
