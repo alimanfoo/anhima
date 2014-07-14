@@ -12,6 +12,7 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 # third party dependencies
 import numpy as np
+import scipy.stats
 
 
 def is_called(genotypes):
@@ -568,5 +569,73 @@ def as_diploid_012(genotypes, fill=-1):
     gn[is_hom_alt_diploid(genotypes)] = 2
 
     return gn
+
+
+def missing_density(genotypes, pos, window_size, start_position=None,
+                    stop_position=None):
+    """Compute the per-base-pair density of missing genotype calls within
+    genome windows, for a single sample.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `ploidy`) where each element of the
+        array is an integer corresponding to an allele index (-1 = missing,
+        0 = reference allele, 1 = first alternate allele, 2 = second
+        alternate allele, etc.).
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+
+    Returns
+    -------
+
+    density : array, float
+        The per-base-pair density of genotype calls within each window.
+    counts : array, int
+        The counts of genotype calls within each window.
+    bin_edges : array, int
+        The bin edges defining the windows used.
+    binnumber : array, int
+        This assigns to each observation an integer that represents the bin
+        in which this observation falls.
+
+    """
+
+    # check input array
+    assert genotypes.ndim == 2
+
+    # determine bins
+    if stop_position is None:
+        stop_position = np.max(pos)
+    if start_position is None:
+        start_position = np.min(pos)
+    bin_edges = np.arange(start_position, stop_position, window_size)
+
+    # find matching genotypes
+    values = is_missing(genotypes)
+
+    # computed binned statistic
+    counts, bin_edges, binnumber = scipy.stats.binned_statistic(
+        pos, values, statistic=np.sum, bins=bin_edges
+    )
+    density = counts / window_size
+
+    return density, counts, bin_edges, binnumber
+
+
+# TODO other genotype densities
+
+
+# TODO plot genotype densities
+
+
 
 
