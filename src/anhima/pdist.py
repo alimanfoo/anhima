@@ -37,7 +37,7 @@ def pairwise_distance(gn, metric='euclidean'):
     return dist_square
 
 
-def pairwise_distance_plot(gn, metric='euclidean', labels=None,
+def pairwise_distance_plot(dist_square, metric='euclidean', labels=None,
                            colorbar=True, ax=None,
                            vmin=None, vmax=None, cmap='jet',
                            imshow_kwargs=None):
@@ -49,11 +49,8 @@ def pairwise_distance_plot(gn, metric='euclidean', labels=None,
     if ax is None:
         fig, ax = plt.subplots(figsize=(7, 7))
 
-    # compute pairwise distance
-    dist_square = pairwise_distance(gn, metric)
-    dist = scipy.spatial.distance.squareform(dist_square)
-
     # set up normalisation
+    dist = scipy.spatial.distance.squareform(dist_square)
     if vmin is None:
         vmin = np.min(dist)
     if vmax is None:
@@ -62,7 +59,7 @@ def pairwise_distance_plot(gn, metric='euclidean', labels=None,
     # plot as image
     if imshow_kwargs is None:
         imshow_kwargs = dict()
-    im = ax.imshow(dist_square, interpolation='nearest', cmap=cmap,
+    im = ax.imshow(dist_square, interpolation='none', cmap=cmap,
                    vmin=vmin, vmax=vmax, **imshow_kwargs)
 
     # tidy up
@@ -70,5 +67,5 @@ def pairwise_distance_plot(gn, metric='euclidean', labels=None,
         ax.set_xticklabels(labels, rotation=90)
         ax.set_yticklabels(labels, rotation=0)
     if colorbar:
-        plt.gcf().colobar(im)
+        plt.gcf().colorbar(im)
 
