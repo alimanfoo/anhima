@@ -1,10 +1,11 @@
 .. module:: anhima.loc
 .. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
 
-Locate samples and variants
-===========================
+Locate samples, variants and genome positions
+=============================================
 
-Utility functions for extracting data on samples or variants.
+Utility functions for extracting data on samples, variants and genome
+positions.
 
 See also the examples at:
 
@@ -16,6 +17,12 @@ See also the examples at:
 .. autofunction:: take_variants
 .. autofunction:: locate_region
 .. autofunction:: take_region
-.. autofunction:: plot_variant_locator
+.. autofunction:: variant_locator_plot
+.. autofunction:: windowed_variant_counts
+.. autofunction:: windowed_variant_counts_plot
+.. autofunction:: windowed_variant_density
+.. autofunction:: windowed_variant_density_plot
+.. autofunction:: windowed_statistic
+
 
 

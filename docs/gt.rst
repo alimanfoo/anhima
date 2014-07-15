@@ -6,6 +6,11 @@ Genotype transformations
 
 Utility functions for working with genotype data.
 
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/gt.ipynb
+
+.. autofunction:: simulate_biallelic_genotypes
 .. autofunction:: is_called
 .. autofunction:: count_called
 .. autofunction:: is_missing
@@ -19,3 +24,9 @@ Utility functions for working with genotype data.
 .. autofunction:: as_alleles
 .. autofunction:: as_n_alt
 .. autofunction:: as_diploid_012
+.. autofunction:: windowed_genotype_counts
+.. autofunction:: windowed_genotype_density
+.. autofunction:: windowed_genotype_rate
+.. autofunction:: windowed_genotype_counts_plot
+.. autofunction:: windowed_genotype_density_plot
+.. autofunction:: windowed_genotype_rate_plot

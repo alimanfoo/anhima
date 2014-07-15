@@ -106,7 +106,7 @@ def pairwise_genotype_ld(gn):
     return np.power(np.corrcoef(gn), 2)
 
 
-def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
+def pairwise_ld_plot(r_squared, cmap='Greys', flip=True, ax=None):
     """Make a classic triangular linkage disequilibrium plot, given an
     array of pairwise correlation coefficients between variants.
     
@@ -158,10 +158,10 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
     return ax
 
 
-def plot_ld(gn, pos, bins, percentiles=(5, 95),
-            ax=None,
-            median_plot_kwargs=dict(),
-            percentiles_plot_kwargs=dict()):
+def windowed_ld_plot(gn, pos, window_size, start_position=None,
+                     stop_position=None, percentiles=(5, 95), ax=None,
+                     median_plot_kwargs=dict(),
+                     percentiles_plot_kwargs=dict()):
     """Plot average LD within non-overlapping genome windows.
 
     Parameters
@@ -173,8 +173,12 @@ def plot_ld(gn, pos, bins, percentiles=(5, 95),
         number of non-reference alleles.
     pos : array_like
         A 1-dimensional array of genomic positions of variants.
-    bins : int or sequence of ints
-        Number of bins or bin edges. Genomic windows to calculate LD within.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
     percentiles : sequence of integers, optional
         Percentiles to plot in addition to the median.
     ax : axes, optional
@@ -197,8 +201,12 @@ def plot_ld(gn, pos, bins, percentiles=(5, 95),
         fig = plt.figure(figsize=(12, 4))
         ax = fig.add_axes((0, 0, 1, 1))
 
-    # determine bin edges (N.B., `bins` may be an integer)
-    _, bin_edges = np.histogram(pos, bins=bins)
+    # determine bins
+    if stop_position is None:
+        stop_position = np.max(pos)
+    if start_position is None:
+        start_position = np.min(pos)
+    bin_edges = np.arange(start_position, stop_position, window_size)
     n_bins = len(bin_edges) - 1
 
     # initialise plotting variables
@@ -480,7 +488,7 @@ def windowed_ld_decay(gn, pos, window_size, step=1):
     return all_cor, all_sep, all_dist
 
 
-def plot_ld_decay_by_separation(cor, sep,
+def ld_decay_by_separation_plot(cor, sep,
                                 max_separation=100,
                                 percentiles=(5, 95),
                                 ax=None,
@@ -567,7 +575,7 @@ def plot_ld_decay_by_separation(cor, sep,
     return ax
 
 
-def plot_ld_decay_by_distance(cor, dist, bins,
+def ld_decay_by_distance_plot(cor, dist, bins,
                               percentiles=(5, 95),
                               ax=None,
                               median_plot_kwargs=dict(),

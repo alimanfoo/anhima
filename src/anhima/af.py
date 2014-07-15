@@ -59,6 +59,39 @@ def is_variant(genotypes, min_ac=1):
     return out
 
 
+def count_variant(genotypes, min_ac=1):
+    """Count variants with at least `min_ac` non-reference alleles.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    min_ac : int, optional
+        The minimum number of non-reference alleles required to consider
+        variant.
+
+    Returns
+    -------
+
+    n : int
+        The number of variants.
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants.
+
+    """
+
+    return np.count_nonzero(is_variant(genotypes, min_ac))
+
+
 def is_non_variant(genotypes):
     """Find variants with no non-reference alleles.
 
@@ -94,6 +127,36 @@ def is_non_variant(genotypes):
     out = np.all(a <= 0, axis=1)
 
     return out
+
+
+def count_non_variant(genotypes):
+    """Count variants with no non-reference alleles.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    Returns
+    -------
+
+    n : int
+        The number of variants.
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants.
+
+    """
+
+    return np.count_nonzero(is_non_variant(genotypes))
 
 
 def is_non_segregating(genotypes, allele=1):
@@ -138,6 +201,40 @@ def is_non_segregating(genotypes, allele=1):
     return out
 
 
+def count_non_segregating(genotypes, allele=1):
+    """Count non-segregating variants for the given allele.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    allele : int, optional
+        The allele to test for fixation.
+
+    Returns
+    -------
+
+    n : int
+        The number of variants.
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants, although note that this function
+    tests for variants non-segregating with respect to the given `allele`,
+    it does not find non-segregating variants in general.
+
+    """
+
+    return np.count_nonzero(is_non_segregating(genotypes, allele))
+
+
 def is_singleton(genotypes, allele=1):
     """Find variants with only a single instance of `allele` called.
 
@@ -178,6 +275,39 @@ def is_singleton(genotypes, allele=1):
     return out
 
 
+def count_singletons(genotypes, allele=1):
+    """Count variants with only a single instance of `allele` called.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    allele : int, optional
+        The allele to find singletons of.
+
+    Returns
+    -------
+
+    n : int
+        The number of variants.
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants, but note this function checks for a
+    specific `allele`.
+
+    """
+
+    return np.count_nonzero(is_singleton(genotypes, allele))
+
+
 def is_doubleton(genotypes, allele=1):
     """Find variants with only two instances of `allele` called.
 
@@ -216,6 +346,39 @@ def is_doubleton(genotypes, allele=1):
     out = np.sum(a == allele, axis=1) == 2
 
     return out
+
+
+def count_doubletons(genotypes, allele=1):
+    """Count variants with only two instances of `allele` called.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    allele : int, optional
+        The allele to find doubletons of.
+
+    Returns
+    -------
+
+    n : int
+        The number of variants.
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants, but note this function checks for a
+    specific `allele`.
+
+    """
+
+    return np.count_nonzero(is_doubleton(genotypes, allele))
 
 
 def allele_number(genotypes):

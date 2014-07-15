@@ -1,5 +1,5 @@
 """
-Utilities for extracting data on samples or variants.
+Utilities for locating samples, variants and genome positions.
 
 """
 
@@ -18,6 +18,7 @@ import bisect
 import numpy as np
 import numexpr
 import matplotlib.pyplot as plt
+import scipy.stats
 
 
 def take_samples(a, all_samples, selected_samples):
@@ -230,8 +231,8 @@ def take_region(a, pos, start_position, stop_position):
     return a[loc, ...]
 
 
-def plot_variant_locator(pos, step=1, ax=None, xlim=None,
-                         flip=False, line_args=dict()):
+def variant_locator_plot(pos, step=1, ax=None, start_position=None,
+                         stop_position=None, flip=False, line_args=None):
     """
     Plot lines indicating the physical genome location of variants. By
     default the top x axis is in variant index space, and the bottom x axis
@@ -248,8 +249,10 @@ def plot_variant_locator(pos, step=1, ax=None, xlim=None,
     ax : axes, optional
         The axes on which to draw. If not provided, a new figure will be
         created.
-    xlim : pair of ints, optional
-        Limits for the x axis (in genome position space).
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
     flip : bool, optional
         Flip the plot upside down.
     line_args : dict-like
@@ -269,18 +272,23 @@ def plot_variant_locator(pos, step=1, ax=None, xlim=None,
         ax = fig.add_subplot(111)
 
     # determine x axis limits
-    if xlim is None:
-        xlim = np.min(pos), np.max(pos)
-    start, stop = xlim
-    ax.set_xlim(start, stop)
+    if start_position is None:
+        start_position = np.min(pos)
+    if stop_position is None:
+        stop_position = np.max(pos)
+    ax.set_xlim(start_position, stop_position)
 
     # plot the lines
-    line_args.setdefault('color', 'k')
+    if line_args is None:
+        line_args = dict()
     line_args.setdefault('linewidth', .5)
     n_variants = len(pos)
     for i, p in enumerate(pos[::step]):
         xfrom = p
-        xto = start + ((i * step / n_variants) * (stop-start))
+        xto = (
+            start_position +
+            ((i * step / n_variants) * (stop_position-start_position))
+        )
         l = plt.Line2D([xfrom, xto], [0, 1], **line_args)
         ax.add_line(l)
 
@@ -297,4 +305,279 @@ def plot_variant_locator(pos, step=1, ax=None, xlim=None,
         ax.spines[l].set_visible(False)
 
     return ax
+
+
+def windowed_variant_counts(pos, window_size, start_position=None,
+                            stop_position=None):
+    """Count variants in non-overlapping windows over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+
+    Returns
+    -------
+
+    counts : ndarray, int
+        The number of variants in each window.
+    bin_centers: ndarray, float
+        The central position of each window.
+
+    See Also
+    --------
+
+    windowed_variant_counts_plot, windowed_variant_density
+
+    """
+
+    # determine bins
+    if stop_position is None:
+        stop_position = np.max(pos)
+    if start_position is None:
+        start_position = np.min(pos)
+    bin_edges = np.arange(start_position, stop_position, window_size)
+
+    # make a histogram of positions
+    counts, _ = np.histogram(pos, bins=bin_edges)
+
+    # calculate bin centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    return counts, bin_centers
+
+
+def windowed_variant_counts_plot(pos, window_size, start_position=None,
+                                 stop_position=None,
+                                 ax=None, plot_kwargs=None):
+    """Plot windowed variant counts.
+
+    Parameters
+    ----------
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    plot_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.plot`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    See Also
+    --------
+
+    windowed_variant_counts, windowed_variant_density_plot
+
+    """
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 2))
+        ax = fig.add_subplot(111)
+
+    # count variants
+    y, x = windowed_variant_counts(pos, window_size,
+                                   start_position=start_position,
+                                   stop_position=stop_position)
+
+    # plot data
+    if plot_kwargs is None:
+        plot_kwargs = dict()
+    plot_kwargs.setdefault('linestyle', '-')
+    plot_kwargs.setdefault('marker', None)
+    ax.plot(x, y, **plot_kwargs)
+
+    # tidy up
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel('position')
+    ax.set_ylabel('count')
+    if start_position is None:
+        start_position = np.min(pos)
+    if stop_position is None:
+        stop_position = np.max(pos)
+    ax.set_xlim(start_position, stop_position)
+
+    return ax
+
+
+def windowed_variant_density(pos, window_size, start_position=None,
+                             stop_position=None):
+    """Calculate per-base-pair density of variants in non-overlapping windows
+    over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+
+    Returns
+    -------
+
+    density : ndarray, int
+        The density of variants in each window.
+    bin_centers: ndarray, float
+        The central position of each window.
+
+    See Also
+    --------
+
+    windowed_variant_density_plot, windowed_variant_counts
+
+    """
+
+    # count variants in windows
+    counts, bin_centers = windowed_variant_counts(pos, window_size,
+                                                  start_position=start_position,
+                                                  stop_position=stop_position)
+
+    # convert to per-base-pair density
+    density = counts / window_size
+
+    return density, bin_centers
+
+
+def windowed_variant_density_plot(pos, window_size, start_position=None,
+                                  stop_position=None,
+                                  ax=None, plot_kwargs=None):
+    """Plot windowed variant density.
+
+    Parameters
+    ----------
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    plot_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.plot`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    See Also
+    --------
+
+    windowed_variant_density, windowed_variant_counts_plot
+
+    """
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 2))
+        ax = fig.add_subplot(111)
+
+    # count variants
+    y, x = windowed_variant_density(pos, window_size,
+                                    start_position=start_position,
+                                    stop_position=stop_position)
+
+    # plot data
+    if plot_kwargs is None:
+        plot_kwargs = dict()
+    plot_kwargs.setdefault('linestyle', '-')
+    plot_kwargs.setdefault('marker', None)
+    ax.plot(x, y, **plot_kwargs)
+
+    # tidy up
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel('position')
+    ax.set_ylabel('density')
+    if start_position is None:
+        start_position = np.min(pos)
+    if stop_position is None:
+        stop_position = np.max(pos)
+    ax.set_xlim(start_position, stop_position)
+
+    return ax
+
+
+def windowed_statistic(pos, values, window_size,
+                       start_position=None,
+                       stop_position=None,
+                       statistic='mean'):
+    """Calculate a statistic for `values` binned in non-overlapping windows
+    over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    values : array_like
+        A 1-D array of the same length as `pos`.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+    statistic : string or function
+        The function to apply to values in each bin.
+
+    """
+
+    # determine bins
+    if stop_position is None:
+        stop_position = np.max(pos)
+    if start_position is None:
+        start_position = np.min(pos)
+    bin_edges = np.arange(start_position, stop_position, window_size)
+
+    # compute binned statistic
+    stats, _, _ = scipy.stats.binned_statistic(pos, values=values,
+                                               statistic=statistic,
+                                               bins=bin_edges)
+
+    # calculate bin centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    return stats, bin_centers
+
 

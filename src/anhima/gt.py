@@ -10,9 +10,71 @@ from __future__ import division, print_function, unicode_literals
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 
+# standard library dependencies
+import random
+
+
 # third party dependencies
 import numpy as np
+import matplotlib.pyplot as plt
 import scipy.stats
+
+
+# internal dependencies
+import anhima.loc
+
+
+def simulate_biallelic_genotypes(n_variants, n_samples, af_dist,
+                                 missingness=.1,
+                                 ploidy=2):
+    """Simulate genotypes at biallelic variants for a population in
+    Hardy-Weinberg equilibrium
+
+    Parameters
+    ----------
+
+    n_variants : int
+        The number of variants.
+    n_samples : int
+        The number of samples.
+    af_dist : frozen continuous random variable
+        The distribution of allele frequencies.
+    missingness : float, optional
+        The fraction of missing genotype calls.
+    ploidy : int, optional
+        The sample ploidy.
+
+    Returns
+    -------
+
+    genotypes : ndarray, int8
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = alternate allele).
+
+    """
+
+    # initialise output array
+    genotypes = np.empty((n_variants, n_samples, ploidy), dtype='i1')
+
+    # generate allele frequencies under the given distribution
+    af = af_dist.rvs(n_variants)
+
+    # iterate over variants
+    for i, p in zip(range(n_variants), af):
+
+        # randomly generate alleles under the given allele frequency
+        alleles = scipy.stats.bernoulli.rvs(p, size=n_samples*ploidy)
+
+        # reshape alleles as genotypes under the given ploidy
+        genotypes[i] = alleles.reshape(n_samples, ploidy)
+
+        # simulate some missingness
+        missing_indices = random.sample(range(n_samples),
+                                        int(missingness*n_samples))
+        genotypes[i, missing_indices] = (-1,) * ploidy
+
+    return genotypes
 
 
 def is_called(genotypes):
@@ -530,7 +592,7 @@ def as_diploid_012(genotypes, fill=-1):
     -------
 
     gn : ndarray, int8
-        An array  where each genotype is coded as a single integer as
+        An array where each genotype is coded as a single integer as
         described above.
 
     See Also
@@ -571,22 +633,22 @@ def as_diploid_012(genotypes, fill=-1):
     return gn
 
 
-def missing_density(genotypes, pos, window_size, start_position=None,
-                    stop_position=None):
-    """Compute the per-base-pair density of missing genotype calls within
-    genome windows, for a single sample.
+def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
+                             stop_position=None):
+    """Count genotype calls of a given type for a single sample in
+    non-overlapping windows over the genome.
 
     Parameters
     ----------
 
-    genotypes : array_like
-        An array of shape (`n_variants`, `ploidy`) where each element of the
-        array is an integer corresponding to an allele index (-1 = missing,
-        0 = reference allele, 1 = first alternate allele, 2 = second
-        alternate allele, etc.).
     pos : array_like
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
+    gn : array_like
+        A 1-D array of genotypes for a single sample, where each genotype is
+        coded as a single integer.
+    t : int
+        The genotype to count.
     window_size : int
         The size in base-pairs of the windows.
     start_position : int, optional
@@ -597,45 +659,272 @@ def missing_density(genotypes, pos, window_size, start_position=None,
     Returns
     -------
 
-    density : array, float
-        The per-base-pair density of genotype calls within each window.
-    counts : array, int
-        The counts of genotype calls within each window.
-    bin_edges : array, int
-        The bin edges defining the windows used.
-    binnumber : array, int
-        This assigns to each observation an integer that represents the bin
-        in which this observation falls.
+    counts : ndarray, int
+        Genotype counts for each window.
+    bin_centers : ndarray, float
+        The central position of each window.
+
+    See Also
+    --------
+
+    as_diploid_012, as_n_alt, windowed_genotype_density, windowed_genotype_rate
 
     """
 
     # check input array
-    assert genotypes.ndim == 2
-
-    # determine bins
-    if stop_position is None:
-        stop_position = np.max(pos)
-    if start_position is None:
-        start_position = np.min(pos)
-    bin_edges = np.arange(start_position, stop_position, window_size)
+    assert gn.ndim == 1
 
     # find matching genotypes
-    values = is_missing(genotypes)
+    values = gn == t
 
     # computed binned statistic
-    counts, bin_edges, binnumber = scipy.stats.binned_statistic(
-        pos, values, statistic=np.sum, bins=bin_edges
+    counts, bin_centers = anhima.loc.windowed_statistic(
+        pos, values=values, statistic=b'sum', window_size=window_size,
+        start_position=start_position, stop_position=stop_position
     )
+
+    return counts, bin_centers
+
+
+def windowed_genotype_density(pos, gn, t, window_size, start_position=None,
+                              stop_position=None):
+    """As :func:`windowed_genotype_counts` but returns per-base-pair density
+    instead of counts.
+
+    """
+
+    counts, bin_centers = windowed_genotype_counts(pos, gn, t,
+                                                   window_size=window_size,
+                                                   start_position=start_position,
+                                                   stop_position=stop_position)
     density = counts / window_size
-
-    return density, counts, bin_edges, binnumber
-
-
-# TODO other genotype densities
+    return density, bin_centers
 
 
-# TODO plot genotype densities
+def windowed_genotype_rate(pos, gn, t, window_size, start_position=None,
+                           stop_position=None):
+    """As :func:`windowed_genotype_counts` but returns the per-variant rate
+    instead of counts."""
+
+    variant_counts, _ = anhima.loc.windowed_variant_counts(
+        pos, window_size, start_position=start_position,
+        stop_position=stop_position
+    )
+    counts, bin_centers = windowed_genotype_counts(
+        pos, gn, t, window_size=window_size, start_position=start_position,
+        stop_position=stop_position
+    )
+    rate = counts / variant_counts
+    return rate, bin_centers
 
 
+def windowed_genotype_counts_plot(pos, gn, t, window_size, start_position=None,
+                                  stop_position=None, ax=None,
+                                  plot_kwargs=None):
+    """Plots counts of genotype calls of a given type for a single sample in
+    non-overlapping windows over the genome.
 
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    gn : array_like
+        A 1-D array of genotypes for a single sample, where each genotype is
+        coded as a single integer.
+    t : int
+        The genotype to count.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    plot_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.plot`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 2))
+        ax = fig.add_subplot(111)
+
+    # count genotypes
+    y, x = windowed_genotype_counts(pos, gn, t, window_size,
+                                    start_position=start_position,
+                                    stop_position=stop_position)
+
+    # plot data
+    if plot_kwargs is None:
+        plot_kwargs = dict()
+    plot_kwargs.setdefault('linestyle', '-')
+    plot_kwargs.setdefault('marker', None)
+    ax.plot(x, y, label=t, **plot_kwargs)
+
+    # tidy up
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel('position')
+    ax.set_ylabel('counts')
+    if start_position is None:
+        start_position = np.min(pos)
+    if stop_position is None:
+        stop_position = np.max(pos)
+    ax.set_xlim(start_position, stop_position)
+
+    return ax
+
+
+def windowed_genotype_density_plot(pos, gn, t, window_size,
+                                   start_position=None,
+                                   stop_position=None, ax=None,
+                                   plot_kwargs=None):
+    """Plots per-base-pair density of genotype calls of a given type for a
+    single sample in non-overlapping windows over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    gn : array_like
+        A 1-D array of genotypes for a single sample, where each genotype is
+        coded as a single integer.
+    t : int
+        The genotype to count.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    plot_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.plot`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 2))
+        ax = fig.add_subplot(111)
+
+    # count genotypes
+    y, x = windowed_genotype_density(pos, gn, t, window_size,
+                                     start_position=start_position,
+                                     stop_position=stop_position)
+
+    # plot data
+    if plot_kwargs is None:
+        plot_kwargs = dict()
+    plot_kwargs.setdefault('linestyle', '-')
+    plot_kwargs.setdefault('marker', None)
+    ax.plot(x, y, label=t, **plot_kwargs)
+
+    # tidy up
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel('position')
+    ax.set_ylabel('density')
+    if start_position is None:
+        start_position = np.min(pos)
+    if stop_position is None:
+        stop_position = np.max(pos)
+    ax.set_xlim(start_position, stop_position)
+
+    return ax
+
+
+def windowed_genotype_rate_plot(pos, gn, t, window_size,
+                                start_position=None,
+                                stop_position=None, ax=None,
+                                plot_kwargs=None):
+    """Plots per-variant rate of genotype calls of a given type for a
+    single sample in non-overlapping windows over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    gn : array_like
+        A 1-D array of genotypes for a single sample, where each genotype is
+        coded as a single integer.
+    t : int
+        The genotype to count.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    plot_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.plot`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 2))
+        ax = fig.add_subplot(111)
+
+    # count genotypes
+    y, x = windowed_genotype_rate(pos, gn, t, window_size,
+                                  start_position=start_position,
+                                  stop_position=stop_position)
+
+    # plot data
+    if plot_kwargs is None:
+        plot_kwargs = dict()
+    plot_kwargs.setdefault('linestyle', '-')
+    plot_kwargs.setdefault('marker', None)
+    ax.plot(x, y, label=t, **plot_kwargs)
+
+    # tidy up
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel('position')
+    ax.set_ylabel('per variant rate')
+    if start_position is None:
+        start_position = np.min(pos)
+    if stop_position is None:
+        stop_position = np.max(pos)
+    ax.set_xlim(start_position, stop_position)
+
+    return ax
+
+
+# TODO plot genotype counts by sample
+
+
+# TODO plot genotypes (colormesh)
+# plot_discrete_calldata
+# plot_continuous_calldata
 
