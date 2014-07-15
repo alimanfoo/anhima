@@ -21,6 +21,14 @@ purposes beyond the limited set of functionalities supported here.
 - Documentation: http://anhima.readthedocs.org
 - Examples: http://nbviewer.ipython.org/github/alimanfoo/anhima/tree/master/examples/
 
+**Installation**
+
+```
+git clone https://github.com/alimanfoo/anhima.git
+cd anhima
+python setup.py install
+```
+
 **Contents**
 
 .. toctree::
