@@ -30,6 +30,7 @@ purposes beyond the limited set of functionalities supported here.
     gt
     af
     ld
+    pdist
     pca
 
 **Indices and tables**
