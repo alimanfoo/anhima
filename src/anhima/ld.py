@@ -88,7 +88,7 @@ def pairwise_genotype_ld(gn):
     Parameters
     ----------
     
-    gn : ndarray, int8
+    gn : array_like
         A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
@@ -167,7 +167,7 @@ def windowed_ld_plot(gn, pos, window_size, start_position=None,
     Parameters
     ----------
 
-    gn : ndarray, int8
+    gn : array_like
         A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
@@ -277,7 +277,7 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
     Parameters
     ----------
     
-    gn : ndarray, int8
+    gn : array_like
         A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
@@ -415,7 +415,7 @@ def windowed_ld_decay(gn, pos, window_size, step=1):
     Parameters
     ----------
 
-    gn : ndarray, int8
+    gn : array_like
         A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
