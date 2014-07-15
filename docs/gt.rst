@@ -24,9 +24,17 @@ See also the examples at:
 .. autofunction:: as_alleles
 .. autofunction:: as_n_alt
 .. autofunction:: as_diploid_012
+.. autofunction:: count_genotypes
 .. autofunction:: windowed_genotype_counts
 .. autofunction:: windowed_genotype_density
 .. autofunction:: windowed_genotype_rate
-.. autofunction:: windowed_genotype_counts_plot
-.. autofunction:: windowed_genotype_density_plot
-.. autofunction:: windowed_genotype_rate_plot
+.. autofunction:: plot_windowed_genotype_counts
+.. autofunction:: plot_windowed_genotype_density
+.. autofunction:: plot_windowed_genotype_rate
+.. autofunction:: plot_discrete_calldata
+.. autofunction:: plot_continuous_calldata
+.. autofunction:: plot_diploid_genotypes
+.. autofunction:: plot_genotype_counts_by_sample
+.. autofunction:: plot_genotype_counts_by_variant
+.. autofunction:: plot_continuous_calldata_by_sample
+

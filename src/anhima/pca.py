@@ -71,7 +71,7 @@ def pca(gn, n_components=None, whiten=False):
     return model, trans
 
 
-def components_plot(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
+def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
                     labels=None, scatter_kwargs=None, annotate_kwargs=None):
     """Scatter plot of principal components.
 

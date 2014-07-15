@@ -12,11 +12,11 @@ See also the examples at:
 
 .. autofunction:: simulate_genotypes_with_ld
 .. autofunction:: pairwise_genotype_ld
-.. autofunction:: pairwise_ld_plot
-.. autofunction:: windowed_ld_plot
+.. autofunction:: plot_pairwise_ld
+.. autofunction:: plot_windowed_ld
 .. autofunction:: pairwise_ld_decay
 .. autofunction:: windowed_ld_decay
-.. autofunction:: ld_decay_by_separation_plot
-.. autofunction:: ld_decay_by_distance_plot
+.. autofunction:: plot_ld_decay_by_separation
+.. autofunction:: plot_ld_decay_by_distance
 .. autofunction:: ld_prune_pairwise
 

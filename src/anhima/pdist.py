@@ -16,7 +16,27 @@ import matplotlib.pyplot as plt
 
 
 def pairwise_distance(gn, metric='euclidean'):
-    """TODO
+    """Compute pairwise distance between samples.
+
+    Parameters
+    ----------
+
+    gn : array_like
+        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        element is a genotype call coded as a single integer counting the
+        number of non-reference alleles.
+    metric : string or function, optional
+        The distance metric to use. See documentation for the function
+        ``scipy.spatial.distance.pdist`` for a list of supported distance
+        metrics.
+
+    Returns
+    -------
+
+    dist : ndarray, float
+        The distance matrix in compact form.
+    dist_square : ndarray, float
+        The distance matrix in square form.
 
     """
 
@@ -34,14 +54,41 @@ def pairwise_distance(gn, metric='euclidean'):
     # convert to square form for easy plotting
     dist_square = scipy.spatial.distance.squareform(dist)
 
-    return dist_square
+    return dist, dist_square
 
 
-def pairwise_distance_plot(dist_square, metric='euclidean', labels=None,
+def plot_pairwise_distance(dist_square, labels=None,
                            colorbar=True, ax=None,
                            vmin=None, vmax=None, cmap='jet',
                            imshow_kwargs=None):
-    """TODO
+    """Plot pairwise distances.
+
+    Parameters
+    ----------
+
+    dist_square : ndarray, float
+        The distance matrix in square form.
+    labels : sequence of strings, optional
+        Sample labels for the axes.
+    colorbar : bool, optional
+        If True, add a colorbar to the current figure.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    vmin : float, optional
+        The minimum distance value for normalisation.
+    vmax : float, optional
+        The maximum distance value for normalisation.
+    cmap : string, optional
+        The color map for the image.
+    imshow_kwargs : dict-like, optional
+        Additional keyword arguments passed through to `plt.imshow`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn
 
     """
 
@@ -69,3 +116,7 @@ def pairwise_distance_plot(dist_square, metric='euclidean', labels=None,
     if colorbar:
         plt.gcf().colorbar(im)
 
+    return ax
+
+
+# TODO add color option to distance plot instead of labels

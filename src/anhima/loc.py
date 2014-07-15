@@ -231,7 +231,7 @@ def take_region(a, pos, start_position, stop_position):
     return a[loc, ...]
 
 
-def variant_locator_plot(pos, step=1, ax=None, start_position=None,
+def plot_variant_locator(pos, step=1, ax=None, start_position=None,
                          stop_position=None, flip=False, line_args=None):
     """
     Plot lines indicating the physical genome location of variants. By
@@ -355,7 +355,7 @@ def windowed_variant_counts(pos, window_size, start_position=None,
     return counts, bin_centers
 
 
-def windowed_variant_counts_plot(pos, window_size, start_position=None,
+def plot_windowed_variant_counts(pos, window_size, start_position=None,
                                  stop_position=None,
                                  ax=None, plot_kwargs=None):
     """Plot windowed variant counts.
@@ -468,7 +468,7 @@ def windowed_variant_density(pos, window_size, start_position=None,
     return density, bin_centers
 
 
-def windowed_variant_density_plot(pos, window_size, start_position=None,
+def plot_windowed_variant_density(pos, window_size, start_position=None,
                                   stop_position=None,
                                   ax=None, plot_kwargs=None):
     """Plot windowed variant density.

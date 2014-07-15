@@ -32,6 +32,7 @@ purposes beyond the limited set of functionalities supported here.
     ld
     pdist
     pca
+    h5
 
 **Indices and tables**
 

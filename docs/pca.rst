@@ -7,7 +7,7 @@ Principal components analysis
 Utility functions for running principal components analysis.
 
 .. autofunction:: pca
-.. autofunction:: components_plot
+.. autofunction:: plot_components
 
 
 

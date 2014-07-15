@@ -17,6 +17,7 @@ import random
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import scipy.stats
 
 
@@ -151,7 +152,15 @@ def count_called(genotypes, axis=None):
 
     """
 
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count genotypes
     n = np.sum(is_called(genotypes), axis=axis)
+
     return n
 
 
@@ -228,7 +237,15 @@ def count_missing(genotypes, axis=None):
 
     """
 
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count genotypes
     n = np.sum(is_missing(genotypes), axis=axis)
+
     return n
 
 
@@ -306,7 +323,15 @@ def count_hom_ref(genotypes, axis=None):
 
     """
 
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count genotypes
     n = np.sum(is_hom_ref(genotypes), axis=axis)
+
     return n
 
 
@@ -390,7 +415,15 @@ def count_het_diploid(genotypes, axis=None):
 
     """
 
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count genotypes
     n = np.sum(is_het_diploid(genotypes), axis=axis)
+
     return n
 
 
@@ -476,7 +509,15 @@ def count_hom_alt_diploid(genotypes, axis=None):
 
     """
 
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count genotypes
     n = np.sum(is_hom_alt_diploid(genotypes), axis=axis)
+
     return n
 
 
@@ -633,6 +674,40 @@ def as_diploid_012(genotypes, fill=-1):
     return gn
 
 
+def count_genotypes(gn, t, axis=None):
+    """Count genotypes of a given type.
+
+    Parameters
+    ----------
+
+    gn : array_like
+        An array of shape (`n_variants`, `n_samples`) or (`n_variants`,) or
+        (`n_samples`,) where each element is a genotype called coded as a
+        single integer..
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the total number of matching genotypes. If
+        `axis` is specified, returns the sum along the given `axis`.
+
+    """
+
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count genotypes
+    n = np.sum(gn == t, axis=axis)
+
+    return n
+
+
 def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
                              stop_position=None):
     """Count genotype calls of a given type for a single sample in
@@ -718,7 +793,7 @@ def windowed_genotype_rate(pos, gn, t, window_size, start_position=None,
     return rate, bin_centers
 
 
-def windowed_genotype_counts_plot(pos, gn, t, window_size, start_position=None,
+def plot_windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
                                   stop_position=None, ax=None,
                                   plot_kwargs=None):
     """Plots counts of genotype calls of a given type for a single sample in
@@ -785,7 +860,7 @@ def windowed_genotype_counts_plot(pos, gn, t, window_size, start_position=None,
     return ax
 
 
-def windowed_genotype_density_plot(pos, gn, t, window_size,
+def plot_windowed_genotype_density(pos, gn, t, window_size,
                                    start_position=None,
                                    stop_position=None, ax=None,
                                    plot_kwargs=None):
@@ -853,7 +928,7 @@ def windowed_genotype_density_plot(pos, gn, t, window_size,
     return ax
 
 
-def windowed_genotype_rate_plot(pos, gn, t, window_size,
+def plot_windowed_genotype_rate(pos, gn, t, window_size,
                                 start_position=None,
                                 stop_position=None, ax=None,
                                 plot_kwargs=None):
@@ -921,10 +996,400 @@ def windowed_genotype_rate_plot(pos, gn, t, window_size,
     return ax
 
 
-# TODO plot genotype counts by sample
+def plot_discrete_calldata(a, labels=None, colors='wbgrcmyk', states=None,
+                           ax=None, pcolormesh_kwargs=None):
+    """
+    Plot a color grid from discrete calldata (e.g., genotypes).
+
+    Parameters
+    ----------
+
+    a : array_like, int, shape (`n_variants`, `n_samples`)
+        2-dimensional array of integers containing the call data to plot.
+    labels : sequence of strings, optional
+        Axis labels (e.g., sample IDs).
+    colors : sequence, optional
+        Colors to use for different values of the array.
+    states : sequence, optional
+        Manually specify discrete calldata states (if not given will be
+        determined from the data).
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    pcolormesh_kwargs : dict-like, optional
+        Additional keyword arguments passed through to `plt.pcolormesh`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # check input array
+    assert a.ndim == 2
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 5))
+        ax = fig.add_subplot(111)
+
+    # determine discrete states
+    if states is None:
+        states = np.unique(a)
+
+    # determine colors for states
+    colors = colors[:np.max(states)-np.min(states)+1]
+
+    # plotting defaults
+    if pcolormesh_kwargs is None:
+        pcolormesh_kwargs = dict()
+    pcolormesh_kwargs.setdefault('cmap', mpl.colors.ListedColormap(colors))
+    pcolormesh_kwargs.setdefault(
+        'norm', plt.Normalize(np.min(states), np.max(states)+1)
+    )
+
+    # plot the colormesh
+    ax.pcolormesh(a.T, **pcolormesh_kwargs)
+
+    # tidy up
+    ax.set_xlim(0, a.shape[0])
+    ax.set_ylim(0, a.shape[1])
+    ax.set_xticks([])
+    if labels is not None:
+        ax.set_yticks(np.arange(a.shape[1]) + .5)
+        ax.set_yticklabels(labels, rotation=0)
+    else:
+        ax.set_yticks([])
+
+    return ax
 
 
-# TODO plot genotypes (colormesh)
-# plot_discrete_calldata
-# plot_continuous_calldata
+def plot_continuous_calldata(a, labels=None, ax=None, pcolormesh_kwargs=None):
+    """
+    Plot a color grid from continuous calldata (e.g., DP).
 
+    Parameters
+    ----------
+
+    a : array_like, shape (`n_variants`, `n_samples`)
+        2-dimensional array of integers or floats containing the call data to
+        plot.
+    labels : sequence of strings, optional
+        Axis labels (e.g., sample IDs).
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    pcolormesh_kwargs : dict-like, optional
+        Additional keyword arguments passed through to `plt.pcolormesh`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # check input array
+    assert a.ndim == 2
+
+    # set up axes
+    if ax is None:
+        fig = plt.figure(figsize=(7, 5))
+        ax = fig.add_subplot(111)
+
+    # plotting defaults
+    if pcolormesh_kwargs is None:
+        pcolormesh_kwargs = dict()
+    pcolormesh_kwargs.setdefault('cmap', 'jet')
+
+    # plot the color mesh
+    ax.pcolormesh(a.T, **pcolormesh_kwargs)
+
+    # tidy up
+    ax.set_xlim(0, a.shape[0])
+    ax.set_ylim(0, a.shape[1])
+    ax.set_xticks([])
+    if labels is not None:
+        ax.set_yticks(np.arange(a.shape[1]) + .5)
+        ax.set_yticklabels(labels, rotation=0)
+    else:
+        ax.set_yticks([])
+
+    return ax
+
+
+def plot_diploid_genotypes(gn,
+                           labels=None,
+                           colors='wbgr',
+                           states=(-1, 0, 1, 2),
+                           ax=None,
+                           colormesh_kwargs=None):
+    """Plot diploid genotypes as a color grid.
+
+    Parameters
+    ----------
+
+    gn : array_like, int, shape (`n_variants`, `n_samples`)
+        An array where each genotype is coded as a single integer as
+        described above.
+    labels : sequence of strings, optional
+        Axis labels (e.g., sample IDs).
+    colors : sequence, optional
+        Colors to use for different values of the array.
+    states : sequence, optional
+        Manually specify discrete calldata states (if not given will be
+        determined from the data).
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    colormesh_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.pcolormesh`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    return plot_discrete_calldata(gn, labels=labels, colors=colors,
+                                  states=states, ax=ax,
+                                  pcolormesh_kwargs=colormesh_kwargs)
+
+
+def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
+                                   colors='wbgr', labels=None,
+                                   ax=None, width=1, orientation='vertical',
+                                   bar_kwargs=None):
+    """Plot a bar graph of genotype counts by sample.
+
+    Parameters
+    ----------
+
+    gn : array_like, int, shape (`n_variants`, `n_samples`)
+        An array where each genotype is coded as a single integer as
+        described above.
+    states : sequence, optional
+        The genotype states to count.
+    colors : sequence, optional
+        Colors to use for corresponding states.
+    labels : sequence of strings, optional
+        Axis labels (e.g., sample IDs).
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    width : float, optional
+        Width of the bars (will be used as height if `orientation` ==
+        'horizontal').
+    orientation : {'horizontal', 'vertical'}
+        Which type of bar to plot.
+    bar_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.bar`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # check input array
+    assert gn.ndim == 2
+
+    # check orientation
+    assert orientation in ('vertical', 'horizontal')
+
+    # set up axes
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # determine bar positions
+    n_samples = gn.shape[1]
+    x = np.arange(n_samples)
+
+    # plot bars for each type
+    if bar_kwargs is None:
+        bar_kwargs = dict()
+    bar_kwargs.setdefault('linewidth', 0)
+    yc = None
+    for t, c in zip(states, colors):
+
+        # count genotypes
+        y = count_genotypes(gn, t, axis='variants')
+
+        # plot as bar
+        if orientation == 'vertical':
+            ax.bar(x, y, width=width, bottom=yc, color=c, label=t, **bar_kwargs)
+        else:
+            ax.barh(x, y, height=width, left=yc, color=c, label=t, **bar_kwargs)
+
+        # keep cumulative count
+        if yc is None:
+            yc = y
+        else:
+            yc += y
+
+    # tidy up
+    if labels:
+        if orientation == 'vertical':
+            ax.set_xticks(range(n_samples))
+            ax.set_xticklabels(labels)
+        else:
+            ax.set_yticks(range(n_samples))
+            ax.set_yticklabels(labels)
+    else:
+        if orientation == 'vertical':
+            ax.set_xticks([])
+        else:
+            ax.set_yticks([])
+
+    return ax
+
+
+def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
+                                    colors='wbgr', ax=None, width=1,
+                                    orientation='vertical',
+                                    bar_kwargs=None):
+    """Plot a bar graph of genotype counts by variant.
+
+    Parameters
+    ----------
+
+    gn : array_like, int, shape (`n_variants`, `n_samples`)
+        An array where each genotype is coded as a single integer as
+        described above.
+    states : sequence, optional
+        The genotype states to count.
+    colors : sequence, optional
+        Colors to use for corresponding states.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    width : float, optional
+        Width of the bars (will be used as height if `orientation` ==
+        'horizontal').
+    orientation : {'horizontal', 'vertical'}
+        Which type of bar to plot.
+    bar_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.bar`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # check input array
+    assert gn.ndim == 2
+
+    # check orientation
+    assert orientation in ('vertical', 'horizontal')
+
+    # set up axes
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # determine bar positions
+    n_variants = gn.shape[0]
+    x = np.arange(n_variants)
+
+    # plot bars for each type
+    if bar_kwargs is None:
+        bar_kwargs = dict()
+    bar_kwargs.setdefault('linewidth', 0)
+    yc = None
+    for t, c in zip(states, colors):
+
+        # count genotypes
+        y = count_genotypes(gn, t, axis='samples')
+
+        # plot as bar
+        if orientation == 'vertical':
+            ax.bar(x, y, width=width, bottom=yc, color=c, label=t, **bar_kwargs)
+        else:
+            ax.barh(x, y, height=width, left=yc, color=c, label=t, **bar_kwargs)
+
+        # keep cumulative count
+        if yc is None:
+            yc = y
+        else:
+            yc += y
+
+    # tidy up
+    if orientation == 'vertical':
+        ax.set_xticks([])
+    else:
+        ax.set_yticks([])
+
+    return ax
+
+
+def plot_continuous_calldata_by_sample(a, labels=None,
+                                       ax=None,
+                                       orientation='vertical',
+                                       boxplot_kwargs=None):
+    """Plot a boxplot of continuous call data (e.g., DP) by sample.
+
+    Parameters
+    ----------
+
+    a : array_like, shape (`n_variants`, `n_samples`)
+        2-dimensional array of integers or floats containing the call data to
+        plot.
+    labels : sequence of strings, optional
+        Axis labels (e.g., sample IDs).
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    orientation : {'horizontal', 'vertical'}
+        Which type of bar to plot.
+    boxplot_kwargs : dict-like
+        Additional keyword arguments passed through to `plt.boxplot`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # check input array
+    assert a.ndim == 2
+
+    # check orientation
+    assert orientation in ('vertical', 'horizontal')
+    vert = orientation == 'vertical'
+
+    # set up axes
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # plot
+    if boxplot_kwargs is None:
+        boxplot_kwargs = dict()
+    ax.boxplot(a, vert=vert, **boxplot_kwargs)
+
+    # tidy up
+    n_samples = a.shape[1]
+    if labels:
+        if orientation == 'vertical':
+            ax.set_xticks(range(n_samples))
+            ax.set_xticklabels(labels)
+        else:
+            ax.set_yticks(range(n_samples))
+            ax.set_yticklabels(labels)
+    else:
+        if orientation == 'vertical':
+            ax.set_xticks([])
+        else:
+            ax.set_yticks([])
+
+    return ax

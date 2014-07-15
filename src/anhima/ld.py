@@ -106,7 +106,7 @@ def pairwise_genotype_ld(gn):
     return np.power(np.corrcoef(gn), 2)
 
 
-def pairwise_ld_plot(r_squared, cmap='Greys', flip=True, ax=None):
+def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
     """Make a classic triangular linkage disequilibrium plot, given an
     array of pairwise correlation coefficients between variants.
     
@@ -135,7 +135,7 @@ def pairwise_ld_plot(r_squared, cmap='Greys', flip=True, ax=None):
 
     # setup axes
     if ax is None:
-        fig = plt.figure(figsize=(12, 6))
+        fig = plt.figure(figsize=(10, 5))
         ax = fig.add_axes((0, 0, 1, 1))
         
     # define transformation to rotate the colormesh
@@ -158,7 +158,7 @@ def pairwise_ld_plot(r_squared, cmap='Greys', flip=True, ax=None):
     return ax
 
 
-def windowed_ld_plot(gn, pos, window_size, start_position=None,
+def plot_windowed_ld(gn, pos, window_size, start_position=None,
                      stop_position=None, percentiles=(5, 95), ax=None,
                      median_plot_kwargs=dict(),
                      percentiles_plot_kwargs=dict()):
@@ -182,7 +182,8 @@ def windowed_ld_plot(gn, pos, window_size, start_position=None,
     percentiles : sequence of integers, optional
         Percentiles to plot in addition to the median.
     ax : axes, optional
-        Axes on which to draw.
+        The axes on which to draw. If not provided, a new figure will be
+        created.
     median_plot_kwargs : dict, optional
         Keyword arguments to pass through when plotting the median line.
     percentiles_plot_kwargs : dict, optional
@@ -198,7 +199,7 @@ def windowed_ld_plot(gn, pos, window_size, start_position=None,
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(12, 4))
+        fig = plt.figure(figsize=(7, 2))
         ax = fig.add_axes((0, 0, 1, 1))
 
     # determine bins
@@ -391,8 +392,9 @@ def pairwise_ld_decay(r_squared, pos, step=1):
     n_variants = r_squared.shape[0]
     
     # determine pairs of variants to use
-    pairs = [(i, j) for i in range(0, n_variants, step)
-                    for j in range(i+1, n_variants)]
+    pairs = [(i, j)
+             for i in range(0, n_variants, step)
+             for j in range(i+1, n_variants)]
     
     # initialise output arrays
     cor = np.zeros((len(pairs),), dtype=np.float)
@@ -488,7 +490,7 @@ def windowed_ld_decay(gn, pos, window_size, step=1):
     return all_cor, all_sep, all_dist
 
 
-def ld_decay_by_separation_plot(cor, sep,
+def plot_ld_decay_by_separation(cor, sep,
                                 max_separation=100,
                                 percentiles=(5, 95),
                                 ax=None,
@@ -511,7 +513,8 @@ def ld_decay_by_separation_plot(cor, sep,
     percentiles : sequence of integers, optional
         Percentiles to plot in addition to the median.
     ax : axes, optional
-        Axes on which to draw.
+        The axes on which to draw. If not provided, a new figure will be
+        created.
     median_plot_kwargs : dict, optional
         Keyword arguments to pass through when plotting the median line.
     percentiles_plot_kwargs : dict, optional
@@ -575,7 +578,7 @@ def ld_decay_by_separation_plot(cor, sep,
     return ax
 
 
-def ld_decay_by_distance_plot(cor, dist, bins,
+def plot_ld_decay_by_distance(cor, dist, bins,
                               percentiles=(5, 95),
                               ax=None,
                               median_plot_kwargs=dict(),
@@ -596,7 +599,8 @@ def ld_decay_by_distance_plot(cor, dist, bins,
     percentiles : sequence of integers, optional
         Percentiles to plot in addition to the median.
     ax : axes, optional
-        Axes on which to draw.
+        The axes on which to draw. If not provided, a new figure will be
+        created.
     median_plot_kwargs : dict, optional
         Keyword arguments to pass through when plotting the median line.
     percentiles_plot_kwargs : dict, optional

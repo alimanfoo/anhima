@@ -1,0 +1,61 @@
+.. module:: anhima.h5
+.. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
+
+HDF5 utilities
+==============
+
+Utility functions for working with data stored in HDF5 files.
+
+**HDF5 file convention for variant call sets**
+
+Note that this module assumes that data for a variant call set has been
+organised in an HDF5 file following a particular convention. Briefly,
+the convention is as follows.
+
+An HDF5 file may contain one or more call sets. Each call set is stored
+within a separate group. A call set may be stored within the root group.
+
+Within each call set, data are grouped by chromosome.
+
+Within each chromosome group, there are two subgroups,
+named `variants` and `calldata`.
+
+The `variants` group contains one or more datasets holding data on the
+variants in the call set. The first dimension of all `variants` datasets
+must have the same length, being the number of variants on the chromosome.
+
+The `variants` group must contain a `POS` dataset holding the genome
+positions of the variants.
+
+The `calldata` group contains one or more datasets holding data relating to
+genotype calls. The first dimension of all `calldata` datasets must have
+the same length, being the number of variants on the chromosome. The second
+dimension of all `calldata` datasets must have the same length,
+being the number of samples in the cohort.
+
+So, for example, an HDF5 file containing a SNP call set for a cohort of
+*Anopheles gambiae* samples with chromosomes (2R, 2L, 3R, 3L, X)
+might be organised as follows::
+
+    / [callset group]
+    /2L [chromosome group]
+    /2L/variants [variants group]
+    /2L/variants/POS [dataset, shape (n_variants,), dtype int32]
+    /2L/variants/REF [dataset, shape (n_variants,), dtype S1]
+    /2L/variants/ALT [dataset, shape (n_variants, 3), dtype S1]
+    /2L/variants/MQ [dataset, shape (n_variants,), dtype f4]
+    /2L/variants/...
+    /2L/calldata [calldata group]
+    /2L/calldata/genotype [dataset, shape (n_variants, n_samples, ploidy), dtype int8]
+    /2L/calldata/DP [dataset, shape (n_variants, n_samples), dtype=int32]
+    /2L/calldata/...
+    /3L/variants/...
+    /3L/calldata/...
+    /...
+
+.. autofunction:: load_region
+
+
+
+
+

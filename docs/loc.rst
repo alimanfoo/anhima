@@ -17,11 +17,11 @@ See also the examples at:
 .. autofunction:: take_variants
 .. autofunction:: locate_region
 .. autofunction:: take_region
-.. autofunction:: variant_locator_plot
+.. autofunction:: plot_variant_locator
 .. autofunction:: windowed_variant_counts
-.. autofunction:: windowed_variant_counts_plot
+.. autofunction:: plot_windowed_variant_counts
 .. autofunction:: windowed_variant_density
-.. autofunction:: windowed_variant_density_plot
+.. autofunction:: plot_windowed_variant_density
 .. autofunction:: windowed_statistic
 
 

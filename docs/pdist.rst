@@ -7,7 +7,7 @@ Pairwise distance
 Utility functions for pairwise distances.
 
 .. autofunction:: pairwise_distance
-.. autofunction:: pairwise_distance_plot
+.. autofunction:: plot_pairwise_distance
 
 
 
