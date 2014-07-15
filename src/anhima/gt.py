@@ -85,7 +85,7 @@ def is_called(genotypes):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -130,7 +130,7 @@ def count_called(genotypes, axis=None):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -163,7 +163,7 @@ def is_missing(genotypes):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -208,7 +208,7 @@ def count_missing(genotypes, axis=None):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -240,7 +240,7 @@ def is_hom_ref(genotypes):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -285,7 +285,7 @@ def count_hom_ref(genotypes, axis=None):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -318,7 +318,7 @@ def is_het_diploid(genotypes):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -370,7 +370,7 @@ def count_het_diploid(genotypes, axis=None):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -402,7 +402,7 @@ def is_hom_alt_diploid(genotypes):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -455,7 +455,7 @@ def count_hom_alt_diploid(genotypes, axis=None):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -526,7 +526,7 @@ def as_n_alt(genotypes):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -581,7 +581,7 @@ def as_diploid_012(genotypes, fill=-1):
 
     genotypes : array_like
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or ('n_samples', 'ploidy'), where each
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).

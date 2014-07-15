@@ -329,7 +329,7 @@ def windowed_variant_counts(pos, window_size, start_position=None,
 
     counts : ndarray, int
         The number of variants in each window.
-    bin_centers: ndarray, float
+    bin_centers : ndarray, float
         The central position of each window.
 
     See Also
@@ -447,7 +447,7 @@ def windowed_variant_density(pos, window_size, start_position=None,
 
     density : ndarray, int
         The density of variants in each window.
-    bin_centers: ndarray, float
+    bin_centers : ndarray, float
         The central position of each window.
 
     See Also
