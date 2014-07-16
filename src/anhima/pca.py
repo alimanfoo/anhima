@@ -40,7 +40,7 @@ def pca(gn, n_components=None, whiten=False):
     -------
 
     model : ``sklearn.decomposition.PCA``
-        Object holding the attributes of the model.
+        The fitted model.
     trans : ndarray, shape (`n_samples`, `n_components`)
         The result of fitting the model with `genotypes` and applying
         dimensionality reduction to `genotypes`.
@@ -79,7 +79,7 @@ def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
     ----------
 
     model : ``sklearn.decomposition.PCA``
-        Object holding the attributes of the model.
+        The fitted model.
     trans : ndarray, shape (`n_samples`, `n_components`)
         The result of fitting the model with `genotypes` and applying
         dimensionality reduction to `genotypes`.

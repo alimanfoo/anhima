@@ -26,7 +26,7 @@ import scipy.spatial.distance as distance
 import anhima.loc
 
 
-def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
+def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0.2):
     """A very simple function to simulate a set of genotypes, where
     variants are in some degree of linkage disequilibrium with their
     neighbours.
@@ -38,7 +38,7 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0):
         The number of variants to simulate data for.
     n_samples : int
         The number of individuals to simulate data for.
-    correlation : float
+    correlation : float, optional
         The fraction of samples to copy genotypes between neighbouring 
         variants.
         

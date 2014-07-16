@@ -84,7 +84,7 @@ def is_called(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -129,7 +129,7 @@ def count_called(genotypes, axis=None):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -170,7 +170,7 @@ def is_missing(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -215,7 +215,7 @@ def count_missing(genotypes, axis=None):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -255,7 +255,7 @@ def is_hom_ref(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -300,7 +300,7 @@ def count_hom_ref(genotypes, axis=None):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -341,7 +341,7 @@ def is_het_diploid(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -393,7 +393,7 @@ def count_het_diploid(genotypes, axis=None):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -433,7 +433,7 @@ def is_hom_alt_diploid(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -486,7 +486,7 @@ def count_hom_alt_diploid(genotypes, axis=None):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -528,7 +528,7 @@ def as_alleles(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
@@ -565,7 +565,7 @@ def as_n_alt(genotypes):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -620,7 +620,7 @@ def as_diploid_012(genotypes, fill=-1):
     Parameters
     ----------
 
-    genotypes : array_like
+    genotypes : array_like, int
         An array of shape (`n_variants`, `n_samples`, `ploidy`) or
         (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
         element of the array is an integer corresponding to an allele index
@@ -680,10 +680,12 @@ def count_genotypes(gn, t, axis=None):
     Parameters
     ----------
 
-    gn : array_like
+    gn : array_like, int
         An array of shape (`n_variants`, `n_samples`) or (`n_variants`,) or
         (`n_samples`,) where each element is a genotype called coded as a
         single integer..
+    t : int
+        The genotype to count.
     axis : int, optional
         The axis along which to count.
 
@@ -716,10 +718,10 @@ def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
     Parameters
     ----------
 
-    pos : array_like
+    pos : array_like, int
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
-    gn : array_like
+    gn : array_like, int
         A 1-D array of genotypes for a single sample, where each genotype is
         coded as a single integer.
     t : int
@@ -763,8 +765,39 @@ def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
 
 def windowed_genotype_density(pos, gn, t, window_size, start_position=None,
                               stop_position=None):
-    """As :func:`windowed_genotype_counts` but returns per-base-pair density
-    instead of counts.
+    """Compute per-base-pair density of genotype calls of a given type for a
+    single sample in non-overlapping windows over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like, int
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    gn : array_like, int
+        A 1-D array of genotypes for a single sample, where each genotype is
+        coded as a single integer.
+    t : int
+        The genotype to count.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+
+    Returns
+    -------
+
+    density : ndarray, float
+        Genotype density for each window.
+    bin_centers : ndarray, float
+        The central position of each window.
+
+    See Also
+    --------
+
+    as_diploid_012, as_n_alt, windowed_genotype_counts, windowed_genotype_rate
 
     """
 
@@ -778,8 +811,42 @@ def windowed_genotype_density(pos, gn, t, window_size, start_position=None,
 
 def windowed_genotype_rate(pos, gn, t, window_size, start_position=None,
                            stop_position=None):
-    """As :func:`windowed_genotype_counts` but returns the per-variant rate
-    instead of counts."""
+    """Compute per-variant rate of genotype calls of a given type for a
+    single sample in non-overlapping windows over the genome.
+
+    Parameters
+    ----------
+
+    pos : array_like, int
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    gn : array_like, int
+        A 1-D array of genotypes for a single sample, where each genotype is
+        coded as a single integer.
+    t : int
+        The genotype to count.
+    window_size : int
+        The size in base-pairs of the windows.
+    start_position : int, optional
+        The start position for the region over which to work.
+    stop_position : int, optional
+        The stop position for the region over which to work.
+
+    Returns
+    -------
+
+    rate : ndarray, float
+        Per-variant rate for each window.
+    bin_centers : ndarray, float
+        The central position of each window.
+
+    See Also
+    --------
+
+    as_diploid_012, as_n_alt, windowed_genotype_counts,
+    windowed_genotype_density
+
+    """
 
     variant_counts, _ = anhima.loc.windowed_variant_counts(
         pos, window_size, start_position=start_position,
@@ -802,10 +869,10 @@ def plot_windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
     Parameters
     ----------
 
-    pos : array_like
+    pos : array_like, int
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
-    gn : array_like
+    gn : array_like, int
         A 1-D array of genotypes for a single sample, where each genotype is
         coded as a single integer.
     t : int
@@ -870,10 +937,10 @@ def plot_windowed_genotype_density(pos, gn, t, window_size,
     Parameters
     ----------
 
-    pos : array_like
+    pos : array_like, int
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
-    gn : array_like
+    gn : array_like, int
         A 1-D array of genotypes for a single sample, where each genotype is
         coded as a single integer.
     t : int
@@ -938,10 +1005,10 @@ def plot_windowed_genotype_rate(pos, gn, t, window_size,
     Parameters
     ----------
 
-    pos : array_like
+    pos : array_like, int
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
-    gn : array_like
+    gn : array_like, int
         A 1-D array of genotypes for a single sample, where each genotype is
         coded as a single integer.
     t : int
