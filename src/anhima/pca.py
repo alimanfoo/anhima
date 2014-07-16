@@ -125,6 +125,8 @@ def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
     y = trans[:, pcy-1]
 
     # plot points
+    if scatter_kwargs is None:
+        scatter_kwargs = dict()
     ax.scatter(x, y, c=colors, s=sizes, **scatter_kwargs)
 
     # label points
@@ -141,7 +143,7 @@ def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
     # tidy up
     ax.set_xlabel('PC%s (%.2f%%)' %
                   (pcx, model.explained_variance_ratio_[pcx-1] * 100))
-    ax.set_xlabel('PC%s (%.2f%%)' %
+    ax.set_ylabel('PC%s (%.2f%%)' %
                   (pcy, model.explained_variance_ratio_[pcy-1] * 100))
 
     return ax
