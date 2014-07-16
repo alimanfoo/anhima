@@ -15,7 +15,7 @@ import sklearn.decomposition
 
 
 def pca(gn, n_components=None, whiten=False):
-    """Perform a principal components of the genotypes, treating each
+    """Perform a principal components analysis of the genotypes, treating each
     variant as a feature.
 
     Parameters
@@ -25,14 +25,14 @@ def pca(gn, n_components=None, whiten=False):
         A 2-dimensional array where each element is a genotype call coded as
         a single integer counting the number of non-reference alleles.
     n_components : int, None or string
-        Number of components to keep. if n_components is not set all components
-        are kept: ``n_components == min(n_samples, n_features)``. If
+        Number of components to keep. If `n_components` is not set all
+        components are kept: ``n_components == min(n_samples, n_features)``. If
         `n_components` == 'mle', Minka's MLE is used to guess the dimension. If
         0 < `n_components` < 1, select the number of components such that the
         amount of variance that needs to be explained is greater than the
         percentage specified by `n_components`.
     whiten : bool
-        When True (False by default) the components_ vectors are divided by
+        When True (False by default) the components vectors are divided by
         n_samples times singular values to ensure uncorrelated outputs with unit
         component-wise variances.
 
