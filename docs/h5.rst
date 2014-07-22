@@ -54,6 +54,10 @@ might be organised as follows::
     /...
 
 .. autofunction:: load_region
+.. autofunction:: take2d
+.. autofunction:: take2d_points
+
+
 
 
 

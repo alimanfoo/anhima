@@ -4,4 +4,5 @@ matplotlib
 ipython
 numexpr
 scikit-learn
+h5py
 

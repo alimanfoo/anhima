@@ -40,7 +40,8 @@ class Mock(object):
 
 MOCK_MODULES = ['numpy', 'scipy', 'scipy.stats', 'scipy.spatial',
                 'scipy.spatial.distance', 'matplotlib', 'matplotlib.pyplot',
-                'ipython', 'numexpr', 'sklearn', 'sklearn.decomposition']
+                'ipython', 'numexpr', 'sklearn', 'sklearn.decomposition',
+                'h5py']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
