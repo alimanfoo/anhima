@@ -171,7 +171,7 @@ def take_variants(a, selection):
     return b
 
 
-def locate_region(pos, start_position, stop_position):
+def locate_region(pos, start_position=0, stop_position=None):
     """Locate the start and stop indices within the `pos` array that include all
     positions within the `start_position` and `stop_position` range.
 
@@ -196,7 +196,7 @@ def locate_region(pos, start_position, stop_position):
     """
 
     start_index = bisect.bisect_left(pos, start_position)
-    stop_index = bisect.bisect_right(pos, stop_position)
+    stop_index = bisect.bisect_right(pos, stop_position) if stop_position is not None else None
     loc = slice(start_index, stop_index)
     return loc
 
@@ -579,5 +579,31 @@ def windowed_statistic(pos, values, window_size,
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     return stats, bin_centers
+
+
+def downsample_variants(a, target):
+    """Downsample an array along the first dimension to the `target`
+    length, assuming the first dimension corresponds to variants.
+
+    Parameters
+    ----------
+
+    a : array_like
+        The array to downsample.
+    target : int
+        The target number of variants.
+
+    Returns
+    -------
+
+    b : array_like
+        A downsampled view of `a`.
+
+    """
+
+    n_variants = a.shape[0]
+    step = max(1, int(n_variants/target))
+    b = a[::step, ...]
+    return b
 
 

@@ -23,7 +23,7 @@ import h5py
 import anhima.loc
 
 
-def load_region(callset, chrom, start_position, stop_position,
+def load_region(callset, chrom, start_position=0, stop_position=None,
                 variants_fields=None, 
                 calldata_fields=None):
     """Load data into memory from `callset` for the given region.
