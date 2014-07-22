@@ -186,7 +186,7 @@ def is_missing(genotypes):
     See Also
     --------
 
-    is_called, is_hom_ref, is_het_diploid, is_hom_alt_diploid
+    is_called, is_hom_ref, is_het, is_hom_alt
 
     Notes
     -----
@@ -271,7 +271,7 @@ def is_hom_ref(genotypes):
 
     See Also
     --------
-    is_called, is_missing, is_het_diploid, is_hom_alt_diploid
+    is_called, is_missing, is_het, is_hom_alt
 
     Notes
     -----
@@ -335,7 +335,7 @@ def count_hom_ref(genotypes, axis=None):
     return n
 
 
-def is_het_diploid(genotypes):
+def is_het(genotypes):
     """Find heterozygous genotype calls.
 
     Parameters
@@ -357,15 +357,17 @@ def is_het_diploid(genotypes):
     See Also
     --------
 
-    is_called, is_hom_ref, is_hom_alt_diploid
+    is_called, is_hom_ref, is_hom_alt
 
     Notes
     -----
 
-    **Not** applicable to polyploid genotype calls, diploids only.
+    Applicable to polyploid genotype calls, although note that all
+    types of heterozygous genotype (i.e., anything not completely
+    homozygous) will give an element value of True.
 
-    Applicable to multiallelic variants, although note that the return value
-    will be true in any case where the two alleles in a genotype are
+    Applicable to multiallelic variants, although note that the element value
+    will be True in any case where the two alleles in a genotype are
     different, e.g., (0, 1), (0, 2), (1, 2), etc.
 
     """
@@ -376,18 +378,15 @@ def is_het_diploid(genotypes):
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
 
-    # check diploid
-    assert genotypes.shape[dim_ploidy] == 2
-
     # find hets
-    allele1 = genotypes[..., 0]
-    allele2 = genotypes[..., 1]
-    is_het = allele1 != allele2
+    allele1 = genotypes[..., 0, np.newaxis]
+    other_alleles = genotypes[..., 1:]
+    is_het = np.any(allele1 != other_alleles, axis=dim_ploidy)
 
     return is_het
 
 
-def count_het_diploid(genotypes, axis=None):
+def count_het(genotypes, axis=None):
     """Count heterozygous genotype calls.
 
     Parameters
@@ -411,7 +410,7 @@ def count_het_diploid(genotypes, axis=None):
 
     See Also
     --------
-    is_het_diploid
+    is_het
 
     """
 
@@ -422,12 +421,12 @@ def count_het_diploid(genotypes, axis=None):
         axis = 1
 
     # count genotypes
-    n = np.sum(is_het_diploid(genotypes), axis=axis)
+    n = np.sum(is_het(genotypes), axis=axis)
 
     return n
 
 
-def is_hom_alt_diploid(genotypes):
+def is_hom_alt(genotypes):
     """Find homozygous non-reference genotype calls.
 
     Parameters
@@ -450,16 +449,14 @@ def is_hom_alt_diploid(genotypes):
     See Also
     --------
 
-    is_called, is_hom_ref, is_het_diploid
+    is_called, is_hom_ref, is_het
 
     Notes
     -----
 
-    **Not** applicable to polyploid genotype calls, diploids only.
+    Applicable to polyploid genotype calls.
 
-    Applicable to multiallelic variants, although note that the return value
-    will be true in any case where the two alleles in a genotype are
-    the same and non-reference, e.g., (1, 1), (2, 2), etc.
+    Applicable to multiallelic variants.
 
     """
 
@@ -469,18 +466,16 @@ def is_hom_alt_diploid(genotypes):
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
 
-    # check diploid
-    assert genotypes.shape[dim_ploidy] == 2
-
-    # find homozygotes
-    allele1 = genotypes[..., 0]
-    allele2 = genotypes[..., 1]
-    is_hom_alt = (allele1 > 0) & (allele1 == allele2)
+    # find hets
+    allele1 = genotypes[..., 0, np.newaxis]
+    other_alleles = genotypes[..., 1:]
+    is_hom_alt = np.all((allele1 > 0) & (allele1 == other_alleles),
+                        axis=dim_ploidy)
 
     return is_hom_alt
 
 
-def count_hom_alt_diploid(genotypes, axis=None):
+def count_hom_alt(genotypes, axis=None):
     """Count homozygous non-reference genotype calls.
 
     Parameters
@@ -505,7 +500,7 @@ def count_hom_alt_diploid(genotypes, axis=None):
 
     See Also
     --------
-    is_hom_alt_diploid
+    is_hom_alt
 
     """
 
@@ -516,7 +511,7 @@ def count_hom_alt_diploid(genotypes, axis=None):
         axis = 1
 
     # count genotypes
-    n = np.sum(is_hom_alt_diploid(genotypes), axis=axis)
+    n = np.sum(is_hom_alt(genotypes), axis=axis)
 
     return n
 
@@ -582,7 +577,7 @@ def as_n_alt(genotypes):
     See Also
     --------
 
-    as_diploid_012
+    as_012
 
     Notes
     -----
@@ -612,7 +607,7 @@ def as_n_alt(genotypes):
     return gn
 
 
-def as_diploid_012(genotypes, fill=-1):
+def as_012(genotypes, fill=-1):
     """Transform an array of genotypes recoding homozygous reference calls a
     0, heterozygous calls as 1, homozygous non-reference calls as 2, and
     missing calls as -1.
@@ -644,7 +639,9 @@ def as_diploid_012(genotypes, fill=-1):
     Notes
     -----
 
-    **Not** applicable to polyploid genotype calls, diploids only.
+    Applicable to polyploid genotype calls, although note that all
+    types of heterozygous genotype (i.e., anything not completely
+    homozygous) will be coded as 1.
 
     Applicable to multiallelic variants, although note the following.
     All heterozygous genotypes, e.g., (0, 1), (0, 2), (1, 2), ..., will be
@@ -659,17 +656,14 @@ def as_diploid_012(genotypes, fill=-1):
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
 
-    # check diploid
-    assert genotypes.shape[dim_ploidy] == 2
-
     # set up output array
     gn = np.empty(genotypes.shape[:-1], dtype='i1')
     gn.fill(fill)
 
     # determine genotypes
     gn[is_hom_ref(genotypes)] = 0
-    gn[is_het_diploid(genotypes)] = 1
-    gn[is_hom_alt_diploid(genotypes)] = 2
+    gn[is_het(genotypes)] = 1
+    gn[is_hom_alt(genotypes)] = 2
 
     return gn
 
