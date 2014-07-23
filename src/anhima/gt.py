@@ -533,7 +533,7 @@ def as_alleles(genotypes):
     -------
 
     alleles : ndarray
-        An array of shape (`n_variants`, `n_samples`*`ploidy`).
+        An array of shape (`n_variants`, `n_samples` * `ploidy`).
 
     Notes
     -----
