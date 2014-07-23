@@ -100,7 +100,7 @@ def is_called(genotypes):
     See Also
     --------
 
-    is_missing, is_hom_ref, is_het_diploid, is_hom_alt_diploid
+    is_missing, is_hom_ref, is_het, is_hom_alt
 
     Notes
     -----
@@ -357,7 +357,7 @@ def is_het(genotypes):
     See Also
     --------
 
-    is_called, is_hom_ref, is_hom_alt
+    is_called, is_missing, is_hom_ref, is_hom_alt
 
     Notes
     -----
@@ -449,7 +449,7 @@ def is_hom_alt(genotypes):
     See Also
     --------
 
-    is_called, is_hom_ref, is_het
+    is_called, is_missing, is_hom_ref, is_het
 
     Notes
     -----
@@ -517,7 +517,7 @@ def count_hom_alt(genotypes, axis=None):
 
 
 def as_alleles(genotypes):
-    """Reshape an array of genotypes as an array of alleles, collapsing the
+    """Reshape an array of genotypes as an array of alleles, by dropping the
     ploidy dimension.
 
     Parameters
@@ -533,7 +533,7 @@ def as_alleles(genotypes):
     -------
 
     alleles : ndarray
-        An array where the third (ploidy) dimension has been collapsed.
+        An array of shape (`n_variants`, `n_samples`*`ploidy`).
 
     Notes
     -----
@@ -555,7 +555,7 @@ def as_alleles(genotypes):
 
 
 def as_n_alt(genotypes):
-    """Transform an array of genotypes as the number of non-reference alleles.
+    """Transform genotypes as the number of non-reference alleles.
 
     Parameters
     ----------
@@ -608,7 +608,7 @@ def as_n_alt(genotypes):
 
 
 def as_012(genotypes, fill=-1):
-    """Transform an array of genotypes recoding homozygous reference calls a
+    """Transform genotypes recoding homozygous reference calls a
     0, heterozygous calls as 1, homozygous non-reference calls as 2, and
     missing calls as -1.
 
@@ -666,6 +666,100 @@ def as_012(genotypes, fill=-1):
     gn[is_hom_alt(genotypes)] = 2
 
     return gn
+
+
+def pack_diploid_genotypes(genotypes):
+    """
+    Pack diploid genotypes into a single byte for each genotype,
+    using the left-most 4 bits for the first allele and the right-most 4 bits
+    for the second allele. Allows single byte encoding of diploid genotypes
+    for variants with up to 15 alleles.
+
+    Parameters
+    ----------
+
+    genotypes : array_like, int
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    Returns
+    -------
+
+    packed : ndarray, int8
+        An array of genotypes where the `ploidy` dimension has been collapsed
+        by bit packing the two alleles for each genotype into a single byte.
+
+    See Also
+    --------
+
+    unpack_diploid_genotypes
+
+    """
+
+    # add 1 to handle missing alleles coded as -1
+    genotypes = genotypes + 1
+
+    # left shift first allele by 4 bits
+    a1 = np.left_shift(genotypes[..., 0], 4)
+
+    # mask left-most 4 bits to ensure second allele doesn't clash with first
+    # allele
+    a2 = np.bitwise_and(genotypes[..., 1], 15)
+
+    # pack them
+    packed = np.bitwise_or(a1, a2)
+
+    return packed
+
+
+def unpack_diploid_genotypes(packed):
+    """
+    Unpack an array of diploid genotypes that have been bit packed into
+    single bytes.
+
+    Parameters
+    ----------
+
+    packed : ndarray, int8
+        An array of genotypes where the `ploidy` dimension has been collapsed
+        by bit packing the two alleles for each genotype into a single byte.
+
+    Returns
+    -------
+
+    genotypes : ndarray, int8
+        An array of genotypes where the ploidy dimension has been restored by
+        unpacking the input array.
+
+    See Also
+    --------
+
+    pack_diploid_genotypes
+
+    """
+
+    # check input array
+    assert 1 <= packed.ndim <= 2
+
+    # right shift 4 bits to extract first allele
+    a1 = np.right_shift(packed, 4)
+
+    # mask left-most 4 bits to extract second allele
+    a2 = np.bitwise_and(packed, 15)
+
+    # stack to restore ploidy dimension
+    if packed.ndim == 2:
+        genotypes = np.dstack((a1, a2))
+    elif packed.ndim == 1:
+        genotypes = np.column_stack((a1, a2))
+
+    # subtract 1 to restore coding of missing alleles as -1
+    genotypes = genotypes - 1
+
+    return genotypes
 
 
 def count_genotypes(gn, t, axis=None):

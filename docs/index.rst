@@ -23,11 +23,11 @@ purposes beyond the limited set of functionalities supported here.
 
 **Installation**
 
-```
-git clone https://github.com/alimanfoo/anhima.git
-cd anhima
-python setup.py install
-```
+Install from GitHub::
+
+    git clone https://github.com/alimanfoo/anhima.git
+    cd anhima
+    python setup.py install
 
 **Contents**
 

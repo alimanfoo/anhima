@@ -1,8 +1,8 @@
 .. module:: anhima.loc
 .. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
 
-Locate samples, variants and genome positions
-=============================================
+Locating samples, variants and genome positions
+===============================================
 
 Utility functions for extracting data on samples, variants and genome
 positions.

@@ -1,8 +1,8 @@
 .. module:: anhima.gt
 .. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
 
-Genotype transformations
-========================
+Genotypes
+=========
 
 Utility functions for working with genotype data.
 
@@ -24,6 +24,8 @@ See also the examples at:
 .. autofunction:: as_alleles
 .. autofunction:: as_n_alt
 .. autofunction:: as_012
+.. autofunction:: pack_diploid_genotypes
+.. autofunction:: unpack_diploid_genotypes
 .. autofunction:: count_genotypes
 .. autofunction:: windowed_genotype_counts
 .. autofunction:: windowed_genotype_density
