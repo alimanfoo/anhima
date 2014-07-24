@@ -762,6 +762,13 @@ def unpack_diploid_genotypes(packed):
     return genotypes
 
 
+# packed representation of some common diploid genotypes
+BMISSING = 0
+BHOM00 = 17
+BHET01 = 18
+BHOM11 = 34
+
+
 def count_genotypes(gn, t, axis=None):
     """Count genotypes of a given type.
 
@@ -771,7 +778,7 @@ def count_genotypes(gn, t, axis=None):
     gn : array_like, int
         An array of shape (`n_variants`, `n_samples`) or (`n_variants`,) or
         (`n_samples`,) where each element is a genotype called coded as a
-        single integer..
+        single integer.
     t : int
         The genotype to count.
     axis : int, optional
