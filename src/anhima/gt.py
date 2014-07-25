@@ -25,59 +25,6 @@ import scipy.stats
 import anhima.loc
 
 
-def simulate_biallelic_genotypes(n_variants, n_samples, af_dist,
-                                 missingness=.1,
-                                 ploidy=2):
-    """Simulate genotypes at biallelic variants for a population in
-    Hardy-Weinberg equilibrium
-
-    Parameters
-    ----------
-
-    n_variants : int
-        The number of variants.
-    n_samples : int
-        The number of samples.
-    af_dist : frozen continuous random variable
-        The distribution of allele frequencies.
-    missingness : float, optional
-        The fraction of missing genotype calls.
-    ploidy : int, optional
-        The sample ploidy.
-
-    Returns
-    -------
-
-    genotypes : ndarray, int8
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
-        element of the array is an integer corresponding to an allele index
-        (-1 = missing, 0 = reference allele, 1 = alternate allele).
-
-    """
-
-    # initialise output array
-    genotypes = np.empty((n_variants, n_samples, ploidy), dtype='i1')
-
-    # generate allele frequencies under the given distribution
-    af = af_dist.rvs(n_variants)
-
-    # iterate over variants
-    for i, p in zip(range(n_variants), af):
-
-        # randomly generate alleles under the given allele frequency
-        alleles = scipy.stats.bernoulli.rvs(p, size=n_samples*ploidy)
-
-        # reshape alleles as genotypes under the given ploidy
-        genotypes[i] = alleles.reshape(n_samples, ploidy)
-
-        # simulate some missingness
-        missing_indices = random.sample(range(n_samples),
-                                        int(missingness*n_samples))
-        genotypes[i, missing_indices] = (-1,) * ploidy
-
-    return genotypes
-
-
 def is_called(genotypes):
     """Find non-missing genotype calls.
 
@@ -994,7 +941,8 @@ def plot_windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(7, 2))
+        x = plt.rcParams['figure.figsize'][0]
+        fig = plt.figure(figsize=(x, x//3))
         ax = fig.add_subplot(111)
 
     # count genotypes
@@ -1062,7 +1010,8 @@ def plot_windowed_genotype_density(pos, gn, t, window_size,
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(7, 2))
+        x = plt.rcParams['figure.figsize'][0]
+        fig = plt.figure(figsize=(x, x//3))
         ax = fig.add_subplot(111)
 
     # count genotypes
@@ -1130,7 +1079,8 @@ def plot_windowed_genotype_rate(pos, gn, t, window_size,
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(7, 2))
+        x = plt.rcParams['figure.figsize'][0]
+        fig = plt.figure(figsize=(x, x//3))
         ax = fig.add_subplot(111)
 
     # count genotypes
@@ -1194,7 +1144,7 @@ def plot_discrete_calldata(a, labels=None, colors='wbgrcmyk', states=None,
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(7, 5))
+        fig = plt.figure()
         ax = fig.add_subplot(111)
 
     # determine discrete states
@@ -1259,7 +1209,7 @@ def plot_continuous_calldata(a, labels=None, ax=None, pcolormesh_kwargs=None):
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(7, 5))
+        fig = plt.figure()
         ax = fig.add_subplot(111)
 
     # plotting defaults

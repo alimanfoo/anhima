@@ -1,4 +1,5 @@
-"""Utilities for principal components analysis of genotypes.
+"""
+Utilities for principal components analysis of genotypes.
 
 """
 
@@ -118,7 +119,9 @@ def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
 
     # set up axes
     if ax is None:
-        fig, ax = plt.subplots()
+        # make a square figure
+        x = plt.rcParams['figure.figsize'][0]
+        fig, ax = plt.subplots(figsize=(x, x))
 
     # obtain X and Y data, N.B., `pcx` and `pcy` are 1-based
     x = trans[:, pcx-1]

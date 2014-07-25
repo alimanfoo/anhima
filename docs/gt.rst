@@ -10,7 +10,6 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/gt.ipynb
 
-.. autofunction:: simulate_biallelic_genotypes
 .. autofunction:: is_called
 .. autofunction:: is_missing
 .. autofunction:: is_hom_ref

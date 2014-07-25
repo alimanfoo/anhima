@@ -94,7 +94,9 @@ def plot_pairwise_distance(dist_square, labels=None,
 
     # set up axes
     if ax is None:
-        fig, ax = plt.subplots(figsize=(7, 7))
+        # make a square figure
+        x = plt.rcParams['figure.figsize'][0]
+        fig, ax = plt.subplots(figsize=(x, x))
 
     # set up normalisation
     dist = scipy.spatial.distance.squareform(dist_square)

@@ -10,7 +10,6 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/ld.ipynb
 
-.. autofunction:: simulate_genotypes_with_ld
 .. autofunction:: pairwise_genotype_ld
 .. autofunction:: plot_pairwise_ld
 .. autofunction:: plot_windowed_ld

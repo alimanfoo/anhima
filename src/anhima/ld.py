@@ -26,60 +26,6 @@ import scipy.spatial.distance as distance
 import anhima.loc
 
 
-def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0.2):
-    """A very simple function to simulate a set of genotypes, where
-    variants are in some degree of linkage disequilibrium with their
-    neighbours.
-    
-    Parameters
-    ----------
-    
-    n_variants : int
-        The number of variants to simulate data for.
-    n_samples : int
-        The number of individuals to simulate data for.
-    correlation : float, optional
-        The fraction of samples to copy genotypes between neighbouring 
-        variants.
-        
-    Returns
-    -------
-
-    gn : ndarray, int8
-        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
-        element is a genotype call coded as a single integer counting the
-        number of non-reference alleles.
-
-    """
-
-    # initialise an array of random genotypes
-    gn = np.random.randint(size=(n_variants, n_samples), low=0, high=3)
-    gn = gn.astype('i1')
-
-    # determine the number of samples to copy genotypes for
-    n_copy = int(correlation*n_samples)
-    
-    # introduce linkage disequilibrium by copying genotypes from one sample to
-    # the next
-    for i in range(1, n_variants):
-        
-        # randomly pick the samples to copy from
-        sample_indices = random.sample(range(n_samples), n_copy)
-        
-        # view genotypes from the previous variant for the selected samples
-        c = gn[i-1, sample_indices]
-        
-        # randomly choose whether to invert the correlation
-        inv = random.randint(0, 1)
-        if inv:
-            c = 2-c
-            
-        # copy across genotypes
-        gn[i, sample_indices] = c
-        
-    return gn
-
-
 def pairwise_genotype_ld(gn):
     """Given a set of genotypes at biallelic variants, calculate the
     square of the correlation coefficient between all distinct pairs
@@ -135,7 +81,8 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
 
     # setup axes
     if ax is None:
-        fig = plt.figure(figsize=(10, 5))
+        x = plt.rcParams['figure.figsize'][0]
+        fig = plt.figure(figsize=(x, x//2))
         ax = fig.add_axes((0, 0, 1, 1))
         
     # define transformation to rotate the colormesh
@@ -199,8 +146,9 @@ def plot_windowed_ld(gn, pos, window_size, start_position=None,
 
     # set up axes
     if ax is None:
-        fig = plt.figure(figsize=(7, 2))
-        ax = fig.add_axes((0, 0, 1, 1))
+        x = plt.rcParams['figure.figsize'][0]
+        fig = plt.figure(figsize=(x, x//3))
+        ax = fig.add_subplot(111)
 
     # determine bins
     if stop_position is None:

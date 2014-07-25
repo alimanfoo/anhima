@@ -1,8 +1,8 @@
 .. module:: anhima
 .. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
 
-anhima - Analyse genetic variation
-==================================
+``anhima`` - Exploration and analysis of genetic variation data
+===============================================================
 
 N.B., this package is in a very early stage of development. Please report any
 bugs to the `GitHub issue tracker <https://github
@@ -38,9 +38,10 @@ Install from GitHub::
     gt
     af
     ld
-    pdist
+    dist
     pca
     h5
+    sim
 
 **Indices and tables**
 
