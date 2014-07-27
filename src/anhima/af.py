@@ -1,6 +1,10 @@
 """
 Allele frequency calculations.
 
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/af.ipynb
+
 """
 
 

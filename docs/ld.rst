@@ -1,15 +1,7 @@
-.. module:: anhima.ld
-.. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
-
 Linkage disequilibrium
 ======================
 
-Utility functons for working with LD.
-
-See also the examples at:
-
-- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/ld.ipynb
-
+.. automodule:: anhima.ld
 .. autofunction:: pairwise_genotype_ld
 .. autofunction:: plot_pairwise_ld
 .. autofunction:: plot_windowed_ld

@@ -1,15 +1,7 @@
-.. module:: anhima.gt
-.. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
-
 Genotypes
 =========
 
-Utility functions for working with genotype data.
-
-See also the examples at:
-
-- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/gt.ipynb
-
+.. automodule:: anhima.gt
 .. autofunction:: is_called
 .. autofunction:: is_missing
 .. autofunction:: is_hom_ref

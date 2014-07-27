@@ -1,5 +1,10 @@
 """
-Utilities for principal components analysis of genotypes.
+Utility functions for running principal components analysis and plotting the
+results.
+
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/pca.ipynb
 
 """
 

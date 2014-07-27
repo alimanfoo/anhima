@@ -1,4 +1,9 @@
-"""TODO
+"""
+Genetic distance calculations.
+
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/dist.ipynb
 
 """
 

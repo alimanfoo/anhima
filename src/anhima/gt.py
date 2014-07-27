@@ -1,5 +1,9 @@
 """
-Utilities for working with genotype data.
+Utility functions for working with genotype data.
+
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/gt.ipynb
 
 """
 

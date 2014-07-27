@@ -1,15 +1,7 @@
-.. module:: anhima.af
-.. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
-
 Allele frequencies
 ==================
 
-Utility functions for calculating allele frequencies.
-
-See also the examples at:
-
-- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/af.ipynb
-
+.. automodule:: anhima.af
 .. autofunction:: is_variant
 .. autofunction:: is_non_variant
 .. autofunction:: is_non_segregating

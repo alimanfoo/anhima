@@ -40,6 +40,7 @@ Install from GitHub::
     ld
     dist
     pca
+    tree
     h5
     sim
 

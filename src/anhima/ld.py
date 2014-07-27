@@ -1,6 +1,10 @@
 """
 Utilities for calculating and plotting linkage disequilbrium.
 
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/ld.ipynb
+
 """
 
 

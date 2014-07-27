@@ -1,6 +1,6 @@
 """
 Very simple simulation functions to generate genotype data for illustration
-of various other features in the package.
+of other features in the ``anhima`` package.
 
 """
 
