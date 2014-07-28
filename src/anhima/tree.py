@@ -72,10 +72,12 @@ def nj(dist_square, labels=None):
     """
 
     # convert distance matrix to R
-    m = numpy2ri(dist_square)
+    m = ro.vectors.Matrix(dist_square)
 
     # assign row and column labels
     if labels:
+        # map all strings to str
+        labels = [str(l) for l in labels]
         s = ro.StrVector(labels)
         m.rownames = s
         m.colnames = s
@@ -107,10 +109,12 @@ def bionj(dist_square, labels=None):
     """
 
     # convert distance matrix to R
-    m = numpy2ri(dist_square)
+    m = ro.vectors.Matrix(dist_square)
 
     # assign row and column labels
     if labels:
+        # map all strings to str
+        labels = [str(l) for l in labels]
         s = ro.StrVector(labels)
         m.rownames = s
         m.colnames = s
@@ -121,7 +125,25 @@ def bionj(dist_square, labels=None):
     return tree
 
 
-def plot_phylo(tree, plot_kwargs=None,
+def write_tree(tree, **kwargs):
+    """
+    TODO
+
+    """
+
+    ape.write_tree(tree, **kwargs)
+
+
+def read_tree(**kwargs):
+    """
+    TODO
+
+    """
+
+    return ape.read_tree(**kwargs)
+
+
+def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
                display=True, filename=None, width=None, height=None,
                units=None, res=None, pointsize=None, bg=None):
     """Wrapper for the ``ape.plot.phylo`` function, which plots phylogenetic
@@ -183,6 +205,11 @@ def plot_phylo(tree, plot_kwargs=None,
             if isinstance(v, (list, tuple, np.ndarray)):
                 plot_kwargs[k] = ro.StrVector(v)
     ape.plot_phylo(tree, **plot_kwargs)
+
+    # add scale bar
+    if add_scale_bar:
+        # TODO
+        pass
 
     # finalise PNG device
     grdevices.dev_off()
@@ -277,12 +304,16 @@ def color_edges_by_group_majority(tree, labels, groups,
                                   colors,
                                   equality_color=b'gray'):
 
+    # map all strings to str
+    groups = [str(g) for g in groups]
     r_groups = ro.StrVector(groups)
+    # map all strings to str
+    labels = [str(l) for l in labels]
     r_groups.names = ro.StrVector(labels)
     counts = r.computeEdgeGroupCounts(tree, r_groups)
 
-    r_colors = ro.StrVector(colors.values())
-    r_colors.names = ro.StrVector(colors.keys())
+    r_colors = ro.StrVector([str(v) for v in colors.values()])
+    r_colors.names = ro.StrVector([str(k) for k in colors.keys()])
     edge_colors = r.assignMajorityGroupColorToEdges(
         tree, counts, groupcolors=r_colors, equality_color=equality_color
     )
