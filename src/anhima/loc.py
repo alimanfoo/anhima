@@ -346,6 +346,10 @@ def windowed_variant_counts(pos, window_size, start_position=None,
         start_position = np.min(pos)
     bin_edges = np.arange(start_position, stop_position, window_size)
 
+    # ensure final bin includes highest values (Richard Pearson modification)
+    if not stop_position in bin_edges:
+        bin_edges = np.append(bin_edges, stop_position)
+
     # make a histogram of positions
     counts, _ = np.histogram(pos, bins=bin_edges)
 
