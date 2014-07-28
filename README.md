@@ -1,9 +1,7 @@
-anhima - Analyse genetic variation
-==================================
+`anhima` - Exploration and analysis of genetic variation data
+=============================================================
 
-N.B., this package is in a very early stage of development.
-
-* Source: http://github.com/alimanfoo/anhima
 * Documentation: http://anhima.readthedocs.org
 * Examples: http://nbviewer.ipython.org/github/alimanfoo/anhima/tree/master/examples/
+* Source: http://github.com/alimanfoo/anhima
 

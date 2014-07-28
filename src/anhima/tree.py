@@ -69,6 +69,11 @@ def nj(dist_square, labels=None):
 
     An R object of class "phylo".
 
+    See Also
+    --------
+
+    anhima.dist.pairwise_distance
+
     """
 
     # convert distance matrix to R
@@ -106,6 +111,11 @@ def bionj(dist_square, labels=None):
 
     An R object of class "phylo".
 
+    See Also
+    --------
+
+    anhima.dist.pairwise_distance
+
     """
 
     # convert distance matrix to R
@@ -123,24 +133,6 @@ def bionj(dist_square, labels=None):
     tree = ape.bionj(m)
 
     return tree
-
-
-def write_tree(tree, **kwargs):
-    """
-    TODO
-
-    """
-
-    ape.write_tree(tree, **kwargs)
-
-
-def read_tree(**kwargs):
-    """
-    TODO
-
-    """
-
-    return ape.read_tree(**kwargs)
 
 
 def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
@@ -221,6 +213,24 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
             display_data = f.read()
             publish_display_data(source='anhima', data={'image/png':
                                                         display_data})
+
+
+def write_tree(tree, **kwargs):
+    """
+    TODO
+
+    """
+
+    ape.write_tree(tree, **kwargs)
+
+
+def read_tree(**kwargs):
+    """
+    TODO
+
+    """
+
+    return ape.read_tree(**kwargs)
 
 
 # Define custom R functions to help with coloring tree edges by population.

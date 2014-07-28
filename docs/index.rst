@@ -17,9 +17,9 @@ Viewing the source code is recommended, as this may suggest ways that
 generic libraries like :mod:`numpy` could be used or adapted for other
 purposes beyond the limited set of functionalities supported here.
 
-- Source: http://github.com/alimanfoo/anhima
 - Documentation: http://anhima.readthedocs.org
 - Examples: http://nbviewer.ipython.org/github/alimanfoo/anhima/tree/master/examples/
+- Source: http://github.com/alimanfoo/anhima
 
 **Installation**
 
