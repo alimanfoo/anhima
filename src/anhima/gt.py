@@ -1316,6 +1316,8 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
 
     # check input array
     assert gn.ndim == 2
+    n_variants = gn.shape[0]
+    n_samples = gn.shape[1]
 
     # check orientation
     assert orientation in ('vertical', 'horizontal')
@@ -1325,7 +1327,6 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
         fig, ax = plt.subplots()
 
     # determine bar positions
-    n_samples = gn.shape[1]
     x = np.arange(n_samples)
 
     # plot bars for each type
@@ -1351,6 +1352,17 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
             yc += y
 
     # tidy up
+    # TODO code smells
+
+    # set plot limits
+    if orientation == 'vertical':
+        ax.set_ylim(0, n_variants)
+        ax.set_xlim(0, n_samples)
+    else:
+        ax.set_xlim(0, n_variants)
+        ax.set_ylim(0, n_samples)
+
+    # determine tick labels
     if labels:
         if orientation == 'vertical':
             ax.set_xticks(range(n_samples))
@@ -1404,6 +1416,8 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
 
     # check input array
     assert gn.ndim == 2
+    n_variants = gn.shape[0]
+    n_samples = gn.shape[1]
 
     # check orientation
     assert orientation in ('vertical', 'horizontal')
@@ -1413,7 +1427,6 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
         fig, ax = plt.subplots()
 
     # determine bar positions
-    n_variants = gn.shape[0]
     x = np.arange(n_variants)
 
     # plot bars for each type
@@ -1441,8 +1454,12 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
     # tidy up
     if orientation == 'vertical':
         ax.set_xticks([])
+        ax.set_xlim(0, n_variants)
+        ax.set_ylim(0, n_samples)
     else:
         ax.set_yticks([])
+        ax.set_ylim(0, n_variants)
+        ax.set_xlim(0, n_samples)
 
     return ax
 

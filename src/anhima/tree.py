@@ -147,15 +147,15 @@ def plot_phylo(tree, plot_kwargs=None,
     height : int or float, optional
         Height of the plot in `units`.
     units : {'px', 'in', 'cm', 'mm'}, optional
-        The units in which ‘height’ and ‘width’ are given. Can be ‘px’ (pixels,
-        the default), ‘in’ (inches), ‘cm’ or ‘mm’.
+        The units in which 'height' and 'width' are given. Can be 'px' (pixels,
+        the default), 'in' (inches), 'cm' or 'mm'.
     res : int
         The nominal resolution in ppi which will be recorded in the bitmap
-        file, if a positive integer.  Also used for ‘units’ other than the
+        file, if a positive integer.  Also used for 'units' other than the
         default, and to convert points to pixels.
     pointsize : float
         The default pointsize of plotted text, interpreted as big points (
-        1/72 inch) at ‘res’ ppi.
+        1/72 inch) at 'res' ppi.
 
     """
 
