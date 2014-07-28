@@ -32,8 +32,8 @@ def pairwise_distance(gn, metric='euclidean'):
         number of non-reference alleles.
     metric : string or function, optional
         The distance metric to use. See documentation for the function
-        ``scipy.spatial.distance.pdist`` for a list of supported distance
-        metrics.
+        :func:`scipy.spatial.distance.pdist` for a list of supported
+        distance metrics.
 
     Returns
     -------
@@ -51,10 +51,6 @@ def pairwise_distance(gn, metric='euclidean'):
 
     # compute the distance matrix
     dist = scipy.spatial.distance.pdist(x, metric=metric)
-
-    # normalise by number of variants for easier comparison
-    n_variants = gn.shape[0]
-    dist = dist / n_variants
 
     # convert to square form for easy plotting
     dist_square = scipy.spatial.distance.squareform(dist)

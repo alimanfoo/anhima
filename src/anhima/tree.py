@@ -147,9 +147,13 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
     tree : R object of class "phylo"
         The tree to plot.
     plot_kwargs : dict-like, optional
-        A dictionary of keyword arguments that will be passed through to
-        ``ape.plot.phylo()``. See the documentation for the ``ape`` package
-        for a full list of supported arguments.
+        A dictionary of keyword arguments that will be passed through to the
+        ``ape`` function ``plot.phylo()``. See the documentation for the ``ape``
+        package for a full list of supported arguments.
+    add_scale_bar : dict-like, optional
+        A dictionary of keyword arguments that will be passed through to the
+        ``ape`` function ``add.scale.bar()``. See the documentation for the
+        ``ape`` package for a full list of supported arguments.
     display : bool, optional
         If True, assume that the function is being called from within an
         IPython notebook and attempt to publish the generated PNG image.
@@ -199,9 +203,8 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
     ape.plot_phylo(tree, **plot_kwargs)
 
     # add scale bar
-    if add_scale_bar:
-        # TODO
-        pass
+    if add_scale_bar is not None:
+        ape.add_scale_bar(**add_scale_bar)
 
     # finalise PNG device
     grdevices.dev_off()
