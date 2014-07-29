@@ -283,8 +283,10 @@ def read_tree(filename, **kwargs):
 
 
 # Define custom R functions to help with coloring tree edges by population.
-# These functions were written by Jacob Almagro-Garcia at the University of
-# Oxford (@@TODO email)
+# These functions were written by Jacob Almagro-Garcia <jg10@sanger.ac.uk> at
+# the Wellcome Trust Sanger Institute.
+
+
 r("""
 library(ape)
 
