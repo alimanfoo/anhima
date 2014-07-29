@@ -73,8 +73,14 @@ sys.path.insert(0, os.path.abspath('../src'))
 extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
     'numpydoc'
 ]
+
+intersphinx_mapping = {'python': ('http://docs.python.org/2', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+                       'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
+                       'matplotlib': ('http://matplotlib.sourceforge.net/', None)}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -90,7 +96,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'anhima'
-copyright = u'2014, Alistair Miles <alimanfoo@googlemail.com>'
+copyright = u'2014, Alistair Miles <alimanfoo@googlemail.com>, University of ' \
+            u'Oxford'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

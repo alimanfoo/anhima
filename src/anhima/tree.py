@@ -1,9 +1,9 @@
 """
 This module provides some facilities for constructing and plotting trees. It
 is mostly a wrapper around a very limited subset of functions from the R
-``ape`` package (Analyses of Phylogenetics and Evolution).
+`ape` package (Analyses of Phylogenetics and Evolution).
 
-R must be installed, the ``ape`` R package must be installed, and the Python
+R must be installed, the `ape` R package must be installed, and the Python
 package ``rpy2`` must be installed, e.g.::
 
     $ apt-get install r-base
@@ -52,8 +52,8 @@ ape = importr(
 
 
 def nj(dist_square, labels=None):
-    """Wrapper for the ``ape.nj`` function, which performs the neighbor-joining
-    tree estimation of Saitou and Nei (1987).
+    """Wrapper for the `ape` ``nj`` function, which performs the
+    neighbor-joining tree estimation of Saitou and Nei (1987).
 
     Parameters
     ----------
@@ -69,13 +69,20 @@ def nj(dist_square, labels=None):
 
     An R object of class "phylo".
 
+    See Also
+    --------
+
+    anhima.dist.pairwise_distance
+
     """
 
     # convert distance matrix to R
-    m = numpy2ri(dist_square)
+    m = ro.vectors.Matrix(dist_square)
 
     # assign row and column labels
     if labels:
+        # map all strings to str
+        labels = [str(l) for l in labels]
         s = ro.StrVector(labels)
         m.rownames = s
         m.colnames = s
@@ -87,7 +94,7 @@ def nj(dist_square, labels=None):
 
 
 def bionj(dist_square, labels=None):
-    """Wrapper for the ``ape.bionj`` function, which performs the BIONJ
+    """Wrapper for the `ape` ``bionj`` function, which performs the BIONJ
     algorithm of Gascuel (1997).
 
     Parameters
@@ -104,13 +111,20 @@ def bionj(dist_square, labels=None):
 
     An R object of class "phylo".
 
+    See Also
+    --------
+
+    anhima.dist.pairwise_distance
+
     """
 
     # convert distance matrix to R
-    m = numpy2ri(dist_square)
+    m = ro.vectors.Matrix(dist_square)
 
     # assign row and column labels
     if labels:
+        # map all strings to str
+        labels = [str(l) for l in labels]
         s = ro.StrVector(labels)
         m.rownames = s
         m.colnames = s
@@ -121,11 +135,11 @@ def bionj(dist_square, labels=None):
     return tree
 
 
-def plot_phylo(tree, plot_kwargs=None,
+def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
                display=True, filename=None, width=None, height=None,
                units=None, res=None, pointsize=None, bg=None):
-    """Wrapper for the ``ape.plot.phylo`` function, which plots phylogenetic
-    trees. Plotting will use the R ``png`` graphics device.
+    """Wrapper for the `ape` ``plot.phylo`` function, which plots phylogenetic
+    trees. Plotting will use the R `png` graphics device.
 
     Parameters
     ----------
@@ -133,9 +147,13 @@ def plot_phylo(tree, plot_kwargs=None,
     tree : R object of class "phylo"
         The tree to plot.
     plot_kwargs : dict-like, optional
-        A dictionary of keyword arguments that will be passed through to
-        ``ape.plot.phylo()``. See the documentation for the ``ape`` package
-        for a full list of supported arguments.
+        A dictionary of keyword arguments that will be passed through to the
+        `ape` function ``plot.phylo()``. See the documentation for the `ape`
+        package for a full list of supported arguments.
+    add_scale_bar : dict-like, optional
+        A dictionary of keyword arguments that will be passed through to the
+        `ape` function ``add.scale.bar()``. See the documentation for the
+        `ape` package for a full list of supported arguments.
     display : bool, optional
         If True, assume that the function is being called from within an
         IPython notebook and attempt to publish the generated PNG image.
@@ -147,15 +165,15 @@ def plot_phylo(tree, plot_kwargs=None,
     height : int or float, optional
         Height of the plot in `units`.
     units : {'px', 'in', 'cm', 'mm'}, optional
-        The units in which ‘height’ and ‘width’ are given. Can be ‘px’ (pixels,
-        the default), ‘in’ (inches), ‘cm’ or ‘mm’.
+        The units in which 'height' and 'width' are given. Can be 'px' (pixels,
+        the default), 'in' (inches), 'cm' or 'mm'.
     res : int
         The nominal resolution in ppi which will be recorded in the bitmap
-        file, if a positive integer.  Also used for ‘units’ other than the
+        file, if a positive integer.  Also used for 'units' other than the
         default, and to convert points to pixels.
     pointsize : float
         The default pointsize of plotted text, interpreted as big points (
-        1/72 inch) at ‘res’ ppi.
+        1/72 inch) at 'res' ppi.
 
     """
 
@@ -184,6 +202,10 @@ def plot_phylo(tree, plot_kwargs=None,
                 plot_kwargs[k] = ro.StrVector(v)
     ape.plot_phylo(tree, **plot_kwargs)
 
+    # add scale bar
+    if add_scale_bar is not None:
+        ape.add_scale_bar(**add_scale_bar)
+
     # finalise PNG device
     grdevices.dev_off()
 
@@ -196,9 +218,75 @@ def plot_phylo(tree, plot_kwargs=None,
                                                         display_data})
 
 
+def write_tree(tree, filename=None, **kwargs):
+    """
+    Wrapper for the `ape` ``write.tree`` function, which writes in a file a tree
+    in parenthetic format using the Newick (also known as New Hampshire)
+    format.
+
+    Parameters
+    ----------
+
+    tree : R object of class "phylo"
+        The tree to be written.
+    filename : string, optional
+        The name of the file to write to. If ommitted, write the file to a
+        string and return it.
+    **kwargs : keyword arguments
+        All further keyword arguments are passed through to ``write.tree``.
+
+    Returns
+    -------
+
+    result : string
+        A string if `filename` is None, otherwise no return value.
+
+    """
+
+    # write the file
+    if filename is None:
+        kwargs['file'] = b''
+    result = ape.write_tree(tree, **kwargs)
+
+    # handle the case where tree is written to stdout
+    if filename is None:
+        return result[0]
+
+
+def read_tree(filename, **kwargs):
+    """
+    Wrapper for the `ape` ``read.tree`` function, which reads a file which
+    contains one or several trees in parenthetic format known as the Newick
+    or New Hampshire format.
+
+    Parameters
+    ----------
+
+    filename : string
+        Name of the file to read.
+    **kwargs : keyword arguments
+        All further keyword arguments are passed through to ``read.tree``.
+
+    Returns
+    -------
+
+    tree : R object of class "phylo"
+        If several trees are read in the file, the returned object is of
+        class "multiPhylo", and is a list of objects of class "phylo". The name
+        of each tree can be specified by tree.names, or can be read from the
+        file (see details).
+
+    """
+
+    kwargs['file'] = filename
+    return ape.read_tree(**kwargs)
+
+
 # Define custom R functions to help with coloring tree edges by population.
-# These functions were written by Jacob Almagro-Garcia at the University of
-# Oxford (@@TODO email)
+# These functions were written by Jacob Almagro-Garcia <jg10@sanger.ac.uk> at
+# the Wellcome Trust Sanger Institute.
+
+
 r("""
 library(ape)
 
@@ -276,15 +364,42 @@ assignMajorityGroupColorToEdges <- function(phylotree, edge_group_counts, groupc
 def color_edges_by_group_majority(tree, labels, groups,
                                   colors,
                                   equality_color=b'gray'):
+    """
+    Color the edges of a tree according to the majority group membership of
+    the descendant tips.
 
-    r_groups = ro.StrVector(groups)
-    r_groups.names = ro.StrVector(labels)
+    Parameters
+    ----------
+
+    tree : R object of class "phylo"
+        The tree containing the edges to be colored.
+    labels : sequence of strings
+        The tip labels.
+    groups : sequence of strings
+        A sequence of strings of the same length as `labels`, where each item is
+        an identifier for the group to which the corresponding tip belongs.
+    colors : dict-like
+        A dictionary mapping groups to colors.
+    equality_color : string, optional
+        The color to use in the event of a tie.
+
+    Returns
+    -------
+
+    edge_colors : list of strings
+        A list of colors for the edges of the tree, to be passed into
+        :func:`plot_phylo`.
+
+    """
+
+    r_groups = ro.StrVector([str(g) for g in groups])
+    r_groups.names = ro.StrVector([str(l) for l in labels])
     counts = r.computeEdgeGroupCounts(tree, r_groups)
 
-    r_colors = ro.StrVector(colors.values())
-    r_colors.names = ro.StrVector(colors.keys())
+    r_colors = ro.StrVector([str(v) for v in colors.values()])
+    r_colors.names = ro.StrVector([str(k) for k in colors.keys()])
     edge_colors = r.assignMajorityGroupColorToEdges(
         tree, counts, groupcolors=r_colors, equality_color=equality_color
     )
 
-    return edge_colors
+    return list(edge_colors)
