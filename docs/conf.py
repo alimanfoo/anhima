@@ -96,7 +96,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'anhima'
-copyright = u'2014, Alistair Miles <alimanfoo@googlemail.com>'
+copyright = u'2014, Alistair Miles <alimanfoo@googlemail.com>, University of ' \
+            u'Oxford'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
