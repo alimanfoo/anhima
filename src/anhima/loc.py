@@ -329,8 +329,11 @@ def windowed_variant_counts(pos, window_size, start_position=None,
 
     counts : ndarray, int
         The number of variants in each window.
-    bin_centers : ndarray, float
-        The central position of each window.
+    bin_edges : ndarray, int
+        The edge positions of each window. Note that this has length
+        `len(counts)+1`. To determine bin centers use
+        `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
+        `np.diff(bin_edges)`
 
     See Also
     --------
@@ -344,19 +347,13 @@ def windowed_variant_counts(pos, window_size, start_position=None,
         stop_position = np.max(pos)
     if start_position is None:
         start_position = np.min(pos)
-    bin_edges = np.arange(start_position, stop_position, window_size)
-
-    # ensure final bin includes highest values (Richard Pearson modification)
-    if not stop_position in bin_edges:
-        bin_edges = np.append(bin_edges, stop_position)
+    bin_edges = np.append(np.arange(start_position, stop_position, window_size),
+                          stop_position)
 
     # make a histogram of positions
     counts, _ = np.histogram(pos, bins=bin_edges)
 
-    # calculate bin centers
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-    return counts, bin_centers
+    return counts, bin_edges
 
 
 def plot_windowed_variant_counts(pos, window_size, start_position=None,
@@ -404,16 +401,19 @@ def plot_windowed_variant_counts(pos, window_size, start_position=None,
         ax = fig.add_subplot(111)
 
     # count variants
-    y, x = windowed_variant_counts(pos, window_size,
+    y, bin_edges = windowed_variant_counts(pos, window_size,
                                    start_position=start_position,
                                    stop_position=stop_position)
+
+    # calculate bin centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     # plot data
     if plot_kwargs is None:
         plot_kwargs = dict()
     plot_kwargs.setdefault('linestyle', '-')
     plot_kwargs.setdefault('marker', None)
-    ax.plot(x, y, **plot_kwargs)
+    ax.plot(bin_centers, y, **plot_kwargs)
 
     # tidy up
     ax.set_ylim(bottom=0)
@@ -451,8 +451,11 @@ def windowed_variant_density(pos, window_size, start_position=None,
 
     density : ndarray, int
         The density of variants in each window.
-    bin_centers : ndarray, float
-        The central position of each window.
+    bin_edges : ndarray, int
+        The edge positions of each window. Note that this has length
+        `len(counts)+1`. To determine bin centers use
+        `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
+        `np.diff(bin_edges)`
 
     See Also
     --------
@@ -462,14 +465,16 @@ def windowed_variant_density(pos, window_size, start_position=None,
     """
 
     # count variants in windows
-    counts, bin_centers = windowed_variant_counts(pos, window_size,
+    counts, bin_edges = windowed_variant_counts(pos, window_size,
                                                   start_position=start_position,
                                                   stop_position=stop_position)
 
+    bin_widths = np.diff(bin_edges)
+    
     # convert to per-base-pair density
-    density = counts / window_size
+    density = counts / bin_widths
 
-    return density, bin_centers
+    return density, bin_edges
 
 
 def plot_windowed_variant_density(pos, window_size, start_position=None,
@@ -517,16 +522,19 @@ def plot_windowed_variant_density(pos, window_size, start_position=None,
         ax = fig.add_subplot(111)
 
     # count variants
-    y, x = windowed_variant_density(pos, window_size,
+    y, bin_edges = windowed_variant_density(pos, window_size,
                                     start_position=start_position,
                                     stop_position=stop_position)
+
+    # calculate bin centers
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     # plot data
     if plot_kwargs is None:
         plot_kwargs = dict()
     plot_kwargs.setdefault('linestyle', '-')
     plot_kwargs.setdefault('marker', None)
-    ax.plot(x, y, **plot_kwargs)
+    ax.plot(bin_centers, y, **plot_kwargs)
 
     # tidy up
     ax.set_ylim(bottom=0)
@@ -572,17 +580,18 @@ def windowed_statistic(pos, values, window_size,
         stop_position = np.max(pos)
     if start_position is None:
         start_position = np.min(pos)
-    bin_edges = np.arange(start_position, stop_position, window_size)
+    bin_edges = np.append(np.arange(start_position, stop_position, window_size),
+                          stop_position)
 
     # compute binned statistic
     stats, _, _ = scipy.stats.binned_statistic(pos, values=values,
                                                statistic=statistic,
                                                bins=bin_edges)
 
-    # calculate bin centers
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    # # calculate bin centers
+    # bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-    return stats, bin_centers
+    return stats, bin_edges
 
 
 def downsample_variants(a, target):
