@@ -784,8 +784,8 @@ def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
 
     counts : ndarray, int
         Genotype counts for each window.
-    bin_centers : ndarray, float
-        The central position of each window.
+    bin_edges : ndarray, float
+        The edges of the windows.
 
     See Also
     --------
@@ -801,12 +801,12 @@ def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
     values = gn == t
 
     # computed binned statistic
-    counts, bin_centers = anhima.loc.windowed_statistic(
+    counts, bin_edges = anhima.loc.windowed_statistic(
         pos, values=values, statistic=b'sum', window_size=window_size,
         start_position=start_position, stop_position=stop_position
     )
 
-    return counts, bin_centers
+    return counts, bin_edges
 
 
 def windowed_genotype_density(pos, gn, t, window_size, start_position=None,
@@ -837,8 +837,8 @@ def windowed_genotype_density(pos, gn, t, window_size, start_position=None,
 
     density : ndarray, float
         Genotype density for each window.
-    bin_centers : ndarray, float
-        The central position of each window.
+    bin_edges : ndarray, float
+        The edges of the windows.
 
     See Also
     --------
@@ -847,12 +847,12 @@ def windowed_genotype_density(pos, gn, t, window_size, start_position=None,
 
     """
 
-    counts, bin_centers = windowed_genotype_counts(pos, gn, t,
-                                                   window_size=window_size,
-                                                   start_position=start_position,
-                                                   stop_position=stop_position)
-    density = counts / window_size
-    return density, bin_centers
+    counts, bin_edges = windowed_genotype_counts(pos, gn, t,
+                                                 window_size=window_size,
+                                                 start_position=start_position,
+                                                 stop_position=stop_position)
+    density = counts / np.diff(bin_edges)
+    return density, bin_edges
 
 
 def windowed_genotype_rate(pos, gn, t, window_size, start_position=None,
@@ -883,8 +883,8 @@ def windowed_genotype_rate(pos, gn, t, window_size, start_position=None,
 
     rate : ndarray, float
         Per-variant rate for each window.
-    bin_centers : ndarray, float
-        The central position of each window.
+    bin_edges : ndarray, float
+        The edges of the windows.
 
     See Also
     --------
@@ -898,12 +898,12 @@ def windowed_genotype_rate(pos, gn, t, window_size, start_position=None,
         pos, window_size, start_position=start_position,
         stop_position=stop_position
     )
-    counts, bin_centers = windowed_genotype_counts(
+    counts, bin_edges = windowed_genotype_counts(
         pos, gn, t, window_size=window_size, start_position=start_position,
         stop_position=stop_position
     )
     rate = counts / variant_counts
-    return rate, bin_centers
+    return rate, bin_edges
 
 
 def plot_windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
@@ -950,9 +950,10 @@ def plot_windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
         ax = fig.add_subplot(111)
 
     # count genotypes
-    y, x = windowed_genotype_counts(pos, gn, t, window_size,
-                                    start_position=start_position,
-                                    stop_position=stop_position)
+    y, bin_edges = windowed_genotype_counts(pos, gn, t, window_size,
+                                            start_position=start_position,
+                                            stop_position=stop_position)
+    x = (bin_edges[1:] + bin_edges[:-1])/2
 
     # plot data
     if plot_kwargs is None:
@@ -1019,9 +1020,10 @@ def plot_windowed_genotype_density(pos, gn, t, window_size,
         ax = fig.add_subplot(111)
 
     # count genotypes
-    y, x = windowed_genotype_density(pos, gn, t, window_size,
-                                     start_position=start_position,
-                                     stop_position=stop_position)
+    y, bin_edges = windowed_genotype_density(pos, gn, t, window_size,
+                                             start_position=start_position,
+                                             stop_position=stop_position)
+    x = (bin_edges[1:] + bin_edges[:-1])/2
 
     # plot data
     if plot_kwargs is None:
@@ -1088,9 +1090,10 @@ def plot_windowed_genotype_rate(pos, gn, t, window_size,
         ax = fig.add_subplot(111)
 
     # count genotypes
-    y, x = windowed_genotype_rate(pos, gn, t, window_size,
-                                  start_position=start_position,
-                                  stop_position=stop_position)
+    y, bin_edges = windowed_genotype_rate(pos, gn, t, window_size,
+                                          start_position=start_position,
+                                          stop_position=stop_position)
+    x = (bin_edges[1:] + bin_edges[:-1])/2
 
     # plot data
     if plot_kwargs is None:
