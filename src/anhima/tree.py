@@ -30,6 +30,8 @@ import tempfile
 
 # third party dependencies
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import rpy2.robjects as ro
 from rpy2.robjects import r
 from rpy2.robjects.numpy2ri import numpy2ri
@@ -136,8 +138,8 @@ def bionj(dist_square, labels=None):
 
 
 def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
-               display=True, filename=None, width=None, height=None,
-               units=None, res=None, pointsize=None, bg=None):
+               filename=None, width=None, height=None, units=None, res=None,
+               pointsize=None, bg=None, ax=None, imshow_kwargs=None):
     """Wrapper for the `ape` ``plot.phylo`` function, which plots phylogenetic
     trees. Plotting will use the R `png` graphics device.
 
@@ -154,9 +156,6 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
         A dictionary of keyword arguments that will be passed through to the
         `ape` function ``add.scale.bar()``. See the documentation for the
         `ape` package for a full list of supported arguments.
-    display : bool, optional
-        If True, assume that the function is being called from within an
-        IPython notebook and attempt to publish the generated PNG image.
     filename : string, optional
         File path for the generated PNG image. If None, a temporary file will be
         used.
@@ -167,13 +166,26 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
     units : {'px', 'in', 'cm', 'mm'}, optional
         The units in which 'height' and 'width' are given. Can be 'px' (pixels,
         the default), 'in' (inches), 'cm' or 'mm'.
-    res : int
+    res : int, optional
         The nominal resolution in ppi which will be recorded in the bitmap
         file, if a positive integer.  Also used for 'units' other than the
         default, and to convert points to pixels.
-    pointsize : float
+    pointsize : float, optional
         The default pointsize of plotted text, interpreted as big points (
         1/72 inch) at 'res' ppi.
+    bg : color, optional
+        The background color.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+    imshow_kwargs : dict-like
+        Additional keyword arguments passed through to `imshow()`.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
 
     """
 
@@ -209,13 +221,35 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
     # finalise PNG device
     grdevices.dev_off()
 
-    if display:
-        # display in IPython notebook
-        from IPython.core.displaypub import publish_display_data
-        with open(filename, 'rb') as f:
-            display_data = f.read()
-            publish_display_data(source='anhima', data={'image/png':
-                                                        display_data})
+    # read in PNG for matplotlib plotting
+    png = mpimg.imread(filename)
+
+    # set up axes for matplotlib plotting
+    if ax is None:
+        # try to make the figure exactly the right size for image native
+        # resolution
+        pxw, pxh = png.shape[:2]
+        dpi = plt.rcParams['savefig.dpi']
+        w, h = pxw/dpi, pxh/dpi
+        fig, ax = plt.subplots(figsize=(w, h))
+        # no margin
+        fig.subplots_adjust(0, 0, 1, 1, hspace=0, wspace=0)
+    if imshow_kwargs is None:
+        imshow_kwargs = dict()
+    imshow_kwargs.setdefault('aspect', 'equal')
+    imshow_kwargs.setdefault('interpolation', 'none')
+    ax.imshow(png, **imshow_kwargs)
+    ax.set_axis_off()
+
+    return ax
+
+    # if display:
+    #     # display in IPython notebook
+    #     from IPython.core.displaypub import publish_display_data
+    #     with open(filename, 'rb') as f:
+    #         display_data = f.read()
+    #         publish_display_data(source='anhima', data={'image/png':
+    #                                                     display_data})
 
 
 def write_tree(tree, filename=None, **kwargs):
@@ -246,6 +280,8 @@ def write_tree(tree, filename=None, **kwargs):
     # write the file
     if filename is None:
         kwargs['file'] = b''
+    else:
+        kwargs['file'] = filename
     result = ape.write_tree(tree, **kwargs)
 
     # handle the case where tree is written to stdout
