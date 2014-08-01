@@ -12,11 +12,11 @@ Genotypes
 .. autofunction:: count_hom_ref
 .. autofunction:: count_het
 .. autofunction:: count_hom_alt
-.. autofunction:: as_alleles
+.. autofunction:: as_haplotypes
 .. autofunction:: as_n_alt
 .. autofunction:: as_012
-.. autofunction:: pack_diploid_genotypes
-.. autofunction:: unpack_diploid_genotypes
+.. autofunction:: pack_diploid
+.. autofunction:: unpack_diploid
 .. autofunction:: count_genotypes
 .. autofunction:: windowed_genotype_counts
 .. autofunction:: windowed_genotype_density

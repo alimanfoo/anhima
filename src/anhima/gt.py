@@ -14,15 +14,10 @@ from __future__ import division, print_function, unicode_literals
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 
-# standard library dependencies
-import random
-
-
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import scipy.stats
 
 
 # internal dependencies
@@ -467,8 +462,8 @@ def count_hom_alt(genotypes, axis=None):
     return n
 
 
-def as_alleles(genotypes):
-    """Reshape an array of genotypes as an array of alleles, by dropping the
+def as_haplotypes(genotypes):
+    """Reshape an array of genotypes to view it as haplotypes by dropping the
     ploidy dimension.
 
     Parameters
@@ -483,11 +478,14 @@ def as_alleles(genotypes):
     Returns
     -------
 
-    alleles : ndarray
+    haplotypes : ndarray
         An array of shape (`n_variants`, `n_samples` * `ploidy`).
 
     Notes
     -----
+
+    Note that if genotype calls are unphased, the haplotypes returned by this
+    function will bear no resemblance to the true haplotypes.
 
     Applicable to polyploid genotype calls.
 
@@ -500,9 +498,9 @@ def as_alleles(genotypes):
 
     # reshape, preserving size of first dimension
     newshape = (genotypes.shape[0], -1)
-    alleles = np.reshape(genotypes, newshape)
+    haplotypes = np.reshape(genotypes, newshape)
 
-    return alleles
+    return haplotypes
 
 
 def as_n_alt(genotypes):
@@ -604,9 +602,6 @@ def as_012(genotypes, fill=-1):
     # check input array
     assert genotypes.ndim > 1
 
-    # assume ploidy is fastest changing dimension
-    dim_ploidy = genotypes.ndim - 1
-
     # set up output array
     gn = np.empty(genotypes.shape[:-1], dtype='i1')
     gn.fill(fill)
@@ -619,7 +614,7 @@ def as_012(genotypes, fill=-1):
     return gn
 
 
-def pack_diploid_genotypes(genotypes):
+def pack_diploid(genotypes):
     """
     Pack diploid genotypes into a single byte for each genotype,
     using the left-most 4 bits for the first allele and the right-most 4 bits
@@ -666,7 +661,7 @@ def pack_diploid_genotypes(genotypes):
     return packed
 
 
-def unpack_diploid_genotypes(packed):
+def unpack_diploid(packed):
     """
     Unpack an array of diploid genotypes that have been bit packed into
     single bytes.
