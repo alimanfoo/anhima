@@ -16,11 +16,12 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 
 # third party dependencies
+import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.decomposition
 
 
-def pca(gn, n_components=None, whiten=False):
+def pca(gn, n_components=10, whiten=False):
     """Perform a principal components analysis of the genotypes, treating each
     variant as a feature.
 
@@ -31,7 +32,7 @@ def pca(gn, n_components=None, whiten=False):
         A 2-dimensional array where each element is a genotype call coded as
         a single integer counting the number of non-reference alleles.
     n_components : int, None or string
-        Number of components to keep. If `n_components` is not set all
+        Number of components to keep. If `n_components` is None all
         components are kept: ``n_components == min(n_samples, n_features)``. If
         `n_components` == 'mle', Minka's MLE is used to guess the dimension. If
         0 < `n_components` < 1, select the number of components such that the
@@ -47,14 +48,14 @@ def pca(gn, n_components=None, whiten=False):
 
     model : ``sklearn.decomposition.PCA``
         The fitted model.
-    trans : ndarray, shape (`n_samples`, `n_components`)
+    coords : ndarray, shape (`n_samples`, `n_components`)
         The result of fitting the model with `genotypes` and applying
         dimensionality reduction to `genotypes`.
 
     See Also
     --------
 
-    anhima.ld.ld_prune_pairwise, sklearn.decomposition.PCA
+    sklearn.decomposition.PCA, anhima.ld.ld_prune_pairwise
 
     Notes
     -----
@@ -72,23 +73,23 @@ def pca(gn, n_components=None, whiten=False):
     x = gn.T
 
     # fit the model and apply dimensionality reduction
-    trans = model.fit_transform(x)
+    coords = model.fit_transform(x)
 
-    return model, trans
+    return model, coords
 
 
-def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
-                    labels=None, scatter_kwargs=None, annotate_kwargs=None):
-    """Scatter plot of principal components.
+def plot_coords(model, coords, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
+               labels=None, scatter_kwargs=None, annotate_kwargs=None):
+    """Scatter plot of transformed coordinates from principal components
+    analysis.
 
     Parameters
     ----------
 
     model : ``sklearn.decomposition.PCA``
         The fitted model.
-    trans : ndarray, shape (`n_samples`, `n_components`)
-        The result of fitting the model with `genotypes` and applying
-        dimensionality reduction to `genotypes`.
+    coords : ndarray, shape (`n_samples`, `n_components`)
+        The transformed coordinates.
     pcx : int, optional
         The principal component to plot on the X axis. N.B., this is
         one-based, so `1` is the first principal component, `2` is the second
@@ -129,8 +130,8 @@ def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
         fig, ax = plt.subplots(figsize=(x, x))
 
     # obtain X and Y data, N.B., `pcx` and `pcy` are 1-based
-    x = trans[:, pcx-1]
-    y = trans[:, pcy-1]
+    x = coords[:, pcx-1]
+    y = coords[:, pcy-1]
 
     # plot points
     if scatter_kwargs is None:
@@ -157,5 +158,104 @@ def plot_components(model, trans, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
     return ax
 
 
-# TODO loadings plot
-# TODO variance explained plot
+def plot_variance_explained(model, bar_kwargs=None, ax=None):
+    """
+
+    Parameters
+    ----------
+
+    model : ``sklearn.decomposition.PCA``
+        The fitted model.
+    bar_kwargs : dict-like, optional
+        Additional keyword arguments passed through to ``ax.bar()``.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # set up axes
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # how many components are available
+
+    # coordinates for bar
+    y = model.explained_variance_ratio_ * 100  # express as percent
+    n = len(y)
+    x = np.arange(n)
+
+    # plot bar
+    if bar_kwargs is None:
+        bar_kwargs = dict()
+    bar_kwargs.setdefault('width', 1)
+    ax.bar(x, y, **bar_kwargs)
+
+    # tidy up
+    ax.set_xticks(x+.5)
+    ax.set_xticklabels(range(1, n+1))
+    ax.set_xlabel('principal component')
+    ax.set_ylabel('% variance explained');
+
+    return ax
+
+
+def plot_loadings(model, pc=1, pos=None, plot_kwargs=None, ax=None):
+    """
+    Plot loadings for the given principal component.
+
+    Parameters
+    ----------
+
+    model : ``sklearn.decomposition.PCA``
+        The fitted model.
+    pc : int, optional
+        The principal component to plot loadings for. N.B., this is
+        one-based, so `1` is the first principal component, `2` is the second
+        component, etc.
+    pos : array_like, int, optional
+        An array of variant positions to use for the X axis, If not given,
+        variant index will be used for the X axis.
+    plot_kwargs : dict-like, optional
+        Additional keyword arguments passed through to ``ax.plot()``.
+    ax : axes, optional
+        The axes on which to draw. If not provided, a new figure will be
+        created.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    """
+
+    # set up axes
+    if ax is None:
+        x = plt.rcParams['figure.figsize'][0]
+        fig = plt.figure(figsize=(x, x//3))
+        ax = fig.add_subplot(111)
+
+    # obtain loadings
+    y = model.components_[pc-1, :]
+
+    # plot them
+    if plot_kwargs is None:
+        plot_kwargs = dict()
+    if pos is not None:
+        assert len(y) == len(pos)
+        ax.plot(pos, y, **plot_kwargs)
+        ax.set_xlabel('position')
+        ax.set_xlim(min(pos), max(pos))
+    else:
+        ax.plot(y, **plot_kwargs)
+        ax.set_xlabel('variant')
+        ax.set_xlim(0, len(y))
+
+    return ax
