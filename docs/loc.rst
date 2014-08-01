@@ -14,6 +14,7 @@ See also the examples at:
 .. autofunction:: take_sample
 .. autofunction:: take_samples
 .. autofunction:: query_variants
+.. autofunction:: compress_variants
 .. autofunction:: take_variants
 .. autofunction:: locate_region
 .. autofunction:: take_region

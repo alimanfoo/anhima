@@ -139,8 +139,8 @@ def query_variants(expression, variants):
     return result
 
 
-def take_variants(a, selection):
-    """Extract rows from the array `a` corresponding to a sparse `selection` of
+def compress_variants(a, selection):
+    """Extract rows from the array `a` corresponding to a boolean `selection` of
     variants.
 
     Parameters
@@ -165,8 +165,38 @@ def take_variants(a, selection):
     assert selection.ndim == 1
     assert a.shape[0] == selection.shape[0]
 
-    # take rows from the input array
+    # compress rows from the input array
     b = np.compress(selection, a, axis=0)
+
+    return b
+
+
+def take_variants(a, selection):
+    """Extract rows from the array `a` corresponding to a `selection` of
+    variant indices.
+
+    Parameters
+    ----------
+
+    a :  array_like
+        An array to extract rows from (e.g., genotypes).
+    selection : sequence of integers
+        The variant indices to extract.
+
+    Returns
+    -------
+
+    b : ndarray
+        An array obtained from `a` by taking rows corresponding to the
+        selected variants.
+
+    """
+
+    # check dimensions and sizes
+    assert a.ndim >= 1
+
+    # take rows from the input array
+    b = np.take(a, selection, axis=0)
 
     return b
 
