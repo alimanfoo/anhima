@@ -55,7 +55,7 @@ def is_variant(genotypes, min_ac=1):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # determine output
     out = np.sum(a > 0, axis=1) >= min_ac
@@ -125,7 +125,7 @@ def is_non_variant(genotypes):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # determine output
     out = np.all(a <= 0, axis=1)
@@ -197,7 +197,7 @@ def is_non_segregating(genotypes, allele=1):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # determine output
     out = np.all((a < 0) | (a == allele), axis=1)
@@ -271,7 +271,7 @@ def is_singleton(genotypes, allele=1):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # determine output
     out = np.sum(a == allele, axis=1) == 1
@@ -344,7 +344,7 @@ def is_doubleton(genotypes, allele=1):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # determine output
     out = np.sum(a == allele, axis=1) == 2
@@ -414,7 +414,7 @@ def allele_number(genotypes):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # count non-missing alleles
     an = np.sum(a >= 0, axis=1)
@@ -454,7 +454,7 @@ def allele_count(genotypes, allele=1):
     """
 
     # reshape as alleles
-    a = anhima.gt.as_alleles(genotypes)
+    a = anhima.gt.as_haplotypes(genotypes)
 
     # count alleles
     ac = np.sum(a == allele, axis=1)
