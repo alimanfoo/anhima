@@ -42,6 +42,7 @@ Install from GitHub::
     pca
     mds
     tree
+    ped
     h5
     sim
 

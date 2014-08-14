@@ -2,5 +2,6 @@ Multidimensional scaling
 ========================
 
 .. automodule:: anhima.mds
-.. autofunction:: mds
+.. autofunction:: smacof
+.. autofunction:: classical
 .. autofunction:: plot_coords
