@@ -17,9 +17,14 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
+import rpy2.robjects as ro
+from rpy2.robjects import r
+from rpy2.robjects.numpy2ri import numpy2ri
+ro.conversion.py2ri = numpy2ri
+import sklearn.manifold
 
 
-def mds(dist_square, **kwargs):
+def smacof(dist_square, **kwargs):
     """
     Multidimensional scaling using the SMACOF (Scaling by Majorizing a
     Complicated Function) algorithm.
@@ -36,11 +41,9 @@ def mds(dist_square, **kwargs):
     Returns
     -------
 
-    model : ``sklearn.manifold.MDS``
-        The fitted model.
     coords : ndarray, shape (n_samples, n_components)
-        The result of fitting the model with `dist_square` and applying
-        dimensionality reduction.
+        An array whose rows give the coordinates of the points chosen to
+        represent the dissimilarities.
 
     See Also
     --------
@@ -49,8 +52,8 @@ def mds(dist_square, **kwargs):
 
     """
 
-    # dependencies
-    import sklearn.manifold
+    # normalise inputs
+    dist_square = np.asarray(dist_square)
 
     # setup model
     model = sklearn.manifold.MDS(dissimilarity=b'precomputed',
@@ -59,7 +62,38 @@ def mds(dist_square, **kwargs):
     # fit model and get transformed coordinates
     coords = model.fit(dist_square).embedding_
 
-    return model, coords
+    return coords
+
+
+def classical(dist_square, k=2):
+    """
+    Classical multidimensional scaling via the R ``cmdscale`` function.
+
+    Parameters
+    ----------
+
+    dist_square : array_like, shape (n_samples, n_samples)
+        A distance matrix in square form.
+    k : integer, optional
+        The maximum dimension of the space which the data are to be represented
+        in; must be in {1, 2, ..., n-1}.
+
+    Returns
+    -------
+
+    coords : ndarray, shape (n_samples, k)
+        An array whose rows give the coordinates of the points chosen to
+        represent the dissimilarities.
+
+    """
+
+    # convert distance matrix to R
+    m = ro.vectors.Matrix(dist_square)
+
+    # apply MDS
+    coords = r['cmdscale'](m, k=k)
+
+    return np.asarray(coords)
 
 
 def plot_coords(coords, dimx=1, dimy=2, ax=None, colors='b', sizes=20,
@@ -136,5 +170,3 @@ def plot_coords(coords, dimx=1, dimy=2, ax=None, colors='b', sizes=20,
 
     return ax
 
-
-# TODO cmdscale via R
