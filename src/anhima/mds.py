@@ -1,6 +1,11 @@
 """
 Utility functions for multidimensional scaling.
 
+R must be installed, and the Python package ``rpy2`` must be installed, e.g.::
+
+    $ apt-get install r-base
+    $ pip install rpy2
+
 See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/mds.ipynb
@@ -48,12 +53,14 @@ def smacof(dist_square, **kwargs):
     See Also
     --------
 
-    sklearn.manifold.MDS, anhima.pca.pca
+    anhima.mds.classical, sklearn.manifold.MDS, anhima.pca.pca
 
     """
 
     # normalise inputs
     dist_square = np.asarray(dist_square)
+    assert dist_square.ndim == 2
+    assert dist_square.shape[0] == dist_square.shape[1]
 
     # setup model
     model = sklearn.manifold.MDS(dissimilarity=b'precomputed',
@@ -85,7 +92,17 @@ def classical(dist_square, k=2):
         An array whose rows give the coordinates of the points chosen to
         represent the dissimilarities.
 
+    See Also
+    --------
+
+    anhima.mds.smacof, anhima.pca.pca
+
     """
+
+    # normalise inputs
+    dist_square = np.asarray(dist_square)
+    assert dist_square.ndim == 2
+    assert dist_square.shape[0] == dist_square.shape[1]
 
     # convert distance matrix to R
     m = ro.vectors.Matrix(dist_square)
@@ -136,7 +153,16 @@ def plot_coords(coords, dimx=1, dimy=2, ax=None, colors='b', sizes=20,
     ax : axes
         The axes on which the plot was drawn.
 
+    See Also
+    --------
+
+    anhima.mds.smacof, anhima.mds.classical
+
     """
+
+    # normalise inputs
+    coords = np.asarray(coords)
+    assert coords.ndim == 2
 
     # set up axes
     if ax is None:

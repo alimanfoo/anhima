@@ -54,11 +54,12 @@ def is_variant(genotypes, min_ac=1):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # determine output
-    out = np.sum(a > 0, axis=1) >= min_ac
+    # aggregate over samples and ploidy dimensions
+    out = np.sum(genotypes > 0, axis=(1, 2)) >= min_ac
 
     return out
 
@@ -124,11 +125,12 @@ def is_non_variant(genotypes):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # determine output
-    out = np.all(a <= 0, axis=1)
+    # aggregate over samples and ploidy dimensions
+    out = np.all(genotypes <= 0, axis=(1, 2))
 
     return out
 
@@ -196,11 +198,12 @@ def is_non_segregating(genotypes, allele=1):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # determine output
-    out = np.all((a < 0) | (a == allele), axis=1)
+    # aggregate over samples and ploidy dimensions
+    out = np.all((genotypes < 0) | (genotypes == allele), axis=(1, 2))
 
     return out
 
@@ -270,11 +273,12 @@ def is_singleton(genotypes, allele=1):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # determine output
-    out = np.sum(a == allele, axis=1) == 1
+    # aggregate over samples and ploidy dimensions
+    out = np.sum(genotypes == allele, axis=(1, 2)) == 1
 
     return out
 
@@ -343,11 +347,12 @@ def is_doubleton(genotypes, allele=1):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # determine output
-    out = np.sum(a == allele, axis=1) == 2
+    # aggregate over samples and ploidy dimensions
+    out = np.sum(genotypes == allele, axis=(1, 2)) == 2
 
     return out
 
@@ -413,11 +418,12 @@ def allele_number(genotypes):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # count non-missing alleles
-    an = np.sum(a >= 0, axis=1)
+    # aggregate over samples and ploidy dimensions
+    an = np.sum(genotypes >= 0, axis=(1, 2))
 
     return an
 
@@ -453,11 +459,12 @@ def allele_count(genotypes, allele=1):
 
     """
 
-    # reshape as alleles
-    a = anhima.gt.as_haplotypes(genotypes)
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
 
-    # count alleles
-    ac = np.sum(a == allele, axis=1)
+    # aggregate over samples and ploidy dimensions
+    ac = np.sum(genotypes == allele, axis=(1, 2))
 
     return ac
 
@@ -547,6 +554,10 @@ def allele_frequencies(genotypes, alleles=(0, 1)):
 
     """
 
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim == 3
+
     # set up output arrays
     n_variants = genotypes.shape[0]
     n_alleles = len(alleles)
@@ -562,5 +573,4 @@ def allele_frequencies(genotypes, alleles=(0, 1)):
         af[:, n] = ac[:, n] / an
 
     return an, ac, af
-
 

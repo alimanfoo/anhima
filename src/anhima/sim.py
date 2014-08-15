@@ -1,6 +1,6 @@
 """
-Very simple simulation functions to generate genotype data for illustration
-of other features in the ``anhima`` package.
+Extremely naive simulation functions to generate genotype data for
+illustration of other features in the ``anhima`` package.
 
 """
 
@@ -133,11 +133,33 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0.2):
 
 def simulate_relatedness(genotypes, relatedness=.5, n_iter=1000, copy=True):
     """
-    TODO
+    Simulate relatedness by randomly copying genotypes between individuals.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    relatedness : float, optional
+        Fraction of variants to copy genotypes for.
+    n_iter : int, optional
+        Number of times to randomly copy genotypes between individuals.
+    copy : bool, optional
+        If False, modify `genotypes` in place.
+
+    Returns
+    -------
+
+    genotypes : ndarray, shape (n_variants, n_samples, ploidy)
+        The input genotype array but with relatedness simulated.
 
     """
 
     # check genotypes array
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim >= 2
     n_variants = genotypes.shape[0]
     n_samples = genotypes.shape[1]

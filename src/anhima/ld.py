@@ -51,7 +51,11 @@ def pairwise_genotype_ld(gn):
         each pair of variants.
     
     """
-    
+
+    # check input array
+    gn = np.asarray(gn)
+    assert gn.ndim == 2
+
     # TODO deal with missing genotypes
     return np.power(np.corrcoef(gn), 2)
 
@@ -82,6 +86,11 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
         The axes on which the plot was drawn
     
     """
+
+    # check inputs
+    r_squared = np.asarray(r_squared)
+    assert r_squared.ndim == 2
+    assert r_squared.shape[0] == r_squared.shape[1]
 
     # setup axes
     if ax is None:
@@ -147,6 +156,10 @@ def plot_windowed_ld(gn, pos, window_size, start_position=None,
         The axes on which the plot was drawn.
 
     """
+
+    # check input array
+    gn = np.asarray(gn)
+    assert gn.ndim == 2
 
     # set up axes
     if ax is None:
@@ -266,6 +279,10 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
 
     """
     
+    # check input array
+    gn = np.asarray(gn)
+    assert gn.ndim == 2
+
     # set up output array
     n_variants = gn.shape[0]
     included = np.ones((n_variants,), dtype=np.bool)
@@ -340,6 +357,11 @@ def pairwise_ld_decay(r_squared, pos, step=1):
 
     """
     
+    # check inputs
+    r_squared = np.asarray(r_squared)
+    assert r_squared.ndim == 2
+    assert r_squared.shape[0] == r_squared.shape[1]
+
     # determine the number of variants
     n_variants = r_squared.shape[0]
     
@@ -407,6 +429,10 @@ def windowed_ld_decay(gn, pos, window_size, step=1):
     is calculated for all pairs within each window.
 
     """
+
+    # check input array
+    gn = np.asarray(gn)
+    assert gn.ndim == 2
 
     # determine number of variants
     n_variants = gn.shape[0]
@@ -479,6 +505,13 @@ def plot_ld_decay_by_separation(cor, sep,
         The axes on which the plot was drawn.
     
     """
+
+    # check inputs
+    cor = np.asarray(cor)
+    sep = np.asarray(sep)
+    assert cor.ndim == 1
+    assert sep.ndim == 1
+    assert cor.shape[0] == sep.shape[0]
 
     # set up axes
     if ax is None:
@@ -565,6 +598,13 @@ def plot_ld_decay_by_distance(cor, dist, bins,
         The axes on which the plot was drawn.
 
     """
+
+    # check inputs
+    cor = np.asarray(cor)
+    dist = np.asarray(dist)
+    assert cor.ndim == 1
+    assert dist.ndim == 1
+    assert cor.shape[0] == dist.shape[0]
 
     # set up axes
     if ax is None:

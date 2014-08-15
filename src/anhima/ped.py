@@ -23,6 +23,16 @@ import numexpr as ne
 import anhima.gt
 
 
+# constants to represent inheritance states
+INHERIT_PARENT1 = 1
+INHERIT_PARENT2 = 2
+INHERIT_NONSEG_REF = 3
+INHERIT_NONSEG_ALT = 4
+INHERIT_NONPARENTAL = 5
+INHERIT_PARENT_MISSING = 6
+INHERIT_MISSING = 7
+
+
 def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     """
     Determine the transmission of parental alleles to a set of gametes.
@@ -37,9 +47,9 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
         2 = second alternate allele, etc.).
     gamete_haplotypes : array_like, shape (n_variants, n_gametes)
         An array of haplotypes for a set of gametes derived from the given 
-        parent,where each element of the array is an integer corresponding to an 
-        allele index (-1 = missing, 0 = reference allele, 1 = first alternate 
-        allele, 2 = second alternate allele, etc.).
+        parent, where each element of the array is an integer corresponding
+        to an allele index (-1 = missing, 0 = reference allele, 1 = first
+        alternate allele, 2 = second alternate allele, etc.).
         
     Returns
     -------
@@ -55,8 +65,13 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
 
     """
 
-    # N.B., use numexpr below where possible to avoid temporary arrays 
-    
+    # normalise inputs
+    parent_diplotype = np.asarray(parent_diplotype)
+    assert parent_diplotype.ndim == 2
+    assert parent_diplotype.shape[1] == 2
+    gamete_haplotypes = np.asarray(gamete_haplotypes)
+    assert gamete_haplotypes.ndim == 2
+
     # convenience variables
     parent1 = parent_diplotype[:, 0, np.newaxis]
     parent2 = parent_diplotype[:, 1, np.newaxis]
@@ -69,7 +84,9 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     # need this for broadcasting, but also need to retain original for later
     parent_is_missing_bc = parent_is_missing[:, np.newaxis]
     
-    # utility variable, identify allele calls where inheritance can be 
+    # N.B., use numexpr below where possible to avoid temporary arrays
+
+    # utility variable, identify allele calls where inheritance can be
     # determined
     callable = ne.evaluate('~gamete_is_missing & ~parent_is_missing_bc')
     callable_seg = ne.evaluate('callable & parent_is_het')
@@ -87,19 +104,20 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     nonseg_alt = ne.evaluate(
         'callable & parent_is_hom_alt & (gamete_haplotypes == parent1)'
     )
-    non_parental = ne.evaluate(
+    nonparental = ne.evaluate(
         'callable & (gamete_haplotypes != parent1)'
         ' & (gamete_haplotypes != parent2)'
     )
 
-    # code inheritance states
+    # record inheritance states
+    # N.B., order in which these are set matters
     inheritance = np.zeros_like(gamete_haplotypes, dtype='u1')
-    inheritance[inherit_parent1] = 1
-    inheritance[inherit_parent2] = 2
-    inheritance[nonseg_ref] = 3
-    inheritance[nonseg_alt] = 4
-    inheritance[non_parental] = 5
-    inheritance[parent_is_missing] = 6
-    inheritance[gamete_is_missing] = 7
+    inheritance[inherit_parent1] = INHERIT_PARENT1
+    inheritance[inherit_parent2] = INHERIT_PARENT2
+    inheritance[nonseg_ref] = INHERIT_NONSEG_REF
+    inheritance[nonseg_alt] = INHERIT_NONSEG_ALT
+    inheritance[nonparental] = INHERIT_NONPARENTAL
+    inheritance[parent_is_missing] = INHERIT_PARENT_MISSING
+    inheritance[gamete_is_missing] = INHERIT_MISSING
 
     return inheritance

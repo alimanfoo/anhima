@@ -45,6 +45,10 @@ def pairwise_distance(gn, metric='euclidean'):
 
     """
 
+    # normalise inputs
+    gn = np.asarray(gn)
+    assert gn.ndim == 2
+
     # transpose genotypes as pdist expects (m, n) for m observations in an
     # n-dimensional space
     x = gn.T
@@ -67,7 +71,7 @@ def plot_pairwise_distance(dist_square, labels=None,
     Parameters
     ----------
 
-    dist_square : ndarray, float
+    dist_square : array_like
         The distance matrix in square form.
     labels : sequence of strings, optional
         Sample labels for the axes.
@@ -92,6 +96,10 @@ def plot_pairwise_distance(dist_square, labels=None,
         The axes on which the plot was drawn
 
     """
+
+    # normalise inputs
+    dist_square = np.asarray(dist_square)
+    assert dist_square.ndim == 2
 
     # set up axes
     if ax is None:
@@ -123,3 +131,5 @@ def plot_pairwise_distance(dist_square, labels=None,
 
 
 # TODO add color option to distance plot instead of labels
+# TODO clustering prior to distance plots
+# TODO tree with distance plot

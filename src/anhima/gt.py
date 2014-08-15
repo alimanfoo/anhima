@@ -58,6 +58,7 @@ def is_called(genotypes):
     """
 
     # check input array has 2 or more dimensions
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # assume ploidy is fastest changing dimension
@@ -97,12 +98,6 @@ def count_called(genotypes, axis=None):
     is_called
 
     """
-
-    # deal with axis argument
-    if axis == 'variants':
-        axis = 0
-    if axis == 'samples':
-        axis = 1
 
     # count genotypes
     n = np.sum(is_called(genotypes), axis=axis)
@@ -144,6 +139,7 @@ def is_missing(genotypes):
     """
 
     # check input array has 2 or more dimensions
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # assume ploidy is fastest changing dimension
@@ -183,20 +179,14 @@ def count_missing(genotypes, axis=None):
 
     """
 
-    # deal with axis argument
-    if axis == 'variants':
-        axis = 0
-    if axis == 'samples':
-        axis = 1
-
     # count genotypes
     n = np.sum(is_missing(genotypes), axis=axis)
 
     return n
 
 
-def is_hom_ref(genotypes):
-    """Find homozygous reference genotype calls.
+def is_hom(genotypes):
+    """Find homozygous genotype calls.
 
     Parameters
     ----------
@@ -211,13 +201,13 @@ def is_hom_ref(genotypes):
     Returns
     -------
 
-    is_hom_ref : ndarray, bool
-        An array where elements are True if the genotype call is homozygous
-        reference.
+    is_hom : ndarray, bool
+        An array where elements are True if the genotype call is homozygous.
 
     See Also
     --------
-    is_called, is_missing, is_het, is_hom_alt
+
+    is_called, is_missing, is_hom_ref, is_hom_alt
 
     Notes
     -----
@@ -229,19 +219,23 @@ def is_hom_ref(genotypes):
     """
 
     # check input array has 2 or more dimensions
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
 
-    # determine output array
-    out = np.all(genotypes == 0, axis=dim_ploidy)
+    # find hets
+    allele1 = genotypes[..., 0, np.newaxis]
+    other_alleles = genotypes[..., 1:]
+    is_hom = np.any((allele1 >= 0) & (allele1 == other_alleles),
+                    axis=dim_ploidy)
 
-    return out
+    return is_hom
 
 
-def count_hom_ref(genotypes, axis=None):
-    """Count homozygous reference genotype calls.
+def count_hom(genotypes, axis=None):
+    """Count homozygous genotype calls.
 
     Parameters
     ----------
@@ -259,24 +253,17 @@ def count_hom_ref(genotypes, axis=None):
     -------
 
     n : int or array
-        If `axis` is None, returns the number of homozygous
-        reference genotypes. If `axis` is specified, returns the sum along
-        the given `axis`.
+        If `axis` is None, returns the number of homozygous genotypes. If
+        `axis` is specified, returns the sum along the given `axis`.
 
     See Also
     --------
-    is_hom_ref
+    is_hom
 
     """
 
-    # deal with axis argument
-    if axis == 'variants':
-        axis = 0
-    if axis == 'samples':
-        axis = 1
-
     # count genotypes
-    n = np.sum(is_hom_ref(genotypes), axis=axis)
+    n = np.sum(is_hom(genotypes), axis=axis)
 
     return n
 
@@ -319,6 +306,7 @@ def is_het(genotypes):
     """
 
     # check input array has 2 or more dimensions
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # assume ploidy is fastest changing dimension
@@ -360,14 +348,89 @@ def count_het(genotypes, axis=None):
 
     """
 
-    # deal with axis argument
-    if axis == 'variants':
-        axis = 0
-    if axis == 'samples':
-        axis = 1
-
     # count genotypes
     n = np.sum(is_het(genotypes), axis=axis)
+
+    return n
+
+
+def is_hom_ref(genotypes):
+    """Find homozygous reference genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like, int
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    Returns
+    -------
+
+    is_hom_ref : ndarray, bool
+        An array where elements are True if the genotype call is homozygous
+        reference.
+
+    See Also
+    --------
+    is_called, is_missing, is_het, is_hom_alt
+
+    Notes
+    -----
+
+    Applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants.
+
+    """
+
+    # check input array has 2 or more dimensions
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim > 1
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = genotypes.ndim - 1
+
+    # determine output array
+    out = np.all(genotypes == 0, axis=dim_ploidy)
+
+    return out
+
+
+def count_hom_ref(genotypes, axis=None):
+    """Count homozygous reference genotype calls.
+
+    Parameters
+    ----------
+
+    genotypes : array_like, int
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of homozygous
+        reference genotypes. If `axis` is specified, returns the sum along
+        the given `axis`.
+
+    See Also
+    --------
+    is_hom_ref
+
+    """
+
+    # count genotypes
+    n = np.sum(is_hom_ref(genotypes), axis=axis)
 
     return n
 
@@ -407,6 +470,7 @@ def is_hom_alt(genotypes):
     """
 
     # check input array has 2 or more dimensions
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # assume ploidy is fastest changing dimension
@@ -450,12 +514,6 @@ def count_hom_alt(genotypes, axis=None):
 
     """
 
-    # deal with axis argument
-    if axis == 'variants':
-        axis = 0
-    if axis == 'samples':
-        axis = 1
-
     # count genotypes
     n = np.sum(is_hom_alt(genotypes), axis=axis)
 
@@ -494,6 +552,7 @@ def as_haplotypes(genotypes):
     """
 
     # check input array
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim == 3
 
     # reshape, preserving size of first dimension
@@ -544,6 +603,7 @@ def as_n_alt(genotypes):
     """
 
     # check input array
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # assume ploidy is fastest changing dimension
@@ -600,6 +660,7 @@ def as_012(genotypes, fill=-1):
     """
 
     # check input array
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
 
     # set up output array
@@ -644,6 +705,10 @@ def pack_diploid(genotypes):
     unpack_diploid_genotypes
 
     """
+
+    # normalise inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim > 1
 
     # add 1 to handle missing alleles coded as -1
     genotypes = genotypes + 1
@@ -739,11 +804,8 @@ def count_genotypes(gn, t, axis=None):
 
     """
 
-    # deal with axis argument
-    if axis == 'variants':
-        axis = 0
-    if axis == 'samples':
-        axis = 1
+    # normalise inputs
+    gn = np.asarray(gn)
 
     # count genotypes
     n = np.sum(gn == t, axis=axis)
@@ -790,6 +852,7 @@ def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
     """
 
     # check input array
+    gn = np.asarray(gn)
     assert gn.ndim == 1
 
     # find matching genotypes
@@ -1142,6 +1205,7 @@ def plot_discrete_calldata(a, labels=None, colors='wbgrcmyk', states=None,
     """
 
     # check input array
+    a = np.asarray(a)
     assert a.ndim == 2
 
     # set up axes
@@ -1207,6 +1271,7 @@ def plot_continuous_calldata(a, labels=None, ax=None, pcolormesh_kwargs=None):
     """
 
     # check input array
+    a = np.asarray(a)
     assert a.ndim == 2
 
     # set up axes
@@ -1313,6 +1378,7 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
     """
 
     # check input array
+    gn = np.asarray(gn)
     assert gn.ndim == 2
     n_variants = gn.shape[0]
     n_samples = gn.shape[1]
@@ -1335,7 +1401,7 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
     for t, c in zip(states, colors):
 
         # count genotypes
-        y = count_genotypes(gn, t, axis='variants')
+        y = count_genotypes(gn, t, axis=0)
 
         # plot as bar
         if orientation == 'vertical':
@@ -1413,6 +1479,7 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
     """
 
     # check input array
+    gn = np.asarray(gn)
     assert gn.ndim == 2
     n_variants = gn.shape[0]
     n_samples = gn.shape[1]
@@ -1435,7 +1502,7 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
     for t, c in zip(states, colors):
 
         # count genotypes
-        y = count_genotypes(gn, t, axis='samples')
+        y = count_genotypes(gn, t, axis=1)
 
         # plot as bar
         if orientation == 'vertical':
@@ -1493,6 +1560,7 @@ def plot_continuous_calldata_by_sample(a, labels=None,
     """
 
     # check input array
+    a = np.asarray(a)
     assert a.ndim == 2
 
     # check orientation

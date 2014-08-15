@@ -78,6 +78,11 @@ def nj(dist_square, labels=None):
 
     """
 
+    # normalise inputs
+    dist_square = np.asarray(dist_square)
+    assert dist_square.ndim == 2
+    assert dist_square.shape[0] == dist_square.shape[1]
+
     # convert distance matrix to R
     m = ro.vectors.Matrix(dist_square)
 
@@ -119,6 +124,11 @@ def bionj(dist_square, labels=None):
     anhima.dist.pairwise_distance
 
     """
+
+    # normalise inputs
+    dist_square = np.asarray(dist_square)
+    assert dist_square.ndim == 2
+    assert dist_square.shape[0] == dist_square.shape[1]
 
     # convert distance matrix to R
     m = ro.vectors.Matrix(dist_square)
@@ -242,14 +252,6 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
     ax.set_axis_off()
 
     return ax
-
-    # if display:
-    #     # display in IPython notebook
-    #     from IPython.core.displaypub import publish_display_data
-    #     with open(filename, 'rb') as f:
-    #         display_data = f.read()
-    #         publish_display_data(source='anhima', data={'image/png':
-    #                                                     display_data})
 
 
 def write_tree(tree, filename=None, **kwargs):

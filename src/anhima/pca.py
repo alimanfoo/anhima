@@ -65,6 +65,10 @@ def pca(gn, n_components=10, whiten=False):
 
     """
 
+    # normalise inputs
+    gn = np.asarray(gn)
+    assert gn.ndim == 2
+
     # set up PCA
     model = sklearn.decomposition.PCA(n_components=n_components, whiten=whiten,
                                       copy=True)
@@ -79,7 +83,7 @@ def pca(gn, n_components=10, whiten=False):
 
 
 def plot_coords(model, coords, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
-               labels=None, scatter_kwargs=None, annotate_kwargs=None):
+                labels=None, scatter_kwargs=None, annotate_kwargs=None):
     """Scatter plot of transformed coordinates from principal components
     analysis.
 
@@ -122,6 +126,10 @@ def plot_coords(model, coords, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
         The axes on which the plot was drawn.
 
     """
+
+    # normalise inputs
+    coords = np.asarray(coords)
+    assert coords.ndim == 2
 
     # set up axes
     if ax is None:
@@ -201,7 +209,7 @@ def plot_variance_explained(model, bar_kwargs=None, ax=None):
     ax.set_xticks(x+.5)
     ax.set_xticklabels(range(1, n+1))
     ax.set_xlabel('principal component')
-    ax.set_ylabel('% variance explained');
+    ax.set_ylabel('% variance explained')
 
     return ax
 

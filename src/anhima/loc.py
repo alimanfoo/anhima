@@ -12,6 +12,7 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 
 # standard library dependencies
 import bisect
+import random
 
 
 # third party dependencies
@@ -47,6 +48,7 @@ def take_samples(a, all_samples, selected_samples):
     """
 
     # check a is an array of 2 or more dimensions
+    a = np.asarray(a)
     assert a.ndim > 1
 
     # check length of samples dimension is as expected
@@ -94,6 +96,7 @@ def take_sample(a, all_samples, selected_sample):
     """
 
     # check a is an array of 2 or more dimensions
+    a = np.asarray(a)
     assert a.ndim > 1
 
     # check length of samples dimension is as expected
@@ -161,6 +164,8 @@ def compress_variants(a, selection):
     """
 
     # check dimensions and sizes
+    a = np.asarray(a)
+    selection = np.asarray(selection)
     assert a.ndim >= 1
     assert selection.ndim == 1
     assert a.shape[0] == selection.shape[0]
@@ -193,6 +198,7 @@ def take_variants(a, selection):
     """
 
     # check dimensions and sizes
+    a = np.asarray(a)
     assert a.ndim >= 1
 
     # take rows from the input array
@@ -257,7 +263,12 @@ def take_region(a, pos, start_position, stop_position):
 
     """
 
+    # normalise inputs
+    a = np.asarray(a)
+
+    # determine region slice
     loc = locate_region(pos, start_position, stop_position)
+
     return a[loc, ...]
 
 
@@ -624,16 +635,16 @@ def windowed_statistic(pos, values, window_size,
     return stats, bin_edges
 
 
-def downsample_variants(a, target):
-    """Downsample an array along the first dimension to the `target`
-    length, assuming the first dimension corresponds to variants.
+def evenly_downsample_variants(a, k):
+    """Evenly downsample an array along the first dimension to length `k` (or as
+    near as possible), assuming the first dimension corresponds to variants.
 
     Parameters
     ----------
 
     a : array_like
         The array to downsample.
-    target : int
+    k : int
         The target number of variants.
 
     Returns
@@ -644,9 +655,55 @@ def downsample_variants(a, target):
 
     """
 
+    # normalise inputs
+    a = np.asarray(a)
+
+    # determine length of first dimension
     n_variants = a.shape[0]
-    step = max(1, int(n_variants/target))
+
+    # determine step
+    step = max(1, int(n_variants/k))
+
+    # take slice
     b = a[::step, ...]
+
     return b
+
+
+def randomly_downsample_variants(a, k):
+    """Evenly downsample an array along the first dimension to length `k`,
+    assuming the first dimension corresponds to variants.
+
+    Parameters
+    ----------
+
+    a : array_like
+        The array to downsample.
+    k : int
+        The k number of variants.
+
+    Returns
+    -------
+
+    b : array_like
+        A downsampled copy of `a`.
+
+    """
+
+    # normalise inputs
+    a = np.asarray(a)
+
+    # determine length of first dimension
+    n_variants = a.shape[0]
+
+    # sample indices
+    indices = sorted(random.sample(range(n_variants), k))
+
+    # apply selection
+    b = np.take(a, indices, axis=0)
+
+    return b
+
+
 
 
