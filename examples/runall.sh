@@ -9,6 +9,7 @@ set -e
 for f in *.ipynb
 do
     runipy -o $f
-    cat $f | sed 's/Figure at 0x[a-f0-9]*>/Figure at 0xFFFFFFFFF>/' | sed s/}\n\r/}/ > ${f}.sanitised
+    # sanitise notebooks so reruns dont arbitrarily create new git commits
+    cat $f | sed 's/Figure at 0x[a-f0-9]*>/Figure at 0xFFFFFFFFF>/' | sed 's/}\n\r/}/' > ${f}.sanitised
     mv ${f}.sanitised $f
 done
