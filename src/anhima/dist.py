@@ -122,6 +122,8 @@ def plot_pairwise_distance(dist_square, labels=None,
 
     # tidy up
     if labels:
+        ax.set_xticks(range(len(labels)))
+        ax.set_yticks(range(len(labels)))
         ax.set_xticklabels(labels, rotation=90)
         ax.set_yticklabels(labels, rotation=0)
     if colorbar:
