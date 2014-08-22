@@ -22,7 +22,7 @@ import sklearn.decomposition
 
 
 def pca(gn, n_components=10, whiten=False):
-    """Perform a principal components analysis of the genotypes, treating each
+    """Perform a principal components analysis of genotypes, treating each
     variant as a feature.
 
     Parameters
@@ -65,19 +65,19 @@ def pca(gn, n_components=10, whiten=False):
 
     """
 
-    # normalise inputs
+    # check inputs
     gn = np.asarray(gn)
     assert gn.ndim == 2
+
+    # transpose because sklearn expects data as (n_samples, n_features)
+    m = gn.T
 
     # set up PCA
     model = sklearn.decomposition.PCA(n_components=n_components, whiten=whiten,
                                       copy=True)
 
-    # transpose because sklearn expects data as (n_samples, n_features)
-    x = gn.T
-
     # fit the model and apply dimensionality reduction
-    coords = model.fit_transform(x)
+    coords = model.fit_transform(m)
 
     return model, coords
 
@@ -127,7 +127,7 @@ def plot_coords(model, coords, pcx=1, pcy=2, ax=None, colors='b', sizes=20,
 
     """
 
-    # normalise inputs
+    # check inputs
     coords = np.asarray(coords)
     assert coords.ndim == 2
 
