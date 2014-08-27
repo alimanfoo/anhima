@@ -142,17 +142,16 @@ def query_variants(expression, variants):
     return result
 
 
-def compress_variants(a, selection):
-    """Extract rows from the array `a` corresponding to a boolean `selection` of
-    variants.
+def compress_variants(a, condition):
+    """Extract rows from the array `a` corresponding to a boolean `condition`.
 
     Parameters
     ----------
 
     a :  array_like
         An array to extract rows from (e.g., genotypes).
-    selection : array_like, bool
-        A boolean array of the same length as the first dimension of `a`.
+    condition : array_like, bool
+        A 1-D boolean array of the same length as the first dimension of `a`.
 
     Returns
     -------
@@ -160,33 +159,39 @@ def compress_variants(a, selection):
     b : ndarray
         An array obtained from `a` by taking rows corresponding to the
         selected variants.
+
+    See Also
+    --------
+
+    take_variants, numpy.compress
 
     """
 
     # check dimensions and sizes
     a = np.asarray(a)
-    selection = np.asarray(selection)
+    condition = np.asarray(condition)
     assert a.ndim >= 1
-    assert selection.ndim == 1
-    assert a.shape[0] == selection.shape[0]
+    assert condition.ndim == 1
+    assert a.shape[0] == condition.shape[0]
 
     # compress rows from the input array
-    b = np.compress(selection, a, axis=0)
+    b = np.compress(condition, a, axis=0)
 
     return b
 
 
-def take_variants(a, selection):
-    """Extract rows from the array `a` corresponding to a `selection` of
-    variant indices.
+def take_variants(a, indices, mode='raise'):
+    """Extract rows from the array `a` corresponding to `indices`.
 
     Parameters
     ----------
 
     a :  array_like
         An array to extract rows from (e.g., genotypes).
-    selection : sequence of integers
+    indices : sequence of integers
         The variant indices to extract.
+    mode : {'raise', 'wrap', 'clip'}, optional
+        Specifies how out-of-bounds indices will behave. 
 
     Returns
     -------
@@ -194,6 +199,11 @@ def take_variants(a, selection):
     b : ndarray
         An array obtained from `a` by taking rows corresponding to the
         selected variants.
+
+    See Also
+    --------
+
+    compress_variants, numpy.take
 
     """
 
@@ -202,7 +212,7 @@ def take_variants(a, selection):
     assert a.ndim >= 1
 
     # take rows from the input array
-    b = np.take(a, selection, axis=0)
+    b = np.take(a, indices, axis=0, mode=mode)
 
     return b
 
