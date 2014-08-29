@@ -772,3 +772,61 @@ def count_segregating(genotypes):
     """
 
     return np.count_nonzero(is_segregating(genotypes))
+
+
+def site_frequency_spectrum(derived_ac):
+    """TODO
+
+    """
+
+    # check input
+    derived_ac = np.asarray(derived_ac)
+    assert derived_ac.ndim == 1
+
+    # calculate frequency spectrum
+    sfs = np.bincount(derived_ac)
+
+    return sfs
+
+
+def site_frequency_spectrum_folded(biallelic_ac):
+    """TODO
+
+    """
+
+    # check input
+    biallelic_ac = np.asarray(biallelic_ac)
+    assert biallelic_ac.ndim == 2
+    assert biallelic_ac.shape[1] == 2
+
+    # calculate minor allele counts
+    minor_ac = np.amin(biallelic_ac, axis=1)
+
+    # calcate frequency spectrum
+    sfs_folded = np.bincount(minor_ac)
+
+    return sfs_folded
+
+
+def site_frequency_spectrum_scaled(derived_ac):
+    """TODO
+
+    """
+
+    # calculate frequency spectrum
+    sfs = site_frequency_spectrum()
+
+    # scaling
+    k = np.arange(sfs.size + 1)
+    sfs_scaled = sfs * k
+
+    return sfs_scaled
+
+
+def site_frequency_spectrum_folded_scaled(biallelic_ac, an=None):
+    """TODO
+
+    """
+
+    # TODO
+    pass
