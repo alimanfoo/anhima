@@ -39,26 +39,23 @@ def _check_genotypes(genotypes):
     return genotypes
 
 
-def is_variant(genotypes, min_ac=1):
-    """Find variants with at least `min_ac` non-reference alleles.
+def is_variant(genotypes):
+    """Find variants with at least one non-reference allele observation.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
-    min_ac : int, optional
-        The minimum number of non-reference alleles required to consider
-        variant.
 
     Returns
     -------
 
     is_variant : ndarray, bool
-        An array of shape (`n_variants`,) where an element is True if there
+        An array of shape (n_variants,) where an element is True if there
         are at least `min_ac` non-reference alleles found for the corresponding
         variant.
 
@@ -75,7 +72,7 @@ def is_variant(genotypes, min_ac=1):
     genotypes = _check_genotypes(genotypes)
 
     # aggregate over samples and ploidy dimensions
-    out = np.sum(genotypes > 0, axis=(1, 2)) >= min_ac
+    out = np.sum(genotypes > 0, axis=(1, 2)) >= 1
 
     return out
 
@@ -87,7 +84,7 @@ def count_variant(genotypes, min_ac=1):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -120,7 +117,7 @@ def is_non_variant(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -129,7 +126,7 @@ def is_non_variant(genotypes):
     -------
 
     is_non_variant : ndarray, bool
-        An array of shape (`n_variants`,) where an element is True if there
+        An array of shape (n_variants,) where an element is True if there
         are no non-reference alleles found for the corresponding variant.
 
     Notes
@@ -157,7 +154,7 @@ def count_non_variant(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -181,13 +178,13 @@ def count_non_variant(genotypes):
 
 
 def is_singleton(genotypes, allele=1):
-    """Find variants with only a single instance of `allele` called.
+    """Find variants with only a single instance of `allele` observed.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -198,8 +195,8 @@ def is_singleton(genotypes, allele=1):
     -------
 
     is_singleton : ndarray, bool
-        An array of shape (`n_variants`,) where an element is True if there
-        is a single instance of `allele` called.
+        An array of shape (n_variants,) where an element is True if there
+        is a single instance of `allele` observed.
 
     Notes
     -----
@@ -221,13 +218,13 @@ def is_singleton(genotypes, allele=1):
 
 
 def count_singletons(genotypes, allele=1):
-    """Count variants with only a single instance of `allele` called.
+    """Count variants with only a single instance of `allele` observed.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -254,13 +251,13 @@ def count_singletons(genotypes, allele=1):
 
 
 def is_doubleton(genotypes, allele=1):
-    """Find variants with only two instances of `allele` called.
+    """Find variants with only two instances of `allele` observed.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -271,8 +268,8 @@ def is_doubleton(genotypes, allele=1):
     -------
 
     is_doubleton : ndarray, bool
-        An array of shape (`n_variants`,) where an element is True if there
-        are exactly two instances of `allele` called.
+        An array of shape (n_variants,) where an element is True if there
+        are exactly two instances of `allele` observed.
 
     Notes
     -----
@@ -294,13 +291,13 @@ def is_doubleton(genotypes, allele=1):
 
 
 def count_doubletons(genotypes, allele=1):
-    """Count variants with only two instances of `allele` called.
+    """Count variants with only two instances of `allele` observed.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -327,13 +324,13 @@ def count_doubletons(genotypes, allele=1):
 
 
 def allele_number(genotypes):
-    """Count the number of non-missing allele calls.
+    """Count the number of non-missing allele calls per variant.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -342,8 +339,8 @@ def allele_number(genotypes):
     -------
 
     an : ndarray, int
-        An array of shape (`n_variants`,) counting the total number of
-        non-missing alleles called.
+        An array of shape (n_variants,) counting the total number of
+        non-missing alleles observed.
 
     Notes
     -----
@@ -364,13 +361,13 @@ def allele_number(genotypes):
 
 
 def allele_count(genotypes, allele=1):
-    """Calculate number of instances of the given allele.
+    """Calculate number of observations of the given allele per variant.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -381,8 +378,8 @@ def allele_count(genotypes, allele=1):
     -------
 
     ac : ndarray, int
-        An array of shape (`n_variants`,) counting the number of
-        times the given `allele` was called.
+        An array of shape (n_variants,) counting the number of
+        times the given `allele` was observed.
 
     Notes
     -----
@@ -404,13 +401,13 @@ def allele_count(genotypes, allele=1):
 
 
 def allele_frequency(genotypes, allele=1):
-    """Calculate frequency of the given allele.
+    """Calculate frequency of the given allele per variant.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -421,13 +418,13 @@ def allele_frequency(genotypes, allele=1):
     -------
 
     an : ndarray, int
-        An array of shape (`n_variants`,) counting the total number of
-        non-missing alleles called.
+        An array of shape (n_variants,) counting the total number of
+        non-missing alleles observed.
     ac : ndarray, int
-        An array of shape (`n_variants`,) counting the number of
-        times the given `allele` was called.
+        An array of shape (n_variants,) counting the number of
+        times the given `allele` was observed.
     af : ndarray, float
-        An array of shape (`n_variants`,) containing the allele frequency.
+        An array of shape (n_variants,) containing the allele frequency.
 
     Notes
     -----
@@ -459,7 +456,7 @@ def max_allele(genotypes, axis=None):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -479,13 +476,13 @@ def max_allele(genotypes, axis=None):
 
 
 def allele_counts(genotypes, alleles=None):
-    """Calculate allele counts.
+    """Calculate allele counts per variant.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -497,8 +494,8 @@ def allele_counts(genotypes, alleles=None):
     -------
 
     ac : ndarray, int
-        An array of shape (`n_variants`, `n_alleles`) counting the number of
-        times the given `alleles` were called.
+        An array of shape (n_variants, n_alleles) counting the number of
+        times the given `alleles` were observed.
 
     Notes
     -----
@@ -529,13 +526,13 @@ def allele_counts(genotypes, alleles=None):
     
 
 def allele_frequencies(genotypes, alleles=None):
-    """Calculate allele frequencies.
+    """Calculate allele frequencies per variant.
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -547,13 +544,13 @@ def allele_frequencies(genotypes, alleles=None):
     -------
 
     an : ndarray, int
-        An array of shape (`n_variants`,) counting the total number of
-        non-missing alleles called.
+        An array of shape (n_variants,) counting the total number of
+        non-missing alleles observed.
     ac : ndarray, int
-        An array of shape (`n_variants`, `n_alleles`) counting the number of
-        times the given `alleles` were called.
+        An array of shape (n_variants, n_alleles) counting the number of
+        times the given `alleles` were observed.
     af : ndarray, float
-        An array of shape (`n_variants`, `n_alleles`) containing the allele
+        An array of shape (n_variants, n_alleles) containing the allele
         frequencies.
 
     Notes
@@ -584,7 +581,7 @@ def allelism(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -593,7 +590,7 @@ def allelism(genotypes):
     -------
 
     n : ndarray, int
-        An array of shape (`n_variants`,) where an element holds the allelism 
+        An array of shape (n_variants,) where an element holds the allelism 
         of the corresponding variant.
 
     See Also
@@ -629,7 +626,7 @@ def is_non_segregating(genotypes, allele=None):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -640,7 +637,7 @@ def is_non_segregating(genotypes, allele=None):
     -------
 
     is_non_segregating : ndarray, bool
-        An array of shape (`n_variants`,) where an element is True if all
+        An array of shape (n_variants,) where an element is True if all
         genotype calls for the corresponding variant are either missing or
         equal to the same allele.
 
@@ -679,7 +676,7 @@ def count_non_segregating(genotypes, allele=None):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -705,13 +702,13 @@ def count_non_segregating(genotypes, allele=None):
 
 
 def is_segregating(genotypes):
-    """Find segregating variants (where more than one allele is found).
+    """Find segregating variants (where more than one allele is observed).
 
     Parameters
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -720,7 +717,7 @@ def is_segregating(genotypes):
     -------
 
     is_segregating : ndarray, bool
-        An array of shape (`n_variants`,) where an element is True if more 
+        An array of shape (n_variants,) where an element is True if more 
         than one allele is found for the given variant.
 
     Notes
@@ -751,7 +748,7 @@ def count_segregating(genotypes):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -775,7 +772,23 @@ def count_segregating(genotypes):
 
 
 def site_frequency_spectrum(derived_ac):
-    """TODO
+    """Calculate the site frequency spectrum, given derived allele counts for a
+    set of biallelic variant sites.
+
+    Parameters
+    ----------
+
+    derived_ac : array_like, int
+        A 1-dimensional array of shape (n_variants,) where each array 
+        element holds the count of derived alleles found for a single variant 
+        across some set of samples.
+        
+    Returns
+    -------
+    
+    sfs : ndarray, int
+        An array of integers where the value of the kth element is the 
+        number of variant sites with k derived alleles.
 
     """
 
@@ -790,7 +803,23 @@ def site_frequency_spectrum(derived_ac):
 
 
 def site_frequency_spectrum_folded(biallelic_ac):
-    """TODO
+    """Calculate the folded site frequency spectrum, given reference and 
+    alternate allele counts for a set of biallelic variants.
+    
+    Parameters 
+    ----------
+    
+    biallelic_ac : array_like int
+        A 2-dimensional array of shape (n_variants, 2), where each row 
+        holds the reference and alternate allele counts for a single 
+        biallelic variant across some set of samples.
+        
+    Returns
+    -------
+    
+    sfs_folded : ndarray, int
+        An array of integers where the value of the kth element is the 
+        number of variant sites with k observations of the minor allele.
 
     """
 
@@ -802,15 +831,45 @@ def site_frequency_spectrum_folded(biallelic_ac):
     # calculate minor allele counts
     minor_ac = np.amin(biallelic_ac, axis=1)
 
-    # calcate frequency spectrum
+    # calculate frequency spectrum
     sfs_folded = np.bincount(minor_ac)
 
     return sfs_folded
 
 
 def site_frequency_spectrum_scaled(derived_ac):
-    """TODO
+    """Calculate the site frequency spectrum, scaled such that a constant value
+    is expected across the spectrum for neutral variation and a population at
+    constant size.
+    
+    Parameters
+    ----------
 
+    derived_ac : array_like, int
+        A 1-dimensional array of shape (n_variants,) where each array 
+        element holds the count of derived alleles found for a single variant 
+        across some set of samples.
+        
+    Returns
+    -------
+    
+    sfs_scaled : ndarray, int
+        An array of integers where the value of the kth element is the 
+        number of variant sites with k derived alleles, multiplied by k.
+        
+    Notes
+    -----
+    
+    Under neutrality and constant population size, site frequency 
+    is expected to be constant across the spectrum, and to approximate 
+    the value of the population-scaled mutation rate theta. 
+
+    See Also
+    --------
+    
+    site_frequency_spectrum, site_frequency_spectrum_folded, 
+    site_frequency_spectrum_folded_scaled
+    
     """
 
     # calculate frequency spectrum
@@ -823,10 +882,59 @@ def site_frequency_spectrum_scaled(derived_ac):
     return sfs_scaled
 
 
-def site_frequency_spectrum_folded_scaled(biallelic_ac, an=None):
-    """TODO
+def site_frequency_spectrum_folded_scaled(biallelic_ac, m=None):
+    """Calculate the folded site frequency spectrum, scaled such that a
+    constant value is expected across the spectrum for neutral variation and
+    a population at constant size.
+    
+    Parameters 
+    ----------
+    
+    biallelic_ac : array_like int
+        A 2-dimensional array of shape (n_variants, 2), where each row 
+        holds the reference and alternate allele counts for a single 
+        biallelic variant across some set of samples.
+    m : int, optional
+        The total number of alleles observed at each variant site. Equal to 
+        the number of samples multiplied by the ploidy. If not provided, 
+        will be inferred to be the maximum value of the sum of reference and 
+        alternate allele counts present in `biallelic_ac`.
+        
+    Returns
+    -------
+    
+    sfs_folded_scaled : ndarray, int
+        An array of integers where the value of the kth element is the 
+        number of variant sites with k observations of the minor allele, 
+        multiplied by the scaling factor (k * (m - k) / m).
+
+    Notes
+    -----
+
+    Under neutrality and constant population size, site frequency
+    is expected to be constant across the spectrum, and to approximate
+    the value of the population-scaled mutation rate theta.
+
+    This function is useful where the ancestral and derived status of alleles is
+    unknown.
+
+    See Also
+    --------
+
+    site_frequency_spectrum, site_frequency_spectrum_scaled,
+    site_frequency_spectrum_folded
 
     """
 
-    # TODO
-    pass
+    # calculate the folded site frequency spectrum
+    sfs_folded = site_frequency_spectrum_folded(biallelic_ac)
+
+    # determine the total number of alleles per variant
+    if m is None:
+        m = np.amax(np.sum(biallelic_ac, axis=1))
+
+    # scaling
+    k = np.arange(sfs_folded.size + 1)
+    sfs_folded_scaled = sfs_folded * k * (m - k) / m
+
+    return sfs_folded_scaled
