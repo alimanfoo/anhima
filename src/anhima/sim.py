@@ -63,6 +63,8 @@ def simulate_biallelic_genotypes(n_variants, n_samples, af_dist,
     for i, p in zip(range(n_variants), af):
 
         # randomly generate alleles under the given allele frequency
+        # ensure p is valid probability
+        p = min(p, 1)
         alleles = scipy.stats.bernoulli.rvs(p, size=n_samples*ploidy)
 
         # reshape alleles as genotypes under the given ploidy
