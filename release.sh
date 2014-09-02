@@ -25,4 +25,4 @@ git tag -a v$version -m v$version
 git push --tags
 
 # update pypi
-#python setup.py register sdist upload
+python setup.py register sdist upload
