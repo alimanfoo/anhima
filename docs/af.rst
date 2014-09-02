@@ -26,6 +26,11 @@ Allele frequencies
 .. autofunction:: site_frequency_spectrum_folded
 .. autofunction:: site_frequency_spectrum_folded_scaled
 .. autofunction:: plot_site_frequency_spectrum
+.. autofunction:: count_shared_doubletons
+.. autofunction:: plot_shared_doubletons_heatmap
+.. autofunction:: plot_shared_doubletons_bar
+
+
 
 
 

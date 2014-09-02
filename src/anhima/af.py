@@ -1,5 +1,5 @@
 """
-Allele frequency calculations.
+Allele frequency calculations, site frequency spectra, doubleton sharing.
 
 See also the examples at:
 
@@ -12,6 +12,10 @@ from __future__ import division, print_function, unicode_literals
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
+
+
+# standard library dependencies
+import itertools
 
 
 # third party dependencies
@@ -789,6 +793,12 @@ def site_frequency_spectrum(derived_ac):
         An array of integers where the value of the kth element is the 
         number of variant sites with k derived alleles.
 
+    See Also
+    --------
+
+    site_frequency_spectrum_scaled, site_frequency_spectrum_folded,
+    site_frequency_spectrum_folded_scaled, plot_site_frequency_spectrum
+
     """
 
     # check input
@@ -819,6 +829,12 @@ def site_frequency_spectrum_folded(biallelic_ac):
     sfs_folded : ndarray, int
         An array of integers where the value of the kth element is the 
         number of variant sites with k observations of the minor allele.
+
+    See Also
+    --------
+
+    site_frequency_spectrum, site_frequency_spectrum_scaled,
+    site_frequency_spectrum_folded_scaled, plot_site_frequency_spectrum
 
     """
 
@@ -867,7 +883,7 @@ def site_frequency_spectrum_scaled(derived_ac):
     --------
     
     site_frequency_spectrum, site_frequency_spectrum_folded, 
-    site_frequency_spectrum_folded_scaled
+    site_frequency_spectrum_folded_scaled, plot_site_frequency_spectrum
     
     """
 
@@ -921,7 +937,7 @@ def site_frequency_spectrum_folded_scaled(biallelic_ac, m=None):
     --------
 
     site_frequency_spectrum, site_frequency_spectrum_scaled,
-    site_frequency_spectrum_folded
+    site_frequency_spectrum_folded, plot_site_frequency_spectrum
 
     """
 
@@ -956,6 +972,7 @@ def plot_site_frequency_spectrum(sfs, bins=None, m=None,
     m : int, optional
         The total number of alleles observed at each variant site. Equal to
         the number of samples multiplied by the ploidy. If given, will be
+        used to scale the X axis as allele frequency instead of allele count.
         used to scale the X axis as allele frequency instead of allele count.
     clip_endpoints : bool, optional
         If True, remove the first and last values from the site frequency
@@ -1024,3 +1041,246 @@ def plot_site_frequency_spectrum(sfs, bins=None, m=None,
     ax.set_ylabel('site frequency')
 
     return ax
+
+
+def count_shared_doubletons(subpops_ac):
+    """Count subpopulation pairs sharing doubletons (where one allele is
+    observed in each subpopulation).
+
+    Parameters
+    ----------
+
+    subpops_ac : array_like, int
+        An array of shape (n_variants, n_subpops) holding alternate allele
+        counts for each subpopulation.
+
+    Returns
+    -------
+
+    counts : ndarray, int
+        A square matrix of shape (n_subpops, n_subpops) where the array
+        element at index (i, j) holds the count of shared doubletons between
+        the ith and jth subpopulations.
+
+    See Also
+    --------
+
+    plot_shared_doubletons_heatmap, plot_shared_doubletons_bar
+
+    """
+
+    # check input
+    subpops_ac = np.asarray(subpops_ac)
+    assert subpops_ac.ndim == 2
+
+    # find doubletons in the total population
+    is_total_doubleton = np.sum(subpops_ac, axis=1) == 2
+    subpops_ac_doubletons = np.compress(is_total_doubleton, subpops_ac, axis=0)
+
+    # count subpopulaton pairs sharing doubletons
+    n_subpops = subpops_ac.shape[1]
+    counts = np.zeros((n_subpops, n_subpops), dtype=np.int)
+    for i in range(n_subpops):
+        for j in range(i, n_subpops):
+            if i == j:
+                # count cases where doubleton is private to a subpopulation
+                n = np.count_nonzero(subpops_ac_doubletons[:, i] == 2)
+            else:
+                # count cases where doubleton is shared between two
+                # subpopulations
+                n = np.count_nonzero((subpops_ac_doubletons[:, i] == 1)
+                                     & (subpops_ac_doubletons[:, j] == 1))
+            counts[i, j] = n
+            counts[j, i] = n
+
+    return counts
+
+
+def plot_shared_doubletons_heatmap(counts, subpop_labels=None, ax=None,
+                                   color_diagonal=False,
+                                   pcolormesh_kwargs=None, text_kwargs=None):
+    """Plot counts of doubleton sharing between subpopulations as a heatmap.
+
+    Parameters
+    ----------
+
+    counts : array_like, ints
+        A square matrix of shape (n_subpops, n_subpops) where the array
+        element at index (i, j) holds the count of shared doubletons between
+        the ith and jth subpopulations.
+    subpop_labels : sequence of strings, optional
+        Labels for the subpopulations.
+    color_diagonal : bool, optional
+        If True, color the diagonal, otherwise leave it white and use it to
+        annotate the counts.
+    ax : axes, optional
+        The axes on which to plot. If not provided, a new figure will be
+        created.
+    pcolormesh_kwargs : dict, optional
+        Additional keyword arguments passed through to ax.pcolormesh().
+    text_kwargs : dict, optional
+        Additional keyword arguments passed through when annotating the axes
+        with the counts.
+
+    Returns
+    -------
+
+    ax : axes
+        The axes on which the plot was drawn.
+
+    See Also
+    --------
+
+    count_shared_doubletons, plot_shared_doubletons_bar
+
+    """
+
+    # check inputs
+    counts = np.asarray(counts)
+    assert counts.ndim == 2
+    assert counts.shape[0] == counts.shape[1]
+    n_subpops = counts.shape[0]
+
+    # whiten the upper triangle so we can plot numbers
+    if color_diagonal:
+        k = 0
+    else:
+        k = 1
+    counts_triu = np.triu(counts, k)
+
+    # setup axes
+    if ax is None:
+        # make a square figure
+        x = plt.rcParams['figure.figsize'][0]
+        fig, ax = plt.subplots(figsize=(x, x))
+
+    # plot a colormesh
+    if pcolormesh_kwargs is None:
+        pcolormesh_kwargs = dict()
+    pcolormesh_kwargs.setdefault('cmap', 'Greys')
+    pcolormesh_kwargs.setdefault('edgecolor', 'None')
+    ax.pcolormesh(counts_triu, **pcolormesh_kwargs)
+
+    # add counts as text
+    if text_kwargs is None:
+        text_kwargs = dict()
+    text_kwargs.setdefault('color', 'k')
+    text_kwargs.setdefault('ha', 'center')
+    text_kwargs.setdefault('va', 'center')
+    for i in range(n_subpops):
+        for j in range(i, n_subpops):
+            if i != j or not color_diagonal:
+                ax.text(i+.5, j+.5, counts[i, j], **text_kwargs)
+
+    # tidy up
+    ax.xaxis.tick_top()
+    ax.set_xticks(np.arange(n_subpops) + .5)
+    ax.set_yticks(np.arange(n_subpops) + .5)
+    if subpop_labels is None:
+        subpop_labels = range(n_subpops)
+    ax.set_xticklabels(subpop_labels, rotation=90)
+    ax.set_yticklabels(subpop_labels, rotation=0)
+    for s in 'top', 'right', 'bottom', 'left':
+        ax.spines[s].set_visible(False)
+    ax.tick_params(length=0)
+
+    return ax
+
+
+def plot_shared_doubletons_bar(counts, figsize_factor=1, subpop_labels=None,
+                               subpop_colors='bgrcmyk'):
+    """Plot counts of doubleton sharing between subpopulations as a bar chart.
+
+    Parameters
+    ----------
+
+    counts : array_like, ints
+        A square matrix of shape (n_subpops, n_subpops) where the array
+        element at index (i, j) holds the count of shared doubletons between
+        the ith and jth subpopulations.
+    figsize_factor : float, optional
+        Figure size in inches per subpopulation.
+    subpop_labels : sequence of strings, optional
+        Labels for the subpopulations.
+    subpop_colors : sequence of colors
+        Colors for the subpopulations.
+
+    Returns
+    -------
+
+    fig : figure
+        The figure on which the plot was drawn.
+
+    See Also
+    --------
+
+    count_shared_doubletons, plot_shared_doubletons_heatmap
+
+    """
+
+    # check inputs
+    counts = np.asarray(counts)
+    assert counts.ndim == 2
+    assert counts.shape[0] == counts.shape[1]
+    n_subpops = counts.shape[0]
+
+    # setup figure
+    height = n_subpops * figsize_factor
+    width = (n_subpops + 1) * figsize_factor
+    fig = plt.figure(figsize=(width, height))
+
+    # ensure we have enough colors
+    colors = list(itertools.islice(itertools.cycle(subpop_colors), n_subpops))
+
+    # ensure we have subpopulation labels
+    if subpop_labels is None:
+        subpop_labels = range(n_subpops)
+
+    # plot main bar
+    for i, color in zip(range(n_subpops), colors):
+
+        # select axes
+        # N.B., plot from the bottom upwards
+        ax = plt.subplot2grid((n_subpops, n_subpops+1),
+                              (n_subpops - i - 1, 0),
+                              rowspan=1,
+                              colspan=n_subpops)
+
+        # select data to plot
+        data = counts[i, :]
+
+        # make a bar
+        ax.bar(range(n_subpops), data, width=1, color=colors)
+
+        # tidy up
+        ax.set_ylabel(subpop_labels[i], rotation=0, ha='right', va='center',
+                      color=color)
+        ax.tick_params(length=0)
+        ax.set_yticks([])
+        if i < n_subpops-1:
+            ax.set_xticks([])
+        else:
+            ax.xaxis.tick_top()
+            ax.set_xticks(np.arange(n_subpops) + .5)
+            ax.set_xticklabels(subpop_labels, rotation=90)
+        for s in 'top', 'left', 'right':
+            ax.spines[s].set_visible(False)
+
+    # plot marginal bar
+    ax = plt.subplot2grid((n_subpops, n_subpops+1),
+                          (0, n_subpops),
+                          rowspan=n_subpops,
+                          colspan=1)
+    data = np.sum(counts, axis=1)
+    ax.barh(range(n_subpops, 0, -1), data, color='gray', height=.8,
+            align='center', lw=0)
+
+    # tidy up
+    for s in 'top', 'right', 'bottom':
+        ax.spines[s].set_visible(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xlabel('doubletons', rotation=0, ha='center')
+    ax.xaxis.set_label_position('top')
+
+    return fig
