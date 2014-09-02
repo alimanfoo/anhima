@@ -5,7 +5,8 @@ illustration of other features in the ``anhima`` package.
 """
 
 
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'

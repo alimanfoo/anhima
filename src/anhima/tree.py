@@ -18,7 +18,8 @@ See also the examples at:
 """
 
 
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
@@ -32,25 +33,125 @@ import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import rpy2.robjects as ro
-from rpy2.robjects import r
-from rpy2.robjects.numpy2ri import numpy2ri
-ro.conversion.py2ri = numpy2ri
-from rpy2.robjects.packages import importr
-grdevices = importr(b'grDevices')
-ape = importr(
-    b'ape',
-    robject_translations={
-        'delta.plot': 'delta_dot_plot',
-        'dist.dna': 'dist_dot_dna',
-        'dist.nodes': 'dist_dot_nodes',
-        'node.depth': 'node_dot_depth',
-        'node.depth.edgelength': 'node_dot_depth_dot_edgelength',
-        'node.height': 'node_dot_height',
-        'node.height.clado': 'node_dot_height_dot_clado',
-        'prop.part': 'prop_dot_part',
+
+
+_r_initialised = False
+
+
+def _init_r():
+    """Private function to initialise R, only executed when needed.
+
+    """
+
+    global _r_initialised
+
+    if not _r_initialised:
+
+        global ro
+        import rpy2.robjects as ro
+
+        global r
+        from rpy2.robjects import r
+
+        from rpy2.robjects.numpy2ri import numpy2ri
+        from rpy2.robjects.packages import importr
+        ro.conversion.py2ri = numpy2ri
+
+        global grdevices
+        grdevices = importr(b'grDevices')
+
+        global ape
+        ape = importr(
+            b'ape',
+            robject_translations={
+                'delta.plot': 'delta_dot_plot',
+                'dist.dna': 'dist_dot_dna',
+                'dist.nodes': 'dist_dot_nodes',
+                'node.depth': 'node_dot_depth',
+                'node.depth.edgelength': 'node_dot_depth_dot_edgelength',
+                'node.height': 'node_dot_height',
+                'node.height.clado': 'node_dot_height_dot_clado',
+                'prop.part': 'prop_dot_part',
+            }
+        )
+
+        # Define custom R functions to help with coloring tree edges by
+        # population. These functions were written by Jacob Almagro-Garcia
+        # <jg10@sanger.ac.uk> at the Wellcome Trust Sanger Institute.
+        r("""
+library(ape)
+
+
+######################################################################################################################
+#' Computes the number of leaves of each group that hang from each branch.
+#' @param phylotree A tree of class phylo.
+#' @param labelgroups A vector with the group of the tip labels (named with the labels).
+#' @return A named matrix with the membership counts for each interior edge of the tree.
+######################################################################################################################
+
+computeEdgeGroupCounts <- function(phylotree, labelgroups) {
+
+  labels <- phylotree$tip.label
+  num_tips <- length(labels)
+  edge_names <- unique(sort(c(phylotree$edge)))
+
+  # This matrix will keep track of the group counts for each edge.
+  edge_group_counts <- matrix(0, nrow=length(edge_names), ncol=length(unique(sort(labelgroups))))
+  rownames(edge_group_counts) <- edge_names
+  colnames(edge_group_counts) <- unique(labelgroups)
+
+  # Init the leaf branches.
+  sapply(1:num_tips, function(l) {
+    edge_group_counts[as.character(l), as.character(labelgroups[phylotree$tip.label[l]])] <<- 1
+  })
+
+  # Sort edges by the value of the descendent
+  # The first segment will contain the leaves whereas the second the branches (closer to leaves first).
+  # We need to do this because leaves are numbered 1:num_tips and the branches CLOSER to the leaves
+  # with higher numbers.
+  edges <- phylotree$edge[order(phylotree$edge[,2]),]
+  branches <- edges[num_tips:nrow(edges),]
+  edges[num_tips:nrow(edges),] <- branches[order(branches[,1],decreasing=T),]
+  invisible(apply(edges, 1, function(edge) {
+    # Check if we are connecting a leaf.
+    if(edge[2] <= num_tips) {
+      e <- as.character(edge[1])
+      g <- as.character(labelgroups[phylotree$tip.label[edge[2]]])
+      edge_group_counts[e,g] <<- edge_group_counts[e,g] + 1
     }
-)
+    else {
+      e1 <- as.character(edge[1])
+      e2 <- as.character(edge[2])
+      edge_group_counts[e1,] <<- edge_group_counts[e1,] + edge_group_counts[e2,]
+    }
+  }))
+  return(edge_group_counts)
+}
+
+
+######################################################################################################################
+#' Assigns the color of the majority group (hanging from) each branch.
+#' @param phylotree A tree of class phylo.
+#' @param edge_group_counts A named matrix with the group counts for each branch.
+#' @param groupcolors A named vector with the color of each group.
+#' @param equality_color The color to be used if there is no majority group.
+#' @return A vector with the colors to be used with the tree branches.
+######################################################################################################################
+
+assignMajorityGroupColorToEdges <- function(phylotree, edge_group_counts, groupcolors, equality_color="gray") {
+  edge_colors <- apply(phylotree$edge, 1, function(branch) {
+    e <- as.character(branch[2])
+    major_group_index <- which.max(edge_group_counts[e,])
+    if(all(edge_group_counts[e,] == edge_group_counts[e,major_group_index]))
+      return(equality_color)
+    else
+      return(groupcolors[colnames(edge_group_counts)[major_group_index]])
+  })
+  return(edge_colors)
+}
+""")
+
+        _r_initialised = True
 
 
 def nj(dist_square, labels=None):
@@ -77,6 +178,9 @@ def nj(dist_square, labels=None):
     anhima.dist.pairwise_distance
 
     """
+
+    # setup R
+    _init_r()
 
     # normalise inputs
     dist_square = np.asarray(dist_square)
@@ -124,6 +228,9 @@ def bionj(dist_square, labels=None):
     anhima.dist.pairwise_distance
 
     """
+
+    # setup R
+    _init_r()
 
     # normalise inputs
     dist_square = np.asarray(dist_square)
@@ -198,6 +305,9 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
         The axes on which the plot was drawn.
 
     """
+
+    # setup R
+    _init_r()
 
     # setup image file
     if filename is None:
@@ -279,6 +389,9 @@ def write_tree(tree, filename=None, **kwargs):
 
     """
 
+    # setup R
+    _init_r()
+
     # write the file
     if filename is None:
         kwargs['file'] = b''
@@ -316,87 +429,11 @@ def read_tree(filename, **kwargs):
 
     """
 
+    # setup R
+    _init_r()
+
     kwargs['file'] = filename
     return ape.read_tree(**kwargs)
-
-
-# Define custom R functions to help with coloring tree edges by population.
-# These functions were written by Jacob Almagro-Garcia <jg10@sanger.ac.uk> at
-# the Wellcome Trust Sanger Institute.
-
-
-r("""
-library(ape)
-
-
-######################################################################################################################
-#' Computes the number of leaves of each group that hang from each branch.
-#' @param phylotree A tree of class phylo.
-#' @param labelgroups A vector with the group of the tip labels (named with the labels).
-#' @return A named matrix with the membership counts for each interior edge of the tree.
-######################################################################################################################
-
-computeEdgeGroupCounts <- function(phylotree, labelgroups) {
-
-  labels <- phylotree$tip.label
-  num_tips <- length(labels)
-  edge_names <- unique(sort(c(phylotree$edge)))
-
-  # This matrix will keep track of the group counts for each edge.
-  edge_group_counts <- matrix(0, nrow=length(edge_names), ncol=length(unique(sort(labelgroups))))
-  rownames(edge_group_counts) <- edge_names
-  colnames(edge_group_counts) <- unique(labelgroups)
-
-  # Init the leaf branches.
-  sapply(1:num_tips, function(l) {
-    edge_group_counts[as.character(l), as.character(labelgroups[phylotree$tip.label[l]])] <<- 1
-  })
-
-  # Sort edges by the value of the descendent
-  # The first segment will contain the leaves whereas the second the branches (closer to leaves first).
-  # We need to do this because leaves are numbered 1:num_tips and the branches CLOSER to the leaves
-  # with higher numbers.
-  edges <- phylotree$edge[order(phylotree$edge[,2]),]
-  branches <- edges[num_tips:nrow(edges),]
-  edges[num_tips:nrow(edges),] <- branches[order(branches[,1],decreasing=T),]
-  invisible(apply(edges, 1, function(edge) {
-    # Check if we are connecting a leaf.
-    if(edge[2] <= num_tips) {
-      e <- as.character(edge[1])
-      g <- as.character(labelgroups[phylotree$tip.label[edge[2]]])
-      edge_group_counts[e,g] <<- edge_group_counts[e,g] + 1
-    }
-    else {
-      e1 <- as.character(edge[1])
-      e2 <- as.character(edge[2])
-      edge_group_counts[e1,] <<- edge_group_counts[e1,] + edge_group_counts[e2,]
-    }
-  }))
-  return(edge_group_counts)
-}
-
-
-######################################################################################################################
-#' Assigns the color of the majority group (hanging from) each branch.
-#' @param phylotree A tree of class phylo.
-#' @param edge_group_counts A named matrix with the group counts for each branch.
-#' @param groupcolors A named vector with the color of each group.
-#' @param equality_color The color to be used if there is no majority group.
-#' @return A vector with the colors to be used with the tree branches.
-######################################################################################################################
-
-assignMajorityGroupColorToEdges <- function(phylotree, edge_group_counts, groupcolors, equality_color="gray") {
-  edge_colors <- apply(phylotree$edge, 1, function(branch) {
-    e <- as.character(branch[2])
-    major_group_index <- which.max(edge_group_counts[e,])
-    if(all(edge_group_counts[e,] == edge_group_counts[e,major_group_index]))
-      return(equality_color)
-    else
-      return(groupcolors[colnames(edge_group_counts)[major_group_index]])
-  })
-  return(edge_colors)
-}
-""")
 
 
 def color_edges_by_group_majority(tree, labels, groups,
@@ -429,6 +466,9 @@ def color_edges_by_group_majority(tree, labels, groups,
         :func:`plot_phylo`.
 
     """
+
+    # setup R
+    _init_r()
 
     r_groups = ro.StrVector([str(g) for g in groups])
     r_groups.names = ro.StrVector([str(l) for l in labels])

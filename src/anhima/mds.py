@@ -13,7 +13,8 @@ See also the examples at:
 """
 
 
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 
 __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
@@ -22,11 +23,31 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
-import rpy2.robjects as ro
-from rpy2.robjects import r
-from rpy2.robjects.numpy2ri import numpy2ri
-ro.conversion.py2ri = numpy2ri
 import sklearn.manifold
+
+
+_r_initialised = False
+
+
+def _init_r():
+    """Private function to initialise R, only executed when needed.
+
+    """
+
+    global _r_initialised
+
+    if not _r_initialised:
+
+        global ro
+        import rpy2.robjects as ro
+
+        global r
+        from rpy2.robjects import r
+
+        from rpy2.robjects.numpy2ri import numpy2ri
+        ro.conversion.py2ri = numpy2ri
+
+        _r_initialised = True
 
 
 def smacof(dist_square, **kwargs):
@@ -98,6 +119,9 @@ def classical(dist_square, k=2):
     anhima.mds.smacof, anhima.pca.pca
 
     """
+
+    # setup R
+    _init_r()
 
     # normalise inputs
     dist_square = np.asarray(dist_square)
