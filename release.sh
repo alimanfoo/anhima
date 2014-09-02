@@ -5,6 +5,12 @@ set -o pipefail
 set -e
 set -u
 
+# run examples
+python setup.py install
+cd examples
+./runall.sh
+cd ..
+
 # remove -SNAPSHOT from src/petl/__init__.py
 sed -i -e 's/-SNAPSHOT//' src/anhima/__init__.py
 version=`grep __version__ src/anhima/__init__.py | sed -e "s/.*__version__[ ]=[ ]'\(.*\)'/\1/"`
