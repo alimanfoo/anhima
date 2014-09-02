@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# debug
 set -x
-
-# bail on first error
+set -o pipefail
 set -e
+set -u
 
 for f in *.ipynb
 do
