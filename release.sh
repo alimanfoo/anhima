@@ -5,12 +5,11 @@ set -o pipefail
 set -e
 set -u
 
-t=''
-while getopts ":t:" o; do
+skip_examples=0
+while getopts "e" o; do
     case $o in
-        t)
-            t='skip'
-            echo skipping tests $t
+        e)
+            skip_examples=1
             ;;
         *)
             exit
@@ -19,13 +18,18 @@ while getopts ":t:" o; do
 done
 shift $((OPTIND-1))
 
-if [ -z $t ] ; then
-    # run examples unless told not to
-    python setup.py install
+python setup.py install
+
+if [ $skip_examples -eq  0 ] ; then
+    echo run examples
     cd examples
     ./runall.sh
     cd ..
+else
+    echo skip running examples
 fi
+
+echo executing release
 
 # remove -SNAPSHOT from src/petl/__init__.py
 sed -i -e 's/-SNAPSHOT//' src/anhima/__init__.py

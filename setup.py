@@ -19,7 +19,7 @@ setup(
     packages=['anhima'],
     url='https://github.com/alimanfoo/anhima',
     license='MIT License',
-    description='Exploration and Analysis of genetic variation data in Python.',
+    description='Exploration and Analysis of genetic variation data.',
     long_description=open('README.md').read(),
     classifiers=['Intended Audience :: Developers',
                  'License :: OSI Approved :: MIT License',

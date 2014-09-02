@@ -60,3 +60,5 @@ docs/_build/
 
 # Mac-specific files
 .DS_Store
+
+MANIFEST
