@@ -20,8 +20,13 @@ purposes beyond the limited set of functionalities supported here.
 - Documentation: http://anhima.readthedocs.org
 - Examples: http://nbviewer.ipython.org/github/alimanfoo/anhima/tree/master/examples/
 - Source: http://github.com/alimanfoo/anhima
+- Mailing list: https://groups.google.com/forum/#!forum/anhima
 
 **Installation**
+
+Install latest stable release from PyPI::
+
+    pip install -U anhima
 
 Install from GitHub::
 
