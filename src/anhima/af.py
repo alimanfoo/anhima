@@ -1044,7 +1044,8 @@ def plot_site_frequency_spectrum(sfs, bins=None, m=None,
     return ax
 
 
-def count_shared_doubletons(subpops_ac):
+def count_shared_doubletons(subpops_ac, normed=False, n_samples=None,
+                            ploidy=2):
     """Count subpopulation pairs sharing doubletons (where one allele is
     observed in each subpopulation).
 
@@ -1054,11 +1055,20 @@ def count_shared_doubletons(subpops_ac):
     subpops_ac : array_like, int
         An array of shape (n_variants, n_subpops) holding alternate allele
         counts for each subpopulation.
+    normed : bool, optional
+        If True, normalise the counts by dividing by the number of distinct
+        pairs of haplotypes. (Also requires `n_samples` and `ploidy` to be
+        provided.)
+    n_samples : int or sequence of ints, optional
+        The number of samples in each sub-population. Only required if
+        `normed` is True.
+    ploidy : int, optional
+        The sample ploidy. Only required if `normed` is True.
 
     Returns
     -------
 
-    counts : ndarray, int
+    counts : ndarray, int or float
         A square matrix of shape (n_subpops, n_subpops) where the array
         element at index (i, j) holds the count of shared doubletons between
         the ith and jth subpopulations.
@@ -1091,15 +1101,43 @@ def count_shared_doubletons(subpops_ac):
                 # subpopulations
                 n = np.count_nonzero((subpops_ac_doubletons[:, i] == 1)
                                      & (subpops_ac_doubletons[:, j] == 1))
+            # fill upper and lower triangles
             counts[i, j] = n
             counts[j, i] = n
+
+    if normed:
+
+        # check other arguments required for normalisation
+        assert ploidy is not None
+        assert isinstance(ploidy, int)
+        assert n_samples is not None
+        if isinstance(n_samples, int):
+            n_samples = [n_samples] * n_subpops
+
+        # normalise counts
+        normed_counts = np.zeros((n_subpops, n_subpops), dtype=np.float)
+        for i in range(n_subpops):
+            for j in range(i, n_subpops):
+                if i == j:
+                    # number of distinct pairs of haplotypes within a
+                    # subpopulation = number of haplotypes choose 2
+                    n_pairs = scipy.special.comb(n_samples[i] * ploidy, 2)
+                else:
+                    # number of distinct pairs of haplotypes between
+                    # subpopulations
+                    n_pairs = (n_samples[i] * ploidy) * (n_samples[j] * ploidy)
+                # fill upper and lower triangles
+                normed_counts[i, j] = counts[i, j] / n_pairs
+                normed_counts[j, i] = counts[j, i] / n_pairs
+        counts = normed_counts
 
     return counts
 
 
 def plot_shared_doubletons_heatmap(counts, subpop_labels=None, ax=None,
                                    color_diagonal=False,
-                                   pcolormesh_kwargs=None, text_kwargs=None):
+                                   pcolormesh_kwargs=None,
+                                   text_fmt=None, text_kwargs=None):
     """Plot counts of doubleton sharing between subpopulations as a heatmap.
 
     Parameters
@@ -1119,6 +1157,8 @@ def plot_shared_doubletons_heatmap(counts, subpop_labels=None, ax=None,
         created.
     pcolormesh_kwargs : dict, optional
         Additional keyword arguments passed through to ax.pcolormesh().
+    text_fmt : string
+        Override default formatting of counts text within squares.
     text_kwargs : dict, optional
         Additional keyword arguments passed through when annotating the axes
         with the counts.
@@ -1171,10 +1211,15 @@ def plot_shared_doubletons_heatmap(counts, subpop_labels=None, ax=None,
     for i in range(n_subpops):
         for j in range(i, n_subpops):
             if i != j or not color_diagonal:
-                ax.text(i+.5, j+.5, counts[i, j], **text_kwargs)
+                n = counts[i, j]
+                if text_fmt:
+                    fmt = text_fmt
+                else:
+                    fmt = '%d' if isinstance(n, int) else '%.2e'
+                t = fmt % n
+                ax.text(i+.5, j+.5, t, **text_kwargs)
 
     # tidy up
-    ax.xaxis.tick_top()
     ax.set_xticks(np.arange(n_subpops) + .5)
     ax.set_yticks(np.arange(n_subpops) + .5)
     if subpop_labels is None:
@@ -1258,10 +1303,9 @@ def plot_shared_doubletons_bar(counts, figsize_factor=1, subpop_labels=None,
                       color=color)
         ax.tick_params(length=0)
         ax.set_yticks([])
-        if i < n_subpops-1:
+        if i > 0:
             ax.set_xticks([])
         else:
-            ax.xaxis.tick_top()
             ax.set_xticks(np.arange(n_subpops) + .5)
             ax.set_xticklabels(subpop_labels, rotation=90)
         for s in 'top', 'left', 'right':
