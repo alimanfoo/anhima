@@ -309,7 +309,7 @@ def plot_total_doubletons(counts, subpop_labels=None,
     y = np.sum(counts, axis=1)
 
     # plot bar
-    x = range(n_subpops)
+    x = np.arange(n_subpops) + .5
     if bar_kwargs is None:
         bar_kwargs = dict()
     bar_kwargs.setdefault('color', 'gray')
@@ -334,6 +334,7 @@ def plot_total_doubletons(counts, subpop_labels=None,
         ax.set_yticks([])
         ax.xaxis.tick_bottom()
         ax.set_ylabel('doubletons')
+        ax.set_xlim(0, n_subpops)
     else:
         for s in 'top', 'right', 'bottom':
             ax.spines[s].set_visible(False)
@@ -343,6 +344,7 @@ def plot_total_doubletons(counts, subpop_labels=None,
         ax.yaxis.tick_left()
         ax.set_xlabel('doubletons')
         ax.xaxis.set_label_position('top')
+        ax.set_ylim(0, n_subpops)
 
     return ax
 
@@ -393,7 +395,7 @@ def plot_f2_fig(counts, subpop_labels=None, subpop_colors='bgrcmyk', fig=None,
     if fig is None:
         width = (n_subpops + 1) * figsize_factor
         height = n_subpops * figsize_factor
-        fig = plt.subplots(figsize=(width, height))
+        fig = plt.figure(figsize=(width, height))
 
     # plot main bar
     main_axs = [plt.subplot2grid((n_subpops, n_subpops+1), (i, 0), rowspan=1,
