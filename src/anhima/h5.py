@@ -66,6 +66,7 @@ import itertools
 # third party dependencies
 import numpy as np
 import h5py
+import numexpr
 
 
 # internal dependencies
@@ -74,7 +75,8 @@ import anhima.loc
 
 def load_region(callset, chrom, start_position=0, stop_position=None,
                 variants_fields=None, 
-                calldata_fields=None):
+                calldata_fields=None,
+                variants_query=None):
     """Load data into memory from `callset` for the given region.
 
     Parameters
@@ -84,14 +86,18 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
         A file or group containing a variant call set.
     chrom : string
         The chromosome to extract data for.
-    start_position : int
+    start_position : int, optional
         The start position for the region to extract data for.
-    stop_position : int
+    stop_position : int, optional
         The stop position for the region to extract data for.
-    variants_fields : sequence of strings
+    variants_fields : sequence of strings, optional
         Names of the variants datasets to extract.
-    calldata_fields : sequence of strings
+    calldata_fields : sequence of strings, optional
         Names of the calldata datasets to extract.
+    variants_query : string, optional
+        A query to filter variants. Note that this query is applied 
+        after data for the region has been loaded, so any fields 
+        referenced in this query need to be included in `variants_fields`.
 
     Returns
     -------
@@ -125,6 +131,14 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
     if calldata_fields:
         for f in calldata_fields:
             calldata[f] = grp_chrom['calldata'][f][loc, ...]
+            
+    # select variants
+    if variants_query is not None:
+        condition = numexpr.evaluate(variants_query, local_dict=variants)
+        for f in variants:
+            variants[f] = np.compress(condition, variants[f], axis=0)
+        for f in calldata:
+            calldata[f] = np.compress(condition, calldata[f], axis=0)
 
     return variants, calldata
 
