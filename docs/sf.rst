@@ -1,5 +1,5 @@
-Site frequency spectra
-======================
+Site frequencies
+================
 
 .. automodule:: anhima.sf
 .. autofunction:: site_frequency_spectrum
