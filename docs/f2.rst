@@ -1,0 +1,19 @@
+Doubleton sharing
+=================
+
+.. automodule:: anhima.f2
+.. autofunction:: anhima.f2.count_shared_doubletons
+.. autofunction:: anhima.f2.normalise_doubleton_counts
+.. autofunction:: anhima.f2.plot_shared_doubletons
+.. autofunction:: anhima.f2.plot_total_doubletons
+.. autofunction:: anhima.f2.plot_f2_fig
+
+
+
+
+
+
+
+
+
+

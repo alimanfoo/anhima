@@ -42,6 +42,8 @@ Install from GitHub::
     loc
     gt
     af
+    sf
+    f2
     ld
     dist
     pca
