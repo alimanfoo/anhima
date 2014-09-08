@@ -258,7 +258,7 @@ def plot_shared_doubletons(counts, subpop_labels=None,
 
 
 def plot_total_doubletons(counts, subpop_labels=None,
-                          width=.8, orientation='vertical',
+                          width=.8, orientation='vertical', n_samples=None,
                           ax=None, bar_kwargs=None):
     """Plot total counts of doubletons per subpopulations as a bar chart.
 
@@ -275,6 +275,8 @@ def plot_total_doubletons(counts, subpop_labels=None,
         The relative width of each bar.
     orientation : {'vertical', 'horizontal'}
         The bar orientation.
+    n_samples : int or sequence of ints
+        The number of samples in each sub-population.
     ax : axes, optional
         The axes on which to plot. If not provided, a new figure will be
         created.
@@ -307,6 +309,14 @@ def plot_total_doubletons(counts, subpop_labels=None,
 
     # sum rows
     y = np.sum(counts, axis=1)
+
+    # normalise total counts by number of samples
+    if n_samples is not None:
+        # deal with polymorphic input
+        if isinstance(n_samples, int):
+            n_samples = [n_samples] * n_subpops
+        n_samples = np.asarray(n_samples)
+        y = y / n_samples
 
     # plot bar
     x = np.arange(n_subpops) + .5
@@ -376,10 +386,9 @@ def plot_f2_fig(counts, subpop_labels=None, subpop_colors='bgrcmyk', fig=None,
         If True, normalise counts by dividing by the number of possible 
         pairs of haplotypes.
     n_samples : int or sequence of ints
-        The number of samples in each sub-population. (Only applies if `normed` 
-        is True.)
+        The number of samples in each sub-population.
     ploidy : int, optional
-        The sample ploidy. (Only applies if `normed` is True.)
+        The sample ploidy. (Only relevant if `normed` is True.)
 
     Returns
     -------
@@ -425,9 +434,9 @@ def plot_f2_fig(counts, subpop_labels=None, subpop_colors='bgrcmyk', fig=None,
     # plot totals bar
     tot_ax = plt.subplot2grid((n_subpops, n_subpops+1), (0, n_subpops),
                               rowspan=n_subpops, colspan=1)
-
     plot_total_doubletons(counts, subpop_labels=subpop_labels,
-                          orientation='horizontal', ax=tot_ax)
+                          n_samples=n_samples, orientation='horizontal',
+                          ax=tot_ax)
     tot_ax.set_yticks([])
 
     return fig
