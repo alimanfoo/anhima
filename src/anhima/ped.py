@@ -18,11 +18,11 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 # third party dependencies
 import numpy as np
 import numexpr as ne
-
+import scipy.stats
+import hashlib
 
 # internal dependencies
 import anhima.gt
-
 
 # constants to represent inheritance states
 INHERIT_PARENT1 = 1
@@ -122,3 +122,163 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     inheritance[gamete_is_missing] = INHERIT_MISSING
 
     return inheritance
+
+def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
+
+    """Find `impossible` genotypes according to mendelian inheritance laws
+
+    Parameters
+    ----------
+
+    parental_genotypes, progeny_genotypes: array_like, int
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    Returns
+    -------
+
+    is_non_mendelian : ndarray, bool
+        An array where elements are True if the genotype call is non-mendelian
+
+    See Also
+    --------
+
+    count_non_mendelian
+
+    Notes
+    -----
+
+    Not applicable to polyploid genotype calls, or multiallelic variants.
+
+    Does not handle phased genotypes.
+
+    Missing parental genotypes will always result in ME of offspring being recorded as F. Missing 
+    GTs in offspring result in an entry of F for Mendelian Error. 
+
+    """
+    # check input array has 2 or more dimensions
+    assert parental_genotypes.ndim > 1 and progeny_genotypes.ndim > 1
+
+    # check that parent gts match the progeny in dimensions, 0 and 2.
+    assert parental_genotypes.shape[0] == progeny_genotypes.shape[0]
+    assert parental_genotypes.shape[2] == progeny_genotypes.shape[2]
+
+    # check there are no multiallelic sites
+    assert np.all(parental_genotypes != 2) and np.all(progeny_genotypes != 2)
+
+    # assume ploidy is fastest changing dimension
+    dim_ploidy = parental_genotypes.ndim - 1
+
+    # sum across the ploidy dimension
+    parental_genotypes_012 = anhima.gt.as_012(parental_genotypes);
+    progeny_genotypes_012  = anhima.gt.as_012(progeny_genotypes);
+
+    # either parent het
+    either_parent_het = np.any(parental_genotypes_012 == 1, axis = 1);
+
+    # are parents same gt
+    same_genotype = np.apply_along_axis(np.std, 1, parental_genotypes_012) == 0
+
+    # classification
+    classification = (2*either_parent_het) + same_genotype
+
+    # handle missing values.
+    # create missing matrix for progeny
+    missing_progeny = (-1 == progeny_genotypes_012)
+
+    # create missing matrix for parents.
+    # practically it is possible to call a ME if one parent unknown, ie 0/0 to 1/1, but rare and not all MEs callable.
+    missing_parents = np.any(-1 == parental_genotypes_012, axis = 1)
+
+    # now loop through variants
+    non_mendelian = np.array(map(is_variant_nonmendelian, 
+                        zip(missing_parents, classification, parental_genotypes_012, progeny_genotypes_012)))
+
+    # assign all missing to false
+    non_mendelian[missing_progeny] = False
+    
+    return non_mendelian
+
+def is_variant_nonmendelian(args):
+
+    """Internal function that determines whether an ME has occurred for a single variant
+
+    Parameters
+    ----------
+
+    A tuple which is internally unpacked to:
+      missing_parent:
+      classif:
+      parental_gt:
+      progeny_gt:
+
+    Returns
+    -------
+
+    n : boolean array of size progeny as above
+
+    See Also
+    --------
+    is_non_mendelian_diploid
+
+    """
+
+    missing_parent, classif, parental_gt, progeny_gt = args
+    # classification = 2 * either_parent_het + same_genotype
+    if missing_parent:
+        return np.zeros(progeny_gt.size, dtype='bool')
+    elif classif == 0: # parents different homs
+        return np.array(progeny_gt != 1) # must be het
+    elif classif == 1: # parents hom same
+        return np.array(progeny_gt != parental_gt[0])
+    elif classif == 2: # parents different, 1 is het
+        is_alt = np.any(parental_gt == 2)
+        allowed = [1, int(is_alt)*2]
+        return np.array([p not in allowed for p in progeny_gt])
+    else:              # parents both het
+        return np.zeros(progeny_gt.size, dtype='bool') # anything goes
+
+def count_non_mendelian_diploid(parental_genotypes, progeny_genotypes, axis = None):
+
+    """Count `impossible` genotypes according to mendelian inheritance laws
+
+    Parameters
+    ----------
+
+    parental_genotypes, progeny_genotypes: array_like, int
+        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
+        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+
+    axis : int, optional
+        The axis along which to count.
+
+    Returns
+    -------
+
+    n : int or array
+        If `axis` is None, returns the number of called (i.e., non-missing)
+        genotypes. If `axis` is specified, returns the sum along the given
+        `axis`.
+
+    See Also
+    --------
+    is_non_mendelian_diploid
+
+    """
+
+    # deal with axis argument
+    if axis == 'variants':
+        axis = 0
+    if axis == 'samples':
+        axis = 1
+
+    # count errors
+    n = np.sum(is_non_mendelian_diploid(parental_genotypes, progeny_genotypes), axis=axis)
+
+    return n
