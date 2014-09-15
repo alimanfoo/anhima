@@ -6,22 +6,23 @@ import numpy as np
 import anhima.ped
 
 # build parents with combinations of genotypes
-href_parent = np.zeros((1,1,2))
-halt_parent = np.ones((1,1,2),dtype='int')
-het_parent = np.array([0,1],dtype='int').reshape((1,1,2))
+href_parent = np.zeros((1, 1, 2))
+halt_parent = np.ones((1, 1, 2), dtype='int')
+het_parent = np.array([0, 1], dtype='int').reshape((1, 1, 2))
 
 # give progeny 4 genotypes, 00, 01, 11, 12
-progeny = np.array([[0,0], [0,1], [1,1], [-1,-1]]).reshape(1,-1,2)
+progeny = np.array([[0, 0], [0, 1], [1, 1], [-1, -1]]).reshape(1, -1, 2)
 
-class test_mendelian_error(unittest.TestCase):
+
+class TestMendelianError(unittest.TestCase):
     def test_test(self):
         self.assertTrue(True)
 
-    def test_functionExists(self):
+    def test_function_exists(self):
         self.assertTrue('is_non_mendelian_diploid' in dir(anhima.ped))
 
     def test_homref_homref(self):
-      parents = np.hstack([href_parent, href_parent]).astype(int)
+      parents = np.hstack([href_parent, href_parent])
       non_mendelian = anhima.ped.is_non_mendelian_diploid(
           parental_genotypes = parents,
           progeny_genotypes  = progeny
