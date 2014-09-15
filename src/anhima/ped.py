@@ -173,35 +173,49 @@ def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
     parental_genotypes_012 = anhima.gt.as_012(parental_genotypes)
     progeny_genotypes_012 = anhima.gt.as_012(progeny_genotypes)
 
-    # either parent het
-    either_parent_het = np.any(parental_genotypes_012 == 1, axis=1)
+    count_mendelian_diploid = np.zeros(progeny_genotypes_012.shape)
 
-    # are parents same gt
-    same_genotype = parental_genotypes_012[:, 0] == parental_genotypes_012[:, 1]
+    # build 6 classifications of parental gts. Calling ref/het/alt
+    parent1_ref = 0 == parental_genotypes_012[:, 0]
+    parent2_ref = 0 == parental_genotypes_012[:, 1]
 
-    # classification
-    classification = (2*either_parent_het) + same_genotype
+    parent1_het = 1 == parental_genotypes_012[:, 0]
+    parent2_het = 1 == parental_genotypes_012[:, 1]
 
-    # handle missing values.
-    # create missing matrix for progeny
-    missing_progeny = (-1 == progeny_genotypes_012)
+    parent1_alt = 2 == parental_genotypes_012[:, 0]
+    parent2_alt = 2 == parental_genotypes_012[:, 1]
 
-    # create missing matrix for parents.
-    # practically it is possible to call a ME if one parent unknown, ie 0/0
-    # to 1/1, but rare and not all MEs callable.
-    missing_parents = np.any(-1 == parental_genotypes_012, axis=1)
+    # hom ref X hom ref case:
+    count_mendelian_diploid[parent1_ref & parent2_ref] = \
+        progeny_genotypes_012[parent1_ref & parent2_ref]
 
-    # now loop through variants
-    non_mendelian = np.array(map(is_variant_non_mendelian,
-                             zip(missing_parents,
-                                 classification,
-                                 parental_genotypes_012,
-                                 progeny_genotypes_012)))
+    # hom alt x hom alt case:
+    count_mendelian_diploid[parent1_alt & parent2_alt] = \
+        2 - progeny_genotypes_012[parent1_alt & parent2_alt]
 
-    # assign all missing to false
-    non_mendelian[missing_progeny] = False
-    
-    return non_mendelian
+    # het vs het case
+    # not needed as all ok
+
+    # hom ref vs hom alt
+    # both 0 and 2 unacceptable
+    hom_ref_alt = (parent1_alt & parent2_ref) | (parent1_ref & parent2_alt)
+    count_mendelian_diploid[hom_ref_alt] = np.abs(progeny_genotypes_012 - 1)
+
+    # now het vs ref
+    # only a '2' is unacceptable
+    het_homref = (parent1_ref & parent2_het) | (parent1_het & parent2_ref)
+    count_mendelian_diploid[het_homref] = progeny_genotypes_012[het_homref]//2
+
+    # now het vs alt
+    # only a '0' is unacceptable. Implicitly convert from bool to int
+    het_homalt = (parent1_alt & parent2_het) | (parent1_het & parent2_alt)
+    count_mendelian_diploid[het_homalt] = (0 == progeny_genotypes_012[
+        het_homalt])
+
+    # set all missings to 0
+    count_mendelian_diploid[progeny_genotypes_012 == -1] = 0
+
+    return count_mendelian_diploid
 
 
 def is_variant_non_mendelian(args):
