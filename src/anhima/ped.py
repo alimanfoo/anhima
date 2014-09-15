@@ -18,8 +18,6 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 # third party dependencies
 import numpy as np
 import numexpr as ne
-import scipy.stats
-import hashlib
 
 # internal dependencies
 import anhima.gt
@@ -123,6 +121,7 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
 
     return inheritance
 
+
 def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
 
     """Find `impossible` genotypes according to mendelian inheritance laws
@@ -155,8 +154,9 @@ def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
 
     Does not handle phased genotypes.
 
-    Missing parental genotypes will always result in ME of offspring being recorded as F. Missing 
-    GTs in offspring result in an entry of F for Mendelian Error. 
+    Missing parental genotypes will always result in ME of offspring being
+    recorded as F. Missing
+    GTs in offspring result in an entry of F for Mendelian Error.
 
     """
     # check input array has 2 or more dimensions
@@ -169,18 +169,15 @@ def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
     # check there are no multiallelic sites
     assert np.all(parental_genotypes != 2) and np.all(progeny_genotypes != 2)
 
-    # assume ploidy is fastest changing dimension
-    dim_ploidy = parental_genotypes.ndim - 1
-
     # sum across the ploidy dimension
-    parental_genotypes_012 = anhima.gt.as_012(parental_genotypes);
-    progeny_genotypes_012  = anhima.gt.as_012(progeny_genotypes);
+    parental_genotypes_012 = anhima.gt.as_012(parental_genotypes)
+    progeny_genotypes_012 = anhima.gt.as_012(progeny_genotypes)
 
     # either parent het
-    either_parent_het = np.any(parental_genotypes_012 == 1, axis = 1);
+    either_parent_het = np.any(parental_genotypes_012 == 1, axis=1)
 
     # are parents same gt
-    same_genotype = np.apply_along_axis(np.std, 1, parental_genotypes_012) == 0
+    same_genotype = parental_genotypes_012[:, 0] == parental_genotypes_012[:, 1]
 
     # classification
     classification = (2*either_parent_het) + same_genotype
@@ -190,28 +187,34 @@ def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
     missing_progeny = (-1 == progeny_genotypes_012)
 
     # create missing matrix for parents.
-    # practically it is possible to call a ME if one parent unknown, ie 0/0 to 1/1, but rare and not all MEs callable.
-    missing_parents = np.any(-1 == parental_genotypes_012, axis = 1)
+    # practically it is possible to call a ME if one parent unknown, ie 0/0
+    # to 1/1, but rare and not all MEs callable.
+    missing_parents = np.any(-1 == parental_genotypes_012, axis=1)
 
     # now loop through variants
-    non_mendelian = np.array(map(is_variant_nonmendelian, 
-                        zip(missing_parents, classification, parental_genotypes_012, progeny_genotypes_012)))
+    non_mendelian = np.array(map(is_variant_non_mendelian,
+                             zip(missing_parents,
+                                 classification,
+                                 parental_genotypes_012,
+                                 progeny_genotypes_012)))
 
     # assign all missing to false
     non_mendelian[missing_progeny] = False
     
     return non_mendelian
 
-def is_variant_nonmendelian(args):
 
-    """Internal function that determines whether an ME has occurred for a single variant
+def is_variant_non_mendelian(args):
+
+    """Internal function that determines whether an ME has occurred for a
+    single variant
 
     Parameters
     ----------
 
     A tuple which is internally unpacked to:
       missing_parent:
-      classif:
+      classification:
       parental_gt:
       progeny_gt:
 
@@ -226,22 +229,25 @@ def is_variant_nonmendelian(args):
 
     """
 
-    missing_parent, classif, parental_gt, progeny_gt = args
+    missing_parent, classification, parental_gt, progeny_gt = args
     # classification = 2 * either_parent_het + same_genotype
     if missing_parent:
         return np.zeros(progeny_gt.size, dtype='bool')
-    elif classif == 0: # parents different homs
-        return np.array(progeny_gt != 1) # must be het
-    elif classif == 1: # parents hom same
+    elif classification == 0:  # parents different homozygotes
+        return np.array(progeny_gt != 1)  # must be het
+    elif classification == 1:  # parents hom same
         return np.array(progeny_gt != parental_gt[0])
-    elif classif == 2: # parents different, 1 is het
+    elif classification == 2:  # parents different, 1 is het
         is_alt = np.any(parental_gt == 2)
         allowed = [1, int(is_alt)*2]
         return np.array([p not in allowed for p in progeny_gt])
     else:              # parents both het
-        return np.zeros(progeny_gt.size, dtype='bool') # anything goes
+        return np.zeros(progeny_gt.size, dtype='bool')  # anything goes
 
-def count_non_mendelian_diploid(parental_genotypes, progeny_genotypes, axis = None):
+
+def count_non_mendelian_diploid(parental_genotypes,
+                                progeny_genotypes,
+                                axis=None):
 
     """Count `impossible` genotypes according to mendelian inheritance laws
 
@@ -279,6 +285,7 @@ def count_non_mendelian_diploid(parental_genotypes, progeny_genotypes, axis = No
         axis = 1
 
     # count errors
-    n = np.sum(is_non_mendelian_diploid(parental_genotypes, progeny_genotypes), axis=axis)
+    n = np.sum(is_non_mendelian_diploid(parental_genotypes,
+                                        progeny_genotypes), axis=axis)
 
     return n
