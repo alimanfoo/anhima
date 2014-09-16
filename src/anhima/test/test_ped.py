@@ -1,19 +1,23 @@
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
+
+
 import unittest
 import numpy as np
 import anhima.ped
 
+
 # build parents with combinations of genotypes
-href_parent = np.zeros((1, 1, 2))
+href_parent = np.zeros((1, 1, 2), dtype='int')
 halt_parent = np.ones((1, 1, 2), dtype='int')
 het_parent = np.array([0, 1], dtype='int').reshape((1, 1, 2))
+
 
 # give progeny 4 genotypes, 00, 01, 11, --
 progeny = np.array([[0, 0], [0, 1], [1, 1], [-1, -1]]).reshape(1, -1, 2)
 
 
 class TestMendelianError(unittest.TestCase):
-    def test_test(self):
-        self.assertTrue(True)
 
     def test_function_exists(self):
         self.assertTrue('diploid_mendelian_error' in dir(anhima.ped))
@@ -24,7 +28,6 @@ class TestMendelianError(unittest.TestCase):
             parental_genotypes=parents,
             progeny_genotypes=progeny
         )
-        print non_mendelian[0]
         self.assertTrue(np.array_equal(non_mendelian[0],
                                        [0, 1, 2, 0]))
 
@@ -34,7 +37,6 @@ class TestMendelianError(unittest.TestCase):
             parental_genotypes=parents,
             progeny_genotypes=progeny
         )
-        print non_mendelian[0]
         self.assertTrue(np.array_equal(non_mendelian[0], [0, 0, 1, 0]))
 
     def test_homref_homalt(self):
@@ -43,7 +45,6 @@ class TestMendelianError(unittest.TestCase):
             parental_genotypes=parents,
             progeny_genotypes=progeny,
         )
-        print non_mendelian[0]
         self.assertTrue(np.array_equal(non_mendelian[0], [1, 0, 1, 0]))
 
     def test_homalt_het(self):
@@ -52,7 +53,6 @@ class TestMendelianError(unittest.TestCase):
             parental_genotypes=parents,
             progeny_genotypes=progeny,
         )
-        print non_mendelian[0]
         self.assertTrue(np.array_equal(non_mendelian[0], [1, 0, 0, 0]))
 
     def test_homalt_homalt(self):
@@ -61,7 +61,6 @@ class TestMendelianError(unittest.TestCase):
             parental_genotypes=parents,
             progeny_genotypes=progeny
         )
-        print non_mendelian[0]
         self.assertTrue(np.array_equal(non_mendelian[0], [2, 1, 0, 0]))
 
     def test_multiple_variants(self):
@@ -81,7 +80,6 @@ class TestMendelianError(unittest.TestCase):
                                     [2, 1, 0, 0],
                                     [1, 0, 0, 0],
                                     [0, 0, 0, 0]])
-
         self.assertTrue(np.array_equal(parents.shape, (4, 2, 2)))
         self.assertTrue(np.array_equal(non_mendelian.shape,
                                        expected_result.shape))

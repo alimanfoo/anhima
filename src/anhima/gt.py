@@ -19,6 +19,7 @@ __author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import numexpr as ne
 
 
 # internal dependencies
@@ -64,9 +65,19 @@ def is_called(genotypes):
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
+    ploidy = genotypes.shape[dim_ploidy]
+    assert ploidy > 1
 
-    # determine output array
-    out = np.all(genotypes >= 0, axis=dim_ploidy)
+    # optimisation for diploid case
+    if ploidy == 2:
+        allele1 = genotypes[..., 0]
+        allele2 = genotypes[..., 1]
+        ex = '(allele1 >= 0) & (allele2 >= 0)'
+        out = ne.evaluate(ex)
+
+    # general ploidy case
+    else:
+        out = np.all(genotypes >= 0, axis=dim_ploidy)
 
     return out
 
@@ -145,9 +156,19 @@ def is_missing(genotypes):
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
+    ploidy = genotypes.shape[dim_ploidy]
+    assert ploidy > 1
 
-    # determine output array
-    out = np.any(genotypes < 0, axis=dim_ploidy)
+    # optimisation for diploid case
+    if ploidy == 2:
+        allele1 = genotypes[..., 0]
+        allele2 = genotypes[..., 1]
+        ex = '(allele1 < 0) | (allele2 < 0)'
+        out = ne.evaluate(ex)
+
+    # general ploidy case
+    else:
+        out = np.any(genotypes < 0, axis=dim_ploidy)
 
     return out
 
@@ -225,14 +246,24 @@ def is_hom(genotypes):
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
+    ploidy = genotypes.shape[dim_ploidy]
+    assert ploidy > 1
 
-    # find hets
-    allele1 = genotypes[..., 0, np.newaxis]
-    other_alleles = genotypes[..., 1:]
-    is_hom = np.any((allele1 >= 0) & (allele1 == other_alleles),
-                    axis=dim_ploidy)
+    # optimisation for diploid case
+    if ploidy == 2:
+        allele1 = genotypes[..., 0]
+        allele2 = genotypes[..., 1]
+        ex = '(allele1 >= 0) & (allele1 == allele2)'
+        out = ne.evaluate(ex)
 
-    return is_hom
+    # general ploidy case
+    else:
+        allele1 = genotypes[..., 0, np.newaxis]
+        other_alleles = genotypes[..., 1:]
+        ex = '(allele1 >= 0) & (allele1 == other_alleles)'
+        out = np.all(ne.evaluate(ex), axis=dim_ploidy)
+
+    return out
 
 
 def count_hom(genotypes, axis=None):
@@ -312,13 +343,22 @@ def is_het(genotypes):
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
+    ploidy = genotypes.shape[dim_ploidy]
+    assert ploidy > 1
 
-    # find hets
-    allele1 = genotypes[..., 0, np.newaxis]
-    other_alleles = genotypes[..., 1:]
-    is_het = np.any(allele1 != other_alleles, axis=dim_ploidy)
+    # optimisation for diploid case
+    if ploidy == 2:
+        allele1 = genotypes[..., 0]
+        allele2 = genotypes[..., 1]
+        out = allele1 != allele2
 
-    return is_het
+    # general ploidy case
+    else:
+        allele1 = genotypes[..., 0, np.newaxis]
+        other_alleles = genotypes[..., 1:]
+        out = np.any(allele1 != other_alleles, axis=dim_ploidy)
+
+    return out
 
 
 def count_het(genotypes, axis=None):
@@ -394,9 +434,19 @@ def is_hom_ref(genotypes):
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
+    ploidy = genotypes.shape[dim_ploidy]
+    assert ploidy > 1
 
-    # determine output array
-    out = np.all(genotypes == 0, axis=dim_ploidy)
+    # optimisation for diploid case
+    if ploidy == 2:
+        allele1 = genotypes[..., 0]
+        allele2 = genotypes[..., 1]
+        ex = '(allele1 == 0) & (allele2 == 0)'
+        out = ne.evaluate(ex)
+
+    # general ploidy case
+    else:
+        out = np.all(genotypes == 0, axis=dim_ploidy)
 
     return out
 
@@ -476,14 +526,24 @@ def is_hom_alt(genotypes):
 
     # assume ploidy is fastest changing dimension
     dim_ploidy = genotypes.ndim - 1
+    ploidy = genotypes.shape[dim_ploidy]
+    assert ploidy > 1
 
-    # find hets
-    allele1 = genotypes[..., 0, np.newaxis]
-    other_alleles = genotypes[..., 1:]
-    is_hom_alt = np.all((allele1 > 0) & (allele1 == other_alleles),
-                        axis=dim_ploidy)
+    # optimisation for diploid case
+    if ploidy == 2:
+        allele1 = genotypes[..., 0]
+        allele2 = genotypes[..., 1]
+        ex = '(allele1 > 0) & (allele1 == allele2)'
+        out = ne.evaluate(ex)
 
-    return is_hom_alt
+    # general ploidy case
+    else:
+        allele1 = genotypes[..., 0, np.newaxis]
+        other_alleles = genotypes[..., 1:]
+        ex = '(allele1 > 0) & (allele1 == other_alleles)'
+        out = np.all(ne.evaluate(ex), axis=dim_ploidy)
+
+    return out
 
 
 def count_hom_alt(genotypes, axis=None):
@@ -579,7 +639,7 @@ def as_n_alt(genotypes):
     Returns
     -------
 
-    gn : ndarray, int8
+    gn : ndarray, uint8
         An array where each genotype is coded as a single integer counting
         the number of alternate alleles.
 
@@ -611,7 +671,7 @@ def as_n_alt(genotypes):
     dim_ploidy = genotypes.ndim - 1
 
     # count number of alternate alleles
-    gn = np.empty(genotypes.shape[:-1], dtype='i1')
+    gn = np.empty(genotypes.shape[:-1], dtype='u1')
     np.sum(genotypes > 0, axis=dim_ploidy, out=gn)
 
     return gn

@@ -29,6 +29,10 @@ else
     echo skip running examples
 fi
 
+echo running tests
+
+nosetests -v
+
 echo executing release
 
 # remove -SNAPSHOT from src/petl/__init__.py
