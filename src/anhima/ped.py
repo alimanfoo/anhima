@@ -122,7 +122,7 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     return inheritance
 
 
-def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
+def diploid_mendelian_error(parental_genotypes, progeny_genotypes):
 
     """Find `impossible` genotypes according to mendelian inheritance laws
 
@@ -139,8 +139,8 @@ def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
     Returns
     -------
 
-    is_non_mendelian : ndarray, bool
-        An array where elements are True if the genotype call is non-mendelian
+    is_non_mendelian : ndarray, int
+        An array where elements represent counts of non-mendelian alleles
 
     See Also
     --------
@@ -185,78 +185,41 @@ def is_non_mendelian_diploid(parental_genotypes, progeny_genotypes):
     parent1_alt = 2 == parental_genotypes_012[:, 0]
     parent2_alt = 2 == parental_genotypes_012[:, 1]
 
-    # hom ref X hom ref case:
+    # hom ref X hom ref case: 1/9
+    # 0 means 0 MEs, 1 means 1 and 2 means 2.
     count_mendelian_diploid[parent1_ref & parent2_ref] = \
         progeny_genotypes_012[parent1_ref & parent2_ref]
 
-    # hom alt x hom alt case:
+    # hom alt x hom alt case: 2/9
+    # 0 means 2 MEs, 1 means 1 and 2 means 0 MEs
     count_mendelian_diploid[parent1_alt & parent2_alt] = \
         2 - progeny_genotypes_012[parent1_alt & parent2_alt]
 
-    # het vs het case
-    # not needed as all ok
+    # het vs het case 3/9
+    # not needed as all genotypes are possible
 
-    # hom ref vs hom alt
+    # hom ref vs hom alt 4,5/9
     # both 0 and 2 unacceptable
     hom_ref_alt = (parent1_alt & parent2_ref) | (parent1_ref & parent2_alt)
-    count_mendelian_diploid[hom_ref_alt] = np.abs(progeny_genotypes_012 - 1)
+    count_mendelian_diploid[hom_ref_alt] = np.abs(
+        progeny_genotypes_012[hom_ref_alt] - 1)
 
-    # now het vs ref
-    # only a '2' is unacceptable
+    # now het vs ref: 6,7/9
+    # only a '2' is unacceptable. Implicitly convert from bool to int
     het_homref = (parent1_ref & parent2_het) | (parent1_het & parent2_ref)
-    count_mendelian_diploid[het_homref] = progeny_genotypes_012[het_homref]//2
+    count_mendelian_diploid[het_homref] = (2 == progeny_genotypes_012[
+        het_homref])
 
-    # now het vs alt
+    # now het vs alt: 8,9/9
     # only a '0' is unacceptable. Implicitly convert from bool to int
     het_homalt = (parent1_alt & parent2_het) | (parent1_het & parent2_alt)
     count_mendelian_diploid[het_homalt] = (0 == progeny_genotypes_012[
         het_homalt])
 
     # set all missings to 0
-    count_mendelian_diploid[progeny_genotypes_012 == -1] = 0
+    count_mendelian_diploid[-1 == progeny_genotypes_012] = 0
 
     return count_mendelian_diploid
-
-
-def is_variant_non_mendelian(args):
-
-    """Internal function that determines whether an ME has occurred for a
-    single variant
-
-    Parameters
-    ----------
-
-    A tuple which is internally unpacked to:
-      missing_parent:
-      classification:
-      parental_gt:
-      progeny_gt:
-
-    Returns
-    -------
-
-    n : boolean array of size progeny as above
-
-    See Also
-    --------
-    is_non_mendelian_diploid
-
-    """
-
-    missing_parent, classification, parental_gt, progeny_gt = args
-    # classification = 2 * either_parent_het + same_genotype
-    if missing_parent:
-        return np.zeros(progeny_gt.size, dtype='bool')
-    elif classification == 0:  # parents different homozygotes
-        return np.array(progeny_gt != 1)  # must be het
-    elif classification == 1:  # parents hom same
-        return np.array(progeny_gt != parental_gt[0])
-    elif classification == 2:  # parents different, 1 is het
-        is_alt = np.any(parental_gt == 2)
-        allowed = [1, int(is_alt)*2]
-        return np.array([p not in allowed for p in progeny_gt])
-    else:              # parents both het
-        return np.zeros(progeny_gt.size, dtype='bool')  # anything goes
 
 
 def count_non_mendelian_diploid(parental_genotypes,
@@ -288,7 +251,7 @@ def count_non_mendelian_diploid(parental_genotypes,
 
     See Also
     --------
-    is_non_mendelian_diploid
+    diploid_mendelian_error
 
     """
 
@@ -299,7 +262,7 @@ def count_non_mendelian_diploid(parental_genotypes,
         axis = 1
 
     # count errors
-    n = np.sum(is_non_mendelian_diploid(parental_genotypes,
-                                        progeny_genotypes), axis=axis)
+    n = np.sum(diploid_mendelian_error(parental_genotypes,
+                                       progeny_genotypes), axis=axis)
 
     return n

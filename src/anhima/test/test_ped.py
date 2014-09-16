@@ -16,11 +16,11 @@ class TestMendelianError(unittest.TestCase):
         self.assertTrue(True)
 
     def test_function_exists(self):
-        self.assertTrue('is_non_mendelian_diploid' in dir(anhima.ped))
+        self.assertTrue('diploid_mendelian_error' in dir(anhima.ped))
 
     def test_homref_homref(self):
         parents = np.hstack([href_parent, href_parent])
-        non_mendelian = anhima.ped.is_non_mendelian_diploid(
+        non_mendelian = anhima.ped.diploid_mendelian_error(
             parental_genotypes=parents,
             progeny_genotypes=progeny
         )
@@ -30,7 +30,7 @@ class TestMendelianError(unittest.TestCase):
 
     def test_homref_het(self):
         parents = np.hstack([href_parent, het_parent])
-        non_mendelian = anhima.ped.is_non_mendelian_diploid(
+        non_mendelian = anhima.ped.diploid_mendelian_error(
             parental_genotypes=parents,
             progeny_genotypes=progeny
         )
@@ -39,7 +39,7 @@ class TestMendelianError(unittest.TestCase):
 
     def test_homref_homalt(self):
         parents = np.hstack([halt_parent, href_parent])
-        non_mendelian = anhima.ped.is_non_mendelian_diploid(
+        non_mendelian = anhima.ped.diploid_mendelian_error(
             parental_genotypes=parents,
             progeny_genotypes=progeny,
         )
@@ -48,7 +48,7 @@ class TestMendelianError(unittest.TestCase):
 
     def test_homalt_het(self):
         parents = np.hstack([halt_parent, het_parent])
-        non_mendelian = anhima.ped.is_non_mendelian_diploid(
+        non_mendelian = anhima.ped.diploid_mendelian_error(
             parental_genotypes=parents,
             progeny_genotypes=progeny,
         )
@@ -57,23 +57,47 @@ class TestMendelianError(unittest.TestCase):
 
     def test_homalt_homalt(self):
         parents = np.hstack([halt_parent, halt_parent])
-        non_mendelian = anhima.ped.is_non_mendelian_diploid(
+        non_mendelian = anhima.ped.diploid_mendelian_error(
             parental_genotypes=parents,
             progeny_genotypes=progeny
         )
         print non_mendelian[0]
         self.assertTrue(np.array_equal(non_mendelian[0], [2, 1, 0, 0]))
 
+    def test_multiple_variants(self):
+        parents = np.vstack([np.hstack([href_parent, href_parent]),
+                             np.hstack([halt_parent, halt_parent]),
+                             np.hstack([het_parent, halt_parent]),
+                             np.hstack([het_parent, het_parent])])
+
+        multiv_progeny = np.repeat(progeny, 4, axis=0)
+
+        non_mendelian = anhima.ped.diploid_mendelian_error(
+            parental_genotypes=parents,
+            progeny_genotypes=multiv_progeny
+        )
+
+        expected_result = np.array([[0, 1, 2, 0],
+                                    [2, 1, 0, 0],
+                                    [1, 0, 0, 0],
+                                    [0, 0, 0, 0]])
+
+        self.assertTrue(np.array_equal(parents.shape, (4, 2, 2)))
+        self.assertTrue(np.array_equal(non_mendelian.shape,
+                                       expected_result.shape))
+
+        self.assertTrue(np.array_equal(non_mendelian, expected_result))
+
     def test_error_multiallelic(self):
         parents = np.hstack([href_parent, halt_parent])
         progeny_multi = (
             np.array([[0, 2], [0, 1], [1, 2], [-1, -1]])
-            .reshape(1, -1, 2)
+            .reshape((1, -1, 2))
         )
 
         self.assertRaises(
             AssertionError,
-            anhima.ped.is_non_mendelian_diploid,
+            anhima.ped.diploid_mendelian_error,
             parental_genotypes=parents,
             progeny_genotypes=progeny_multi
         )
