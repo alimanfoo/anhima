@@ -9,9 +9,6 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 
-__author__ = 'Alistair Miles <alimanfoo@googlemail.com>'
-
-
 # python standard library dependencies
 import random
 
