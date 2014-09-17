@@ -71,7 +71,8 @@ def smacof(dist_square, **kwargs):
     See Also
     --------
 
-    anhima.mds.classical, sklearn.manifold.MDS, anhima.pca.pca
+    anhima.dist.pairwise_distance, anhima.mds.classical, sklearn.manifold.MDS,
+    anhima.pca.pca
 
     """
 
@@ -113,7 +114,7 @@ def classical(dist_square, k=2):
     See Also
     --------
 
-    anhima.mds.smacof, anhima.pca.pca
+    anhima.dist.pairwise_distance, anhima.mds.smacof, anhima.pca.pca
 
     """
 
@@ -216,4 +217,3 @@ def plot_coords(coords, dimx=1, dimy=2, ax=None, colors='b', sizes=20,
     ax.set_ylabel('dimension %s' % dimy)
 
     return ax
-
