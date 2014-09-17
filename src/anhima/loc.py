@@ -9,7 +9,6 @@ from __future__ import division, print_function, unicode_literals, \
 
 
 # standard library dependencies
-import bisect
 import random
 
 
@@ -239,8 +238,14 @@ def locate_region(pos, start_position=0, stop_position=None):
 
     """
 
-    start_index = bisect.bisect_left(pos, start_position)
-    stop_index = bisect.bisect_right(pos, stop_position) if stop_position is not None else None
+    # check inputs
+    pos = np.asarray(pos)
+
+    # locate start and stop indices
+    start_index = np.searchsorted(pos, start_position)
+    stop_index = np.searchsorted(pos, stop_position, side='right') \
+        if stop_position is not None else None
+
     loc = slice(start_index, stop_index)
     return loc
 
