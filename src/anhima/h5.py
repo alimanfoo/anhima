@@ -336,4 +336,32 @@ def take2d_points(dataset, row_indices=None, col_indices=None,
     return out
 
 
-# TODO map_chunks
+def save_tped(path, callset, chrom,
+              start_position=0,
+              stop_position=None,
+              samples=None):
+    """Save genotype data from an HDF5 callset to a Plink transposed format
+    file (TPED).
+
+    Parameters
+    ----------
+
+    path : string or file-like
+        Path of file to write, or file-like object to write to.
+    callset : HDF5 file or group
+        A file or group containing a variant call set.
+    chrom : string
+        The chromosome to extract data for.
+    start_position : int, optional
+        The start position for the region to extract data for.
+    stop_position : int, optional
+        The stop position for the region to extract data for.
+    samples : sequence of strings, optional
+        Selection of samples to extract genotypes for, defaults to all samples.
+
+    """
+
+    # TODO implementation
+    pass
+
+    # don't return anything

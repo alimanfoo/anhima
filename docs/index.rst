@@ -52,6 +52,7 @@ Install from GitHub::
     tree
     ped
     h5
+    io
     sim
 
 **Indices and tables**
