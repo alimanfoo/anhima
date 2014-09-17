@@ -42,7 +42,7 @@ def simulate_biallelic_genotypes(n_variants, n_samples, af_dist,
     -------
 
     genotypes : ndarray, int8
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = alternate allele).
 
@@ -97,7 +97,7 @@ def simulate_genotypes_with_ld(n_variants, n_samples, correlation=0.2):
     -------
 
     gn : ndarray, int8
-        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        A 2-dimensional array of shape (n_variants, n_samples) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
 
@@ -139,7 +139,7 @@ def simulate_relatedness(genotypes, relatedness=.5, n_iter=1000, copy=True):
     ----------
 
     genotypes : array_like
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).

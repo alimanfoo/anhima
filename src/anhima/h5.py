@@ -181,7 +181,8 @@ def take2d(dataset, row_indices, col_indices=None, block_size=None):
     """
 
     # make sure row_indices are sorted array
-    row_indices = np.array(sorted(row_indices))
+    row_indices = np.array(row_indices)
+    row_indices.sort()
 
     # how many rows are we selecting?
     n_rows_in = dataset.shape[0]
@@ -334,6 +335,3 @@ def take2d_points(dataset, row_indices=None, col_indices=None,
     out = out.reshape(n_rows_out, n_cols_out)
 
     return out
-
-
-# TODO map_chunks

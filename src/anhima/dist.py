@@ -25,7 +25,7 @@ def pairwise_distance(gn, metric='euclidean'):
     ----------
 
     gn : array_like
-        A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
+        A 2-dimensional array of shape (n_variants, n_samples) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
     metric : string or function, optional
@@ -98,6 +98,7 @@ def plot_pairwise_distance(dist_square, labels=None,
     # normalise inputs
     dist_square = np.asarray(dist_square)
     assert dist_square.ndim == 2
+    assert dist_square.shape[0] == dist_square.shape[1]
 
     # set up axes
     if ax is None:
@@ -128,8 +129,3 @@ def plot_pairwise_distance(dist_square, labels=None,
         plt.gcf().colorbar(im)
 
     return ax
-
-
-# TODO add color option to distance plot instead of labels
-# TODO clustering prior to distance plots
-# TODO tree with distance plot
