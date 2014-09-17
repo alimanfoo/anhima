@@ -385,9 +385,9 @@ def windowed_variant_counts(pos, window_size, start_position=None,
         The number of variants in each window.
     bin_edges : ndarray, int
         The edge positions of each window. Note that this has length
-        `len(counts)+1`. To determine bin centers use
-        `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
-        `np.diff(bin_edges)`.
+        ``len(counts)+1``. To determine bin centers use
+        ``(bin_edges[:-1] + bin_edges[1:]) / 2``. To determine bin widths use
+        ``np.diff(bin_edges)``.
 
     See Also
     --------
@@ -507,9 +507,9 @@ def windowed_variant_density(pos, window_size, start_position=None,
         The density of variants in each window.
     bin_edges : ndarray, int
         The edge positions of each window. Note that this has length
-        `len(density)+1`. To determine bin centers use
-        `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
-        `np.diff(bin_edges)`.
+        ``len(density)+1``. To determine bin centers use
+        ``(bin_edges[:-1] + bin_edges[1:]) / 2``. To determine bin widths use
+        ``np.diff(bin_edges)``.
 
     See Also
     --------
@@ -634,9 +634,9 @@ def windowed_statistic(pos, values, window_size,
         The values of the statistic within each bin.
     bin_edges : ndarray
         The edge positions of each window. Note that this has length
-        `len(stats)+1`. To determine bin centers use
-        `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
-        `np.diff(bin_edges)`.
+        ``len(stats)+1``. To determine bin centers use
+        ``(bin_edges[:-1] + bin_edges[1:]) / 2``. To determine bin widths use
+        ``np.diff(bin_edges)``.
 
     """
 
