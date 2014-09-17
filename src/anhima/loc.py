@@ -387,7 +387,7 @@ def windowed_variant_counts(pos, window_size, start_position=None,
         The edge positions of each window. Note that this has length
         `len(counts)+1`. To determine bin centers use
         `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
-        `np.diff(bin_edges)`
+        `np.diff(bin_edges)`.
 
     See Also
     --------
@@ -507,9 +507,9 @@ def windowed_variant_density(pos, window_size, start_position=None,
         The density of variants in each window.
     bin_edges : ndarray, int
         The edge positions of each window. Note that this has length
-        `len(counts)+1`. To determine bin centers use
+        `len(density)+1`. To determine bin centers use
         `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
-        `np.diff(bin_edges)`
+        `np.diff(bin_edges)`.
 
     See Also
     --------
@@ -627,6 +627,17 @@ def windowed_statistic(pos, values, window_size,
     statistic : string or function
         The function to apply to values in each bin.
 
+    Returns
+    -------
+
+    stats : ndarray
+        The values of the statistic within each bin.
+    bin_edges : ndarray
+        The edge positions of each window. Note that this has length
+        `len(stats)+1`. To determine bin centers use
+        `(bin_edges[:-1] + bin_edges[1:]) / 2`. To determine bin widths use
+        `np.diff(bin_edges)`.
+
     """
 
     # determine bins
@@ -641,9 +652,6 @@ def windowed_statistic(pos, values, window_size,
     stats, _, _ = scipy.stats.binned_statistic(pos, values=values,
                                                statistic=statistic,
                                                bins=bin_edges)
-
-    # # calculate bin centers
-    # bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     return stats, bin_edges
 
@@ -716,7 +724,3 @@ def randomly_downsample_variants(a, k):
     b = np.take(a, indices, axis=0)
 
     return b
-
-
-
-
