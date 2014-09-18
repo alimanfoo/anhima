@@ -94,6 +94,7 @@ def save_tped(path, genotypes, ref, alt, pos,
         assert genetic_distance.shape[0] == n_variants
 
     # setup output file
+    tped_needs_closing = False
     if isinstance(path, basestring):
         tped_file = open(path, 'w')
         tped_needs_closing = True
@@ -110,7 +111,7 @@ def save_tped(path, genotypes, ref, alt, pos,
                                        chromosome[idx],
                                        identifier[idx],
                                        genetic_distance[idx])
-        tped_file.write(out_string + '\n')
+            tped_file.write(out_string + '\n')
 
     finally:
         if tped_needs_closing:
@@ -134,5 +135,5 @@ def _get_tped_row(gt_data, reference, alternate, position, contig, iden,
     str_gts = _convert_gts_to_strings(gt_data, reference, alternate)
     return "\t".join([contig,
                       iden,
-                      genetic_dist,
+                      str(genetic_dist),
                       str(position)] + str_gts)
