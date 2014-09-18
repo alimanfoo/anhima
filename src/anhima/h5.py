@@ -121,11 +121,16 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
 
     # extract variants data
     if variants_fields:
+        if isinstance(variants_fields, basestring):
+            variants_fields = [variants_fields]
         for f in variants_fields:
+               
             variants[f] = grp_chrom['variants'][f][loc, ...]
 
     # extract calldata
     if calldata_fields:
+        if isinstance(calldata_fields, basestring):
+            calldata_fields = [calldata_fields]
         for f in calldata_fields:
             calldata[f] = grp_chrom['calldata'][f][loc, ...]
             
