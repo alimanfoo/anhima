@@ -17,6 +17,7 @@ from . import dist
 from . import f2
 from . import gt
 from . import h5
+from . import io
 from . import ld
 from . import loc
 from . import mds

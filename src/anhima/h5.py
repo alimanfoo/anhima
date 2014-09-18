@@ -365,8 +365,30 @@ def save_tped(path, callset, chrom,
         Selection of samples to extract genotypes for, defaults to all samples.
 
     """
+    region = load_region(callset,
+                         chrom,
+                         start_position,
+                         stop_position,
+                         variants_fields=['POS', 'ref', 'alt'],
+                         calldata_fields=['genotype'])
 
-    # TODO implementation
-    pass
+    # determine samples that we will uses
+    h5_samples = callset[chrom]['samples'][:].tolist()
 
-    # don't return anything
+    if samples is None:
+        samples = h5_samples
+
+    # determine which samples we care about: integer vector
+    inc_samples = [h5_samples.index(s) for s in samples]
+
+    # here I should invoke the io module
+    anhima.io.save_tped(path,
+                        genotypes=region[1]['genotype'][:, inc_samples, :],
+                        ref=region[0]['ref'],
+                        alt=region[0]['alt'],
+                        pos=region[0]['POS'],
+                        chromosome=chrom,
+                        identifier=None,
+                        genetic_distance=None)
+
+    return None

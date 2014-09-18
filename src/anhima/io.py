@@ -102,11 +102,37 @@ def save_tped(path, genotypes, ref, alt, pos,
         tped_file = path
 
     try:
-        # TODO implementation
-        pass
+        for idx, p in enumerate(pos):
+            out_string = _get_tped_row(genotypes[idx],
+                                       ref[idx],
+                                       alt[idx],
+                                       p,
+                                       chromosome[idx],
+                                       identifier[idx],
+                                       genetic_distance[idx])
+        tped_file.write(out_string + '\n')
 
     finally:
         if tped_needs_closing:
             tped_file.close()
 
     # don't return anything
+    return None
+
+
+def _convert_gts_to_strings(genotypes, ref, alt):
+
+    lu = {-1: '0', 0: ref, 1: alt}
+    return np.apply_along_axis(lambda x: lu[x[0]] + ' ' + lu[x[1]],
+                               1,
+                               genotypes).tolist()
+
+
+def _get_tped_row(gt_data, reference, alternate, position, contig, iden,
+                  genetic_dist):
+
+    str_gts = _convert_gts_to_strings(gt_data, reference, alternate)
+    return "\t".join([contig,
+                      iden,
+                      genetic_dist,
+                      str(position)] + str_gts)
