@@ -764,14 +764,15 @@ def pack_diploid(genotypes):
 
     """
 
-    # normalise inputs
-    genotypes = np.asarray(genotypes).astype('i1')
+    # check inputs
+    genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
     assert np.amax(genotypes) < 15, 'max allele is 14'
     assert np.amin(genotypes) > -2, 'min allele is -1'
+    genotypes = genotypes.astype('u1')
 
     # add 1 to handle missing alleles coded as -1
-    genotypes = (genotypes + 1).astype('u1')
+    genotypes = genotypes + 1
 
     # left shift first allele by 4 bits
     a1 = np.left_shift(genotypes[..., 0], 4)
@@ -785,7 +786,7 @@ def pack_diploid(genotypes):
 
     # rotate round so that hom ref calls are encoded as 0, better for sparse
     # matrices
-    packed = packed - 17
+    packed -= 17
 
     return packed
 
@@ -816,27 +817,27 @@ def unpack_diploid(packed):
 
     """
 
-    # check input array
+    # check inputs
     packed = np.asarray(packed).astype('u1')
     assert 1 <= packed.ndim <= 2
 
     # rotate back round so missing calls are encoded as 0
     packed = packed + 17
 
+    # set up output array
+    genotypes = np.empty(packed.shape + (2,), dtype='u1')
+    a1 = genotypes[..., 0]
+    a2 = genotypes[..., 1]
+
     # right shift 4 bits to extract first allele
-    a1 = np.right_shift(packed, 4)
+    np.right_shift(packed, 4, out=a1)
 
     # mask left-most 4 bits to extract second allele
-    a2 = np.bitwise_and(packed, 15)
-
-    # stack to restore ploidy dimension
-    if packed.ndim == 2:
-        genotypes = np.dstack((a1, a2))
-    elif packed.ndim == 1:
-        genotypes = np.column_stack((a1, a2))
+    np.bitwise_and(packed, 15, out=a2)
 
     # subtract 1 to restore coding of missing alleles as -1
-    genotypes = (genotypes - 1).astype('i1')
+    genotypes -= 1
+    genotypes = genotypes.astype('i1')
 
     return genotypes
 
