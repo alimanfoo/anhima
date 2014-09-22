@@ -14,9 +14,11 @@ Genotypes
 .. autofunction:: count_het
 .. autofunction:: count_hom_ref
 .. autofunction:: count_hom_alt
+.. autofunction:: max_allele
 .. autofunction:: as_haplotypes
 .. autofunction:: as_n_alt
 .. autofunction:: as_012
+.. autofunction:: as_allele_counts
 .. autofunction:: pack_diploid
 .. autofunction:: unpack_diploid
 .. autofunction:: count_genotypes

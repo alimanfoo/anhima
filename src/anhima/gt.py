@@ -578,6 +578,33 @@ def count_hom_alt(genotypes, axis=None):
     return n
 
 
+def max_allele(genotypes, axis=None):
+    """
+    Return the highest allele index.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (n_variants, n_samples, ploidy) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to determine the maximum (0 = variants,
+        1 = samples). If not given, return the highest overall.
+
+    Returns
+    -------
+
+    n : int
+        The value of the highest allele index present in the genotypes array.
+
+    """
+
+    return np.amax(genotypes, axis=axis)
+
+
 def as_haplotypes(genotypes):
     """Reshape an array of genotypes to view it as haplotypes by dropping the
     ploidy dimension.
@@ -731,6 +758,46 @@ def as_012(genotypes, fill=-1):
     gn[is_hom_alt(genotypes)] = 2
 
     return gn
+
+
+def as_allele_counts(genotypes, alleles=None):
+    """Transform genotypes into allele counts per call.
+
+    Parameters
+    ----------
+
+    genotypes : array_like, int
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    alleles : sequence of ints, optional
+        The alleles to count. If not specified, all alleles will be counted.
+
+    Returns
+    -------
+
+    gac : ndarray, uint8
+        An array where the ploidy dimension has been replaced by counts of
+        each allele.
+
+    """
+
+    # check inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim > 1
+    dim_ploidy = genotypes.ndim - 1
+    if alleles is None:
+        m = np.amax(genotypes)
+        alleles = range(m+1)
+
+    # count alleles along ploidy dimension
+    gac = np.zeros(genotypes.shape[:-1] + (len(alleles),), dtype='u1')
+    for i, allele in enumerate(alleles):
+        np.sum(genotypes == allele, axis=dim_ploidy, out=gac[..., i])
+
+    return gac
 
 
 def pack_diploid(genotypes):
