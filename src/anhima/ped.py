@@ -20,6 +20,7 @@ import numexpr as ne
 import anhima.gt
 
 # constants to represent inheritance states
+INHERIT_UNDETERMINED = 0
 INHERIT_PARENT1 = 1
 INHERIT_PARENT2 = 2
 INHERIT_NONSEG_REF = 3
@@ -243,3 +244,66 @@ def count_diploid_mendelian_error(parental_genotypes,
                axis=axis)
 
     return n
+
+
+def impute_inheritance_nearest(inheritance, pos, pos_impute):
+    """Impute inheritance at unknown positions, by copying from
+    nearest neighbouring position where inheritance is known.
+
+    Parameters
+    ----------
+
+    inheritance : array_like, int, shape (n_variants, n_gametes)
+        An array of integers coding the allelic inheritance state at the
+        known positions.
+    pos : array_like, int, shape (n_variants,)
+        Array of genomic positions at which `inheritance` was determined.
+    pos_impute : array_like, int
+        Array of positions at which to impute inheritance.
+
+    Returns
+    -------
+
+    imputed_inheritance : ndarray, int
+        An array of integers coding the imputed allelic inheritance.
+
+    """
+
+    # check inputs
+    inheritance = np.asarray(inheritance)
+    assert inheritance.ndim == 2
+    pos = np.asarray(pos)
+    assert pos.ndim == 1
+    pos_impute = np.asarray(pos_impute)
+    assert pos_impute.ndim == 1
+    n_variants = pos.size
+    assert inheritance.shape[0] == n_variants
+
+    # find indices of neighbouring variants
+    indices_left = np.clip(np.searchsorted(pos, pos_impute), 0, n_variants - 1)
+    indices_right = np.clip(indices_left + 1, 0, n_variants - 1)
+    inh_left = np.take(inheritance, indices_left, axis=0)
+    inh_right = np.take(inheritance, indices_right, axis=0)
+
+    # find positions of neighbouring variants
+    pos_left = np.take(pos, indices_left)
+    pos_right = np.take(pos, indices_right)
+
+    # compute distance to neighbours
+    dist_left = np.abs(pos_impute - pos_left)
+    dist_right = np.abs(pos_right - pos_impute)
+
+    # build output
+    out = np.zeros_like(inh_left)
+    out[dist_left < dist_right] = inh_left[dist_left < dist_right]
+    out[dist_left > dist_right] = inh_right[dist_left > dist_right]
+
+    # # use neighbour from other side where missing
+    # override_left = ((dist_left < dist_right)[:, np.newaxis]
+    #                  & (out == INHERIT_MISSING))
+    # out[override_left] = inh_right[override_left]
+    # override_right = ((dist_left > dist_right)[:, np.newaxis]
+    #                   & (out == INHERIT_MISSING))
+    # out[override_right] = inh_left[override_right]
+
+    return out
