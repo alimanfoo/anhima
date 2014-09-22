@@ -35,6 +35,17 @@ class TestTped(unittest.TestCase):
         anhima.io.save_tped(path.name, genotypes, ref, alt, pos)
         self.assertTrue(os.path.isfile(path.name))
 
-        # need to count the rows
-        num_lines = sum(1 for line in open(path.name))
-        self.assertEqual(n_variants, num_lines)
+        # read in file
+        with open(path.name) as f:
+            content = f.readlines()
+
+        self.assertEqual(n_variants, len(content))
+
+        # test that content is good...by taking first line
+        line = content[0].split("\t")
+        self.assertEquals(n_samples + 4, len(line))
+        self.assertEquals('_'.join(line[0:4]), '_'.join(['0', 'snp0', '0.0',
+                                                         str(pos[0])]))
+    # test that we can load from hdf5 and create tped
+
+    # test that we can write to hdf5 ok

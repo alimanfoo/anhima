@@ -10,6 +10,7 @@ from __future__ import division, print_function, unicode_literals, \
 
 # third party dependencies
 import numpy as np
+import itertools
 
 
 def save_tped(path, genotypes, ref, alt, pos,
@@ -103,30 +104,20 @@ def save_tped(path, genotypes, ref, alt, pos,
         tped_file = path
 
     try:
-        for idx, p in enumerate(pos):
-            out_string = _get_tped_row(genotypes[idx],
-                                       ref[idx],
-                                       alt[idx],
-                                       p,
-                                       chromosome[idx],
-                                       identifier[idx],
-                                       genetic_distance[idx])
+        for row_data in itertools.izip(genotypes, ref, alt, pos, chromosome,
+                                       identifier, genetic_distance):
+            out_string = _get_tped_row(*row_data)
             tped_file.write(out_string + '\n')
 
     finally:
         if tped_needs_closing:
             tped_file.close()
 
-    # don't return anything
-    return None
-
 
 def _convert_gts_to_strings(genotypes, ref, alt):
 
     lu = {-1: '0', 0: ref, 1: alt}
-    return np.apply_along_axis(lambda x: lu[x[0]] + ' ' + lu[x[1]],
-                               1,
-                               genotypes).tolist()
+    return [lu[a] + ' ' + lu[b] for a, b in genotypes]
 
 
 def _get_tped_row(gt_data, reference, alternate, position, contig, iden,
