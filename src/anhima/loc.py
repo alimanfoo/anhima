@@ -108,7 +108,7 @@ def take_sample(a, all_samples, selected_sample):
     # determine indices for selected samples
     index = all_samples.index(selected_sample)
 
-    # take column from the array
+    # view a column from the array
     b = a[:, index, ...]
 
     return b
