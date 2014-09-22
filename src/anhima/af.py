@@ -455,8 +455,8 @@ def max_allele(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to determine the maximum. If not given, return 
-        the highest overall.
+        The axis along which to determine the maximum (0 = variants,
+        1 = samples). If not given, return the highest overall.
 
     Returns
     -------

@@ -92,7 +92,7 @@ def count_called(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -183,7 +183,7 @@ def count_missing(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -276,7 +276,7 @@ def count_hom(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -371,7 +371,7 @@ def count_het(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -461,7 +461,7 @@ def count_hom_ref(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -556,7 +556,7 @@ def count_hom_alt(genotypes, axis=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -862,7 +862,7 @@ def count_genotypes(gn, t, axis=None):
     t : int
         The genotype to count.
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
