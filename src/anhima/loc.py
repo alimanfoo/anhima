@@ -19,54 +19,7 @@ import matplotlib.pyplot as plt
 import scipy.stats
 
 
-def take_samples(a, all_samples, selected_samples):
-    """Extract columns from the array `a` corresponding to selected samples.
-
-    Parameters
-    ----------
-
-    a : array_like
-        An array with 2 or more dimensions, where the second dimension
-        corresponds to samples.
-    all_samples : sequence
-        A sequence (e.g., list) of sample identifiers corresponding to the
-        second dimension of `a`.
-    selected_samples : sequence
-        A sequence (e.g., list) of sample identifiers corresponding to the
-        columns to be extracted from `a`.
-
-    Returns
-    -------
-
-    b : ndarray
-        An array obtained from `a` by taking columns corresponding to the
-        selected samples.
-
-    """
-
-    # check a is an array of 2 or more dimensions
-    a = np.asarray(a)
-    assert a.ndim > 1
-
-    # check length of samples dimension is as expected
-    assert a.shape[1] == len(all_samples)
-
-    # make sure it's a list
-    all_samples = list(all_samples)
-
-    # check selections are in all_samples
-    assert all([s in all_samples for s in selected_samples])
-
-    # determine indices for selected samples
-    indices = [all_samples.index(s) for s in selected_samples]
-
-    # take columns from the array
-    b = np.take(a, indices, axis=1)
-
-    return b
-
-
-def take_sample(a, all_samples, selected_sample):
+def view_sample(a, selection, all_samples=None):
     """View a single column from the array `a` corresponding to a selected
     sample.
 
@@ -76,12 +29,12 @@ def take_sample(a, all_samples, selected_sample):
     a : array_like
         An array with 2 or more dimensions, where the second dimension
         corresponds to samples.
-    all_samples : sequence
+    selection : int or object
+        A sample identifier or column index.
+    all_samples : sequence, optional
         A sequence (e.g., list) of sample identifiers corresponding to the
-        second dimension of `a`.
-    selected_sample : string
-        A sample identifiers corresponding to the columns to be extracted from
-        `a`.
+        second dimension of `a`, used to map `selection` to a column index. If
+        not given, assume `selection` is a column index.
 
     Returns
     -------
@@ -96,20 +49,81 @@ def take_sample(a, all_samples, selected_sample):
     a = np.asarray(a)
     assert a.ndim > 1
 
-    # check length of samples dimension is as expected
-    assert a.shape[1] == len(all_samples)
+    if all_samples is None:
 
-    # make sure it's a list
-    all_samples = list(all_samples)
+        # assume selection is an index
+        index = selection
 
-    # check selection is in all_samples
-    assert selected_sample in all_samples
+    else:
 
-    # determine indices for selected samples
-    index = all_samples.index(selected_sample)
+        # check length of samples dimension is as expected
+        assert a.shape[1] == len(all_samples)
+
+        # make sure it's a list
+        all_samples = list(all_samples)
+
+        # check selection is in all_samples
+        assert selection in all_samples
+
+        # determine indices for selected samples
+        index = all_samples.index(selection)
 
     # view a column from the array
     b = a[:, index, ...]
+
+    return b
+
+
+def take_samples(a, selection, all_samples=None):
+    """Extract columns from the array `a` corresponding to selected samples.
+
+    Parameters
+    ----------
+
+    a : array_like
+        An array with 2 or more dimensions, where the second dimension
+        corresponds to samples.
+    selection : sequence of ints or objects
+        A sequence of sample identifiers or column indices.
+    all_samples : sequence, optional
+        A sequence (e.g., list) of sample identifiers corresponding to the
+        second dimension of `a`, used to map `selection` to column indices. If
+        not given, assume `selection` is a sequence of column indices.
+
+    Returns
+    -------
+
+    b : ndarray
+        An array obtained from `a` by taking columns corresponding to the
+        selected samples.
+
+    """
+
+    # check a is an array of 2 or more dimensions
+    a = np.asarray(a)
+    assert a.ndim > 1
+
+    if all_samples is None:
+
+        # assume selection is column indices
+        indices = selection
+
+    else:
+
+        # check length of samples dimension is as expected
+        assert a.shape[1] == len(all_samples)
+
+        # make sure it's a list
+        all_samples = list(all_samples)
+
+        # check selections are in all_samples
+        assert all([s in all_samples for s in selection])
+
+        # determine indices for selected samples
+        indices = [all_samples.index(s) for s in selection]
+
+    # take columns from the array
+    b = np.take(a, indices, axis=1)
 
     return b
 
@@ -247,6 +261,41 @@ def locate_position(pos, p):
         return None
 
 
+def view_position(a, pos, p):
+    """View a slice along the first dimension of `a` corresponding to a
+    genome position.
+
+    Parameters
+    ----------
+
+    a : array_like
+        The array to extract from.
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig, with no duplicates.
+    p : int
+        The position to locate.
+
+    Returns
+    -------
+
+    b : ndarray
+        A view of `a` obtained by slicing along the first dimension.
+
+    """
+
+    # normalise inputs
+    a = np.asarray(a)
+
+    # determine region slice
+    index = locate_position(pos, p)
+
+    if index is not None:
+        return a[index, ...]
+    else:
+        return None
+
+
 def locate_region(pos, start_position=0, stop_position=None):
     """Locate the start and stop indices within the `pos` array that include all
     positions within the `start_position` and `stop_position` range.
@@ -283,7 +332,7 @@ def locate_region(pos, start_position=0, stop_position=None):
     return loc
 
 
-def take_region(a, pos, start_position, stop_position):
+def view_region(a, pos, start_position, stop_position):
     """View a contiguous slice along the first dimension of `a`
     corresponding to a genome region defined by `start_position` and
     `stop_position`.
