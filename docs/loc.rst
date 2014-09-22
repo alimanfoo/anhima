@@ -16,8 +16,10 @@ See also the examples at:
 .. autofunction:: query_variants
 .. autofunction:: compress_variants
 .. autofunction:: take_variants
+.. autofunction:: locate_position
 .. autofunction:: locate_region
 .. autofunction:: take_region
+.. autofunction:: locate_positions
 .. autofunction:: plot_variant_locator
 .. autofunction:: windowed_variant_counts
 .. autofunction:: plot_windowed_variant_counts

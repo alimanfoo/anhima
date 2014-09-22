@@ -214,6 +214,39 @@ def take_variants(a, indices, mode='raise'):
     return b
 
 
+def locate_position(pos, p):
+    """Locate the index of coordinate `p` within sorted array of genomic
+    positions `pos`.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig, with no duplicates.
+    p : int
+        The position to locate.
+
+    Returns
+    -------
+
+    index : int or None
+        The index of `p` in `pos` if present, else None.
+
+    """
+
+    # check inputs
+    pos = np.asarray(pos)
+
+    # find position
+    index = np.searchsorted(pos, p)
+    print(p, index)
+    if index < pos.size and pos[index] == p:
+        return index
+    else:
+        return None
+
+
 def locate_region(pos, start_position=0, stop_position=None):
     """Locate the start and stop indices within the `pos` array that include all
     positions within the `start_position` and `stop_position` range.
@@ -283,6 +316,39 @@ def take_region(a, pos, start_position, stop_position):
     loc = locate_region(pos, start_position, stop_position)
 
     return a[loc, ...]
+
+
+def locate_positions(pos1, pos2):
+    """Find the intersection of two sets of positions.
+
+    Parameters
+    ----------
+
+    pos1, pos2 : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig, with no duplicates.
+
+    Returns
+    -------
+
+    cond1 : ndarray, bool
+        An array of the same length as `pos1` where an element is True if the
+        corresponding item in `pos1` is also found in `pos2`.
+    cond2 : ndarray, bool
+        An array of the same length as `pos2` where an element is True if the
+        corresponding item in `pos2` is also found in `pos1`.
+
+    """
+
+    # check inputs
+    pos1 = np.asarray(pos1)
+    pos2 = np.asarray(pos2)
+
+    # find intersection
+    cond1 = np.in1d(pos1, pos2, assume_unique=True)
+    cond2 = np.in1d(pos2, pos1, assume_unique=True)
+
+    return cond1, cond2
 
 
 def plot_variant_locator(pos, step=1, ax=None, start_position=None,
