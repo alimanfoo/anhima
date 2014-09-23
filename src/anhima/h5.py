@@ -388,6 +388,13 @@ def save_tped(path, callset, chrom,
     samples : sequence of strings, optional
         Selection of samples to extract genotypes for, defaults to all samples.
 
+    Notes
+    -----
+
+    Note that the current implementation loads all data from the requested
+    region into memory before writing out to TPED, so may not be applicable
+    to very large datasets.
+
     """
 
     variants, calldata = load_region(callset,
