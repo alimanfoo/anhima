@@ -8,7 +8,7 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 
-__version__ = '0.9-SNAPSHOT'
+__version__ = '0.9'
 
 
 # make sub-packages available without explicit import

@@ -442,33 +442,6 @@ def allele_frequency(genotypes, allele=1):
     return an, ac, af
 
 
-def max_allele(genotypes, axis=None):
-    """
-    Return the highest allele index.
-
-    Parameters
-    ----------
-
-    genotypes : array_like
-        An array of shape (n_variants, n_samples, ploidy) where each
-        element of the array is an integer corresponding to an allele index
-        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
-        2 = second alternate allele, etc.).
-    axis : int, optional
-        The axis along which to determine the maximum. If not given, return 
-        the highest overall.
-
-    Returns
-    -------
-
-    n : int
-        The value of the highest allele index present in the genotypes array.
-
-    """
-    
-    return np.amax(genotypes, axis=axis)
-
-
 def allele_counts(genotypes, alleles=None):
     """Calculate allele counts per variant.
 
@@ -481,8 +454,7 @@ def allele_counts(genotypes, alleles=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     alleles : sequence of ints, optional
-        The alleles to calculate the frequency of. If not specified, all 
-        alleles will be counted.
+        The alleles to count. If not specified, all alleles will be counted.
 
     Returns
     -------
@@ -508,13 +480,13 @@ def allele_counts(genotypes, alleles=None):
 
     # if alleles not specified, count all alleles
     if alleles is None:
-        m = max_allele(genotypes)
+        m = np.amax(genotypes)
         alleles = range(m+1)
 
     # count alleles
     ac = np.zeros((n_variants, len(alleles)), dtype='i4')
-    for i, a in enumerate(alleles):
-        ac[:, i] = allele_count(genotypes, allele=a)
+    for i, allele in enumerate(alleles):
+        np.sum(genotypes == allele, axis=(1, 2), out=ac[:, i])
 
     return ac
     

@@ -5,3 +5,5 @@ Pedigrees (families and crosses)
 .. autofunction:: diploid_inheritance
 .. autofunction:: diploid_mendelian_error
 .. autofunction:: count_diploid_mendelian_error
+.. autofunction:: impute_inheritance_nearest
+

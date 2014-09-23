@@ -2,7 +2,6 @@ Allele frequencies
 ==================
 
 .. automodule:: anhima.af
-.. autofunction:: max_allele
 .. autofunction:: allelism
 .. autofunction:: allele_number
 .. autofunction:: allele_count

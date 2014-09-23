@@ -20,6 +20,7 @@ import numexpr as ne
 import anhima.gt
 
 # constants to represent inheritance states
+INHERIT_UNDETERMINED = 0
 INHERIT_PARENT1 = 1
 INHERIT_PARENT2 = 2
 INHERIT_NONSEG_REF = 3
@@ -119,6 +120,82 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     return inheritance
 
 
+def _diploid_mendelian_error_biallelic(parental_genotypes, progeny_genotypes):
+    """Implementation of function to find Mendelian errors optimised for
+    biallelic variants.
+
+    """
+
+    # recode genotypes for convenience
+    parental_genotypes_012 = anhima.gt.as_012(parental_genotypes)
+    progeny_genotypes_012 = anhima.gt.as_012(progeny_genotypes)
+
+    # convenience variables
+    p1 = parental_genotypes_012[:, 0, np.newaxis]  # parent 1
+    p2 = parental_genotypes_012[:, 1, np.newaxis]  # parent 2
+    o = progeny_genotypes_012  # offspring
+
+    # enumerate all possible combinations of Mendel error genotypes
+    ex = '((p1 == 0) & (p2 == 0) & (o == 1))' \
+        ' + ((p1 == 0) & (p2 == 0) & (o == 2)) * 2' \
+        ' + ((p1 == 2) & (p2 == 2) & (o == 1))' \
+        ' + ((p1 == 2) & (p2 == 2) & (o == 0)) * 2' \
+        ' + ((p1 == 0) & (p2 == 2) & (o == 0))' \
+        ' + ((p1 == 0) & (p2 == 2) & (o == 2))' \
+        ' + ((p1 == 2) & (p2 == 0) & (o == 0))' \
+        ' + ((p1 == 2) & (p2 == 0) & (o == 2))' \
+        ' + ((p1 == 0) & (p2 == 1) & (o == 2))' \
+        ' + ((p1 == 1) & (p2 == 0) & (o == 2))' \
+        ' + ((p1 == 2) & (p2 == 1) & (o == 0))' \
+        ' + ((p1 == 1) & (p2 == 2) & (o == 0))'
+    errors = ne.evaluate(ex).astype('u1')
+
+    return errors
+
+
+def _diploid_mendelian_error_multiallelic(parental_genotypes,
+                                          progeny_genotypes,
+                                          max_allele):
+    """Implementation of function to find Mendelian errors generalised for
+    multiallelic variants.
+
+    """
+
+    # transform genotypes into per-call allele counts
+    alleles = range(max_allele + 1)
+    p = anhima.gt.as_allele_counts(parental_genotypes, alleles=alleles)
+    o = anhima.gt.as_allele_counts(progeny_genotypes, alleles=alleles)
+
+    # detect nonparental and hemiparental inheritance by comparing allele
+    # counts between parents and progeny
+    ps = p.sum(axis=1)[:, np.newaxis]  # add allele counts for both parents
+    ac_diff = (o - ps).astype('i1')
+    ac_diff[ac_diff < 0] = 0
+    # sum over all alleles
+    errors = np.sum(ac_diff, axis=2).astype('u1')
+
+    # detect uniparental inheritance by finding cases where no alleles are
+    # shared between parents, then comparing progeny allele counts to each
+    # parent
+    pc1 = p[:, 0, np.newaxis, :]
+    pc2 = p[:, 1, np.newaxis, :]
+    # find variants where parents don't share any alleles
+    is_shared_allele = (pc1 > 0) & (pc2 > 0)
+    no_shared_alleles = ~np.any(is_shared_allele, axis=2)
+    # find calls where progeny genotype is identical to one or the other parent
+    errors[
+        no_shared_alleles
+        & (np.all(o == pc1, axis=2)
+           | np.all(o == pc2, axis=2))
+    ] = 1
+
+    # retrofit where either or both parent has a missing call
+    is_parent_missing = anhima.gt.is_missing(parental_genotypes)
+    errors[np.any(is_parent_missing, axis=1)] = 0
+
+    return errors
+
+
 def diploid_mendelian_error(parental_genotypes, progeny_genotypes):
     """Find impossible genotypes according to Mendelian inheritance laws.
 
@@ -151,13 +228,17 @@ def diploid_mendelian_error(parental_genotypes, progeny_genotypes):
     Notes
     -----
 
-    Not applicable to polyploid genotype calls, or multiallelic variants.
+    Not applicable to polyploid genotype calls.
+
+    Applicable to multiallelic variants.
 
     Assumes that genotypes are unphased.
 
     """
 
-    # check input arrays have 3 dimensions
+    # check inputs
+    parental_genotypes = np.asarray(parental_genotypes)
+    progeny_genotypes = np.asarray(progeny_genotypes)
     assert parental_genotypes.ndim == 3
     assert progeny_genotypes.ndim == 3
 
@@ -170,33 +251,15 @@ def diploid_mendelian_error(parental_genotypes, progeny_genotypes):
     # check the ploidy
     assert parental_genotypes.shape[2] == progeny_genotypes.shape[2] == 2
 
-    # check there are no multiallelic sites
-    assert np.amax(parental_genotypes) < 2
-    assert np.amax(progeny_genotypes) < 2
-
-    # recode genotypes for convenience
-    parental_genotypes_012 = anhima.gt.as_012(parental_genotypes)
-    progeny_genotypes_012 = anhima.gt.as_012(progeny_genotypes)
-
-    # convenience variables
-    p1 = parental_genotypes_012[:, 0, np.newaxis]  # parent 1
-    p2 = parental_genotypes_012[:, 1, np.newaxis]  # parent 2
-    o = progeny_genotypes_012  # offspring
-
-    # enumerate all possible combinations of Mendel error genotypes
-    ex = '((p1 == 0) & (p2 == 0) & (o == 1))' \
-        ' + ((p1 == 0) & (p2 == 0) & (o == 2)) * 2' \
-        ' + ((p1 == 2) & (p2 == 2) & (o == 1))' \
-        ' + ((p1 == 2) & (p2 == 2) & (o == 0)) * 2' \
-        ' + ((p1 == 0) & (p2 == 2) & (o == 0))' \
-        ' + ((p1 == 0) & (p2 == 2) & (o == 2))' \
-        ' + ((p1 == 2) & (p2 == 0) & (o == 0))' \
-        ' + ((p1 == 2) & (p2 == 0) & (o == 2))' \
-        ' + ((p1 == 0) & (p2 == 1) & (o == 2))' \
-        ' + ((p1 == 1) & (p2 == 0) & (o == 2))' \
-        ' + ((p1 == 2) & (p2 == 1) & (o == 0))' \
-        ' + ((p1 == 1) & (p2 == 2) & (o == 0))'
-    errors = ne.evaluate(ex).astype('u1')
+    # determine which implementation to use
+    max_allele = max(np.amax(parental_genotypes), np.amax(progeny_genotypes))
+    if max_allele < 2:
+        errors = _diploid_mendelian_error_biallelic(parental_genotypes,
+                                                    progeny_genotypes)
+    else:
+        errors = _diploid_mendelian_error_multiallelic(parental_genotypes,
+                                                       progeny_genotypes,
+                                                       max_allele)
 
     return errors
 
@@ -243,3 +306,66 @@ def count_diploid_mendelian_error(parental_genotypes,
                axis=axis)
 
     return n
+
+
+def impute_inheritance_nearest(inheritance, pos, pos_impute):
+    """Impute inheritance at unknown positions, by copying from
+    nearest neighbouring position where inheritance is known.
+
+    Parameters
+    ----------
+
+    inheritance : array_like, int, shape (n_variants, n_gametes)
+        An array of integers coding the allelic inheritance state at the
+        known positions.
+    pos : array_like, int, shape (n_variants,)
+        Array of genomic positions at which `inheritance` was determined.
+    pos_impute : array_like, int
+        Array of positions at which to impute inheritance.
+
+    Returns
+    -------
+
+    imputed_inheritance : ndarray, int
+        An array of integers coding the imputed allelic inheritance.
+
+    """
+
+    # check inputs
+    inheritance = np.asarray(inheritance)
+    assert inheritance.ndim == 2
+    pos = np.asarray(pos)
+    assert pos.ndim == 1
+    pos_impute = np.asarray(pos_impute)
+    assert pos_impute.ndim == 1
+    n_variants = pos.size
+    assert inheritance.shape[0] == n_variants
+
+    # find indices of neighbouring variants
+    indices_left = np.clip(np.searchsorted(pos, pos_impute), 0, n_variants - 1)
+    indices_right = np.clip(indices_left + 1, 0, n_variants - 1)
+    inh_left = np.take(inheritance, indices_left, axis=0)
+    inh_right = np.take(inheritance, indices_right, axis=0)
+
+    # find positions of neighbouring variants
+    pos_left = np.take(pos, indices_left)
+    pos_right = np.take(pos, indices_right)
+
+    # compute distance to neighbours
+    dist_left = np.abs(pos_impute - pos_left)
+    dist_right = np.abs(pos_right - pos_impute)
+
+    # build output
+    out = np.zeros_like(inh_left)
+    out[dist_left < dist_right] = inh_left[dist_left < dist_right]
+    out[dist_left > dist_right] = inh_right[dist_left > dist_right]
+
+    # # use neighbour from other side where missing
+    # override_left = ((dist_left < dist_right)[:, np.newaxis]
+    #                  & (out == INHERIT_MISSING))
+    # out[override_left] = inh_right[override_left]
+    # override_right = ((dist_left > dist_right)[:, np.newaxis]
+    #                   & (out == INHERIT_MISSING))
+    # out[override_right] = inh_left[override_right]
+
+    return out

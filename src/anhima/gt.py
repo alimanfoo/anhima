@@ -30,8 +30,8 @@ def is_called(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -86,13 +86,13 @@ def count_called(genotypes, axis=None):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -121,8 +121,8 @@ def is_missing(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -177,13 +177,13 @@ def count_missing(genotypes, axis=None):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -211,8 +211,8 @@ def is_hom(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -270,13 +270,13 @@ def count_hom(genotypes, axis=None):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -304,8 +304,8 @@ def is_het(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -365,13 +365,13 @@ def count_het(genotypes, axis=None):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -399,8 +399,8 @@ def is_hom_ref(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -455,13 +455,13 @@ def count_hom_ref(genotypes, axis=None):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -490,8 +490,8 @@ def is_hom_alt(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -550,13 +550,13 @@ def count_hom_alt(genotypes, axis=None):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -578,6 +578,33 @@ def count_hom_alt(genotypes, axis=None):
     return n
 
 
+def max_allele(genotypes, axis=None):
+    """
+    Return the highest allele index.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of shape (n_variants, n_samples, ploidy) where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    axis : int, optional
+        The axis along which to determine the maximum (0 = variants,
+        1 = samples). If not given, return the highest overall.
+
+    Returns
+    -------
+
+    n : int
+        The value of the highest allele index present in the genotypes array.
+
+    """
+
+    return np.amax(genotypes, axis=axis)
+
+
 def as_haplotypes(genotypes):
     """Reshape an array of genotypes to view it as haplotypes by dropping the
     ploidy dimension.
@@ -586,7 +613,7 @@ def as_haplotypes(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) where each
+        An array of shape (n_variants, n_samples, ploidy) where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -595,7 +622,7 @@ def as_haplotypes(genotypes):
     -------
 
     haplotypes : ndarray
-        An array of shape (`n_variants`, `n_samples` * `ploidy`).
+        An array of shape (n_variants, n_samples * ploidy).
 
     Notes
     -----
@@ -627,8 +654,8 @@ def as_n_alt(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -683,8 +710,8 @@ def as_012(genotypes, fill=-1):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -733,6 +760,46 @@ def as_012(genotypes, fill=-1):
     return gn
 
 
+def as_allele_counts(genotypes, alleles=None):
+    """Transform genotypes into allele counts per call.
+
+    Parameters
+    ----------
+
+    genotypes : array_like, int
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
+        element of the array is an integer corresponding to an allele index
+        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        2 = second alternate allele, etc.).
+    alleles : sequence of ints, optional
+        The alleles to count. If not specified, all alleles will be counted.
+
+    Returns
+    -------
+
+    gac : ndarray, uint8
+        An array where the ploidy dimension has been replaced by counts of
+        each allele.
+
+    """
+
+    # check inputs
+    genotypes = np.asarray(genotypes)
+    assert genotypes.ndim > 1
+    dim_ploidy = genotypes.ndim - 1
+    if alleles is None:
+        m = np.amax(genotypes)
+        alleles = range(m+1)
+
+    # count alleles along ploidy dimension
+    gac = np.zeros(genotypes.shape[:-1] + (len(alleles),), dtype='u1')
+    for i, allele in enumerate(alleles):
+        np.sum(genotypes == allele, axis=dim_ploidy, out=gac[..., i])
+
+    return gac
+
+
 def pack_diploid(genotypes):
     """
     Pack diploid genotypes into a single byte for each genotype,
@@ -744,8 +811,8 @@ def pack_diploid(genotypes):
     ----------
 
     genotypes : array_like, int
-        An array of shape (`n_variants`, `n_samples`, `ploidy`) or
-        (`n_variants`, `ploidy`) or (`n_samples`, `ploidy`), where each
+        An array of shape (n_variants, n_samples, ploidy) or
+        (n_variants, ploidy) or (n_samples, ploidy), where each
         element of the array is an integer corresponding to an allele index
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
@@ -754,7 +821,7 @@ def pack_diploid(genotypes):
     -------
 
     packed : ndarray, int8
-        An array of genotypes where the `ploidy` dimension has been collapsed
+        An array of genotypes where the ploidy dimension has been collapsed
         by bit packing the two alleles for each genotype into a single byte.
 
     See Also
@@ -764,9 +831,12 @@ def pack_diploid(genotypes):
 
     """
 
-    # normalise inputs
+    # check inputs
     genotypes = np.asarray(genotypes)
     assert genotypes.ndim > 1
+    assert np.amax(genotypes) < 15, 'max allele is 14'
+    assert np.amin(genotypes) > -2, 'min allele is -1'
+    genotypes = genotypes.astype('u1')
 
     # add 1 to handle missing alleles coded as -1
     genotypes = genotypes + 1
@@ -781,6 +851,10 @@ def pack_diploid(genotypes):
     # pack them
     packed = np.bitwise_or(a1, a2)
 
+    # rotate round so that hom ref calls are encoded as 0, better for sparse
+    # matrices
+    packed -= 17
+
     return packed
 
 
@@ -792,8 +866,8 @@ def unpack_diploid(packed):
     Parameters
     ----------
 
-    packed : ndarray, int8
-        An array of genotypes where the `ploidy` dimension has been collapsed
+    packed : array_like
+        An array of genotypes where the ploidy dimension has been collapsed
         by bit packing the two alleles for each genotype into a single byte.
 
     Returns
@@ -810,32 +884,36 @@ def unpack_diploid(packed):
 
     """
 
-    # check input array
+    # check inputs
+    packed = np.asarray(packed).astype('u1')
     assert 1 <= packed.ndim <= 2
 
+    # rotate back round so missing calls are encoded as 0
+    packed = packed + 17
+
+    # set up output array
+    genotypes = np.empty(packed.shape + (2,), dtype='u1')
+    a1 = genotypes[..., 0]
+    a2 = genotypes[..., 1]
+
     # right shift 4 bits to extract first allele
-    a1 = np.right_shift(packed, 4)
+    np.right_shift(packed, 4, out=a1)
 
     # mask left-most 4 bits to extract second allele
-    a2 = np.bitwise_and(packed, 15)
-
-    # stack to restore ploidy dimension
-    if packed.ndim == 2:
-        genotypes = np.dstack((a1, a2))
-    elif packed.ndim == 1:
-        genotypes = np.column_stack((a1, a2))
+    np.bitwise_and(packed, 15, out=a2)
 
     # subtract 1 to restore coding of missing alleles as -1
-    genotypes = genotypes - 1
+    genotypes -= 1
+    genotypes = genotypes.astype('i1')
 
     return genotypes
 
 
 # packed representation of some common diploid genotypes
-BMISSING = 0
-BHOM00 = 17
-BHET01 = 18
-BHOM11 = 34
+BHOM00 = 0
+BHET01 = 1
+BHOM11 = 17
+BMISSING = 239
 
 
 def count_genotypes(gn, t, axis=None):
@@ -845,13 +923,13 @@ def count_genotypes(gn, t, axis=None):
     ----------
 
     gn : array_like, int
-        An array of shape (`n_variants`, `n_samples`) or (`n_variants`,) or
-        (`n_samples`,) where each element is a genotype called coded as a
+        An array of shape (n_variants, n_samples) or (n_variants,) or
+        (n_samples,) where each element is a genotype called coded as a
         single integer.
     t : int
         The genotype to count.
     axis : int, optional
-        The axis along which to count.
+        The axis along which to count (0 = variants, 1 = samples).
 
     Returns
     -------
@@ -1239,7 +1317,7 @@ def plot_discrete_calldata(a, labels=None, colors='wbgrcmyk', states=None,
     Parameters
     ----------
 
-    a : array_like, int, shape (`n_variants`, `n_samples`)
+    a : array_like, int, shape (n_variants, n_samples)
         2-dimensional array of integers containing the call data to plot.
     labels : sequence of strings, optional
         Axis labels (e.g., sample IDs).
@@ -1309,7 +1387,7 @@ def plot_continuous_calldata(a, labels=None, ax=None, pcolormesh_kwargs=None):
     Parameters
     ----------
 
-    a : array_like, shape (`n_variants`, `n_samples`)
+    a : array_like, shape (n_variants, n_samples)
         2-dimensional array of integers or floats containing the call data to
         plot.
     labels : sequence of strings, optional
@@ -1369,7 +1447,7 @@ def plot_diploid_genotypes(gn,
     Parameters
     ----------
 
-    gn : array_like, int, shape (`n_variants`, `n_samples`)
+    gn : array_like, int, shape (n_variants, n_samples)
         An array where each genotype is coded as a single integer as
         described above.
     labels : sequence of strings, optional
@@ -1407,7 +1485,7 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
     Parameters
     ----------
 
-    gn : array_like, int, shape (`n_variants`, `n_samples`)
+    gn : array_like, int, shape (n_variants, n_samples)
         An array where each genotype is coded as a single integer as
         described above.
     states : sequence, optional
@@ -1510,7 +1588,7 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
     Parameters
     ----------
 
-    gn : array_like, int, shape (`n_variants`, `n_samples`)
+    gn : array_like, int, shape (n_variants, n_samples)
         An array where each genotype is coded as a single integer as
         described above.
     states : sequence, optional
@@ -1596,7 +1674,7 @@ def plot_continuous_calldata_by_sample(a, labels=None,
     Parameters
     ----------
 
-    a : array_like, shape (`n_variants`, `n_samples`)
+    a : array_like, shape (n_variants, n_samples)
         2-dimensional array of integers or floats containing the call data to
         plot.
     labels : sequence of strings, optional
