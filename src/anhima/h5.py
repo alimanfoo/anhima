@@ -28,11 +28,17 @@ the same length, being the number of variants on the chromosome. The second
 dimension of all `calldata` datasets must have the same length,
 being the number of samples in the cohort.
 
+In addition to the above, a `samples` dataset may be stored within the
+callset, providing a list of labels or identifiers for the samples in the
+cohort. This `samples` dataset may be stored as a child of the callset group
+and/or as a child of the chromosome groups.
+
 So, for example, an HDF5 file containing a SNP call set for a cohort of
 *Anopheles gambiae* samples with chromosomes (2R, 2L, 3R, 3L, X)
 might be organised as follows::
 
     / [callset group]
+    /samples [dataset, shape (n_samples,), dtype string]
     /2L [chromosome group]
     /2L/variants [variants group]
     /2L/variants/POS [dataset, shape (n_variants,), dtype int32]
@@ -73,7 +79,8 @@ import anhima.loc
 def load_region(callset, chrom, start_position=0, stop_position=None,
                 variants_fields=None, 
                 calldata_fields=None,
-                variants_query=None):
+                variants_query=None,
+                samples=None):
     """Load data into memory from `callset` for the given region.
 
     Parameters
@@ -95,6 +102,8 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
         A query to filter variants. Note that this query is applied 
         after data for the region has been loaded, so any fields 
         referenced in this query need to be included in `variants_fields`.
+    samples : sequence of strings, optional
+        Selected samples to extract.
 
     Returns
     -------
@@ -116,6 +125,18 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
     # obtain variant positions
     pos = grp_chrom['variants']['POS']
 
+    # select samples needs list of all samples, check one is stored in the
+    # callset and fail early if not
+    all_samples = None
+    if samples is not None:
+        # find all samples
+        if 'samples' in callset.keys():
+            all_samples = list(callset['samples'])
+        elif 'samples' in grp_chrom.keys():
+            all_samples = list(grp_chrom['samples'])
+        else:
+            raise Exception('list of all samples not found in callset')
+
     # locate region
     loc = anhima.loc.locate_region(pos, start_position, stop_position)
 
@@ -136,6 +157,12 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
             variants[f] = np.compress(condition, variants[f], axis=0)
         for f in calldata:
             calldata[f] = np.compress(condition, calldata[f], axis=0)
+
+    # select samples
+    if samples is not None:
+        sample_indices = [all_samples.index(s) for s in samples]
+        for f in calldata:
+            calldata[f] = np.take(calldata[f], sample_indices)
 
     return variants, calldata
 
