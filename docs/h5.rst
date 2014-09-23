@@ -5,7 +5,7 @@ HDF5 utilities
 .. autofunction:: load_region
 .. autofunction:: take2d
 .. autofunction:: take2d_points
-
+.. autofunction:: save_tped
 
 
 

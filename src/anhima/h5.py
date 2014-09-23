@@ -362,3 +362,64 @@ def take2d_points(dataset, row_indices=None, col_indices=None,
     out = out.reshape(n_rows_out, n_cols_out)
 
     return out
+
+
+def save_tped(path, callset, chrom,
+              start_position=0,
+              stop_position=None,
+              samples=None):
+
+    """Save genotype data from an HDF5 callset to a Plink transposed format
+    file (TPED).
+
+    Parameters
+    ----------
+
+    path : string or file-like
+        Path of file to write, or file-like object to write to.
+    callset : HDF5 file or group
+        A file or group containing a variant call set.
+    chrom : string
+        The chromosome to extract data for.
+    start_position : int, optional
+        The start position for the region to extract data for.
+    stop_position : int, optional
+        The stop position for the region to extract data for.
+    samples : sequence of strings, optional
+        Selection of samples to extract genotypes for, defaults to all samples.
+
+    """
+
+    variants, calldata = load_region(callset,
+                                     chrom,
+                                     start_position,
+                                     stop_position,
+                                     variants_fields=['POS', 'REF', 'ALT'],
+                                     calldata_fields=['genotype'])
+
+    # determine samples that we will use
+    if samples is None:
+        genotypes = calldata['genotype']
+    else:
+        h5_samples = callset['chrom']['samples'][:].tolist()
+        genotypes = np.take(
+            calldata['genotype'],
+            [h5_samples.index(s) for s in samples],
+            axis=1)
+
+    ref = variants['REF']
+
+    alt = variants['ALT']
+    if alt.ndim > 1:
+        alt = alt[:, 0]
+
+    pos = variants['POS']
+
+    anhima.io.save_tped(path,
+                        genotypes=genotypes,
+                        ref=ref,
+                        alt=alt,
+                        pos=pos,
+                        chromosome=chrom,
+                        identifier=None,
+                        genetic_distance=None)
