@@ -340,6 +340,7 @@ def save_tped(path, callset, chrom,
               start_position=0,
               stop_position=None,
               samples=None):
+
     """Save genotype data from an HDF5 callset to a Plink transposed format
     file (TPED).
 
@@ -361,7 +362,36 @@ def save_tped(path, callset, chrom,
 
     """
 
-    # TODO implementation
-    pass
+    variants, calldata = load_region(callset,
+                                     chrom,
+                                     start_position,
+                                     stop_position,
+                                     variants_fields=['POS', 'REF', 'ALT'],
+                                     calldata_fields=['genotype'])
 
-    # don't return anything
+    # determine samples that we will use
+    if samples is None:
+        genotypes = calldata['genotype']
+    else:
+        h5_samples = callset['chrom']['samples'][:].tolist()
+        genotypes = np.take(
+            calldata['genotype'],
+            [h5_samples.index(s) for s in samples],
+            axis=1)
+
+    ref = variants['REF']
+
+    alt = variants['ALT']
+    if alt.ndim > 1:
+        alt = alt[:, 0]
+
+    pos = variants['POS']
+
+    anhima.io.save_tped(path,
+                        genotypes=genotypes,
+                        ref=ref,
+                        alt=alt,
+                        pos=pos,
+                        chromosome=chrom,
+                        identifier=None,
+                        genetic_distance=None)
