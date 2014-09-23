@@ -369,20 +369,22 @@ def save_tped(path, callset, chrom,
                                      variants_fields=['POS', 'REF', 'ALT'],
                                      calldata_fields=['genotype'])
 
-    # determine samples that we will uses
-    h5_samples = callset[chrom]['samples'][:].tolist()
-
+    # determine samples that we will use
     if samples is None:
-        samples = h5_samples
+        genotypes = calldata['genotype']
+    else:
+        h5_samples = callset['chrom']['samples'][:].tolist()
+        genotypes = np.take(
+            calldata['genotype'],
+            [h5_samples.index(s) for s in samples],
+            axis=1)
 
-    # determine which samples we care about: integer vector
-    inc_samples = [h5_samples.index(s) for s in samples]
-
-    genotypes = np.take(calldata['genotype'], inc_samples, axis=1)
     ref = variants['REF']
+
     alt = variants['ALT']
     if alt.ndim > 1:
         alt = alt[:, 0]
+
     pos = variants['POS']
 
     anhima.io.save_tped(path,
