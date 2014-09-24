@@ -412,7 +412,7 @@ def save_tped(path, callset, chrom,
     if samples is None:
         genotypes = calldata['genotype']
     else:
-        h5_samples = callset['chrom']['samples'][:].tolist()
+        h5_samples = callset[chrom]['samples'][:].tolist()
         genotypes = np.take(
             calldata['genotype'],
             [h5_samples.index(s) for s in samples],
