@@ -82,7 +82,7 @@ def save_tped(path, genotypes, ref, alt, pos,
 
     # check identifier
     if identifier is None:
-        identifier = np.array(['snp%s' % i for i in xrange(n_variants)])
+        identifier = np.array(['snp%s' % i for i in pos])
     else:
         identifier = np.asarray(identifier)
         assert identifier.shape[0] == n_variants
