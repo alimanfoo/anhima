@@ -38,7 +38,7 @@ def block_take2d(dataset, row_indices, col_indices=None, block_size=None):
     See Also
     --------
 
-    anhima.h5.block_compress2d, anhima.h5.take2d_points
+    anhima.util.block_compress2d, anhima.h5.take2d_pointsel
 
     Notes
     -----
@@ -138,7 +138,7 @@ def block_compress2d(dataset, row_condition, col_condition=None,
     See Also
     --------
 
-    anhima.h5.block_take2d, anhima.h5.take2d_points
+    anhima.util.block_take2d, anhima.h5.take2d_pointsel
 
     Notes
     -----
