@@ -12,8 +12,7 @@ import numpy as np
 
 
 def block_take2d(dataset, row_indices, col_indices=None, block_size=None):
-    """
-    Take selected rows and optionally columns from a Numpy array or HDF5
+    """Select rows and optionally columns from a Numpy array or HDF5
     dataset with 2 or more dimensions.
 
     Parameters
@@ -39,7 +38,7 @@ def block_take2d(dataset, row_indices, col_indices=None, block_size=None):
     See Also
     --------
 
-    anhima.h5.take2d_points
+    anhima.h5.block_compress2d, anhima.h5.take2d_points
 
     Notes
     -----
@@ -110,6 +109,52 @@ def block_take2d(dataset, row_indices, col_indices=None, block_size=None):
             offset += n
 
     return out
+
+
+def block_compress2d(dataset, row_condition, col_condition=None,
+                     block_size=None):
+    """Select rows and optionally columns from a Numpy array or HDF5
+    dataset with 2 or more dimensions.
+
+    Parameters
+    ----------
+
+    dataset : array_like or HDF5 dataset
+        The input dataset.
+    row_condition : array_like, bool
+        A boolean array indicating the selected rows.
+    col_indices : array_like, bool, optonal
+        A boolean array indicated the selected columns. If not provided,
+        all columns will be returned.
+    block_size : int, optional
+        The size (in number of rows) of the block of data to process at a time.
+
+    Returns
+    -------
+
+    out : ndarray
+        An array containing the selected rows and columns.
+
+    See Also
+    --------
+
+    anhima.h5.block_take2d, anhima.h5.take2d_points
+
+    Notes
+    -----
+
+    This function is mainly a work-around for the fact that fancy indexing via
+    h5py is currently slow, and fancy indexing along more than one axis is not
+    supported. The function works by reading the entire dataset in blocks of
+    `block_size` rows, and processing each block in memory using numpy.
+
+    """
+
+    row_indices = np.nonzero(row_condition)[0]
+    col_indices = np.nonzero(col_condition)[0] if col_condition is not None \
+        else None
+    return block_take2d(dataset, row_indices, col_indices,
+                        block_size=block_size)
 
 
 def block_apply(f, dataset, axis=0, block_size=None, out=None):
