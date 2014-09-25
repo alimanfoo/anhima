@@ -167,109 +167,8 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
     return variants, calldata
 
 
-def take2d(dataset, row_indices, col_indices=None, block_size=None):
-    """
-    Load selected rows and optionally columns from an HDF5 dataset with 2 or
-    more dimensions.
-
-    Parameters
-    ----------
-
-    dataset : HDF5 dataset
-        The dataset to load data from.
-    row_indices : sequence of ints
-        The indices of the selected rows.
-    col_indices : sequence of ints, optional
-        The indices of the selected columns. If not provided, all columns
-        will be returned.
-    block_size : int, optional
-        The size (in number of rows) of the block of data to load and process at
-        a time.
-
-    Returns
-    -------
-
-    out : ndarray
-        An array containing the selected rows and columns.
-
-    See Also
-    --------
-
-    take2d_points
-
-    Notes
-    -----
-
-    This function is a work-around for the fact that fancy indexing via h5py
-    is currently slow, and fancy indexing along more than one axis is not
-    supported. The function works by reading the entire dataset in blocks of
-    `block_size` rows, and processing each block in memory using numpy.
-
-    """
-
-    # make sure row_indices are sorted array
-    row_indices = np.array(row_indices)
-    row_indices.sort()
-
-    # how many rows are we selecting?
-    n_rows_in = dataset.shape[0]
-    n_rows_out = len(row_indices)
-
-    # how many columns are we selecting?
-    n_cols_in = dataset.shape[1]
-    if col_indices:
-        n_cols_out = len(col_indices)
-    else:
-        n_cols_out = n_cols_in
-
-    # setup output array
-    out_shape = (n_rows_out, n_cols_out) + dataset.shape[2:]
-    out = np.empty(out_shape, dtype=dataset.dtype)
-
-    # determine block size
-    if block_size is None:
-        if dataset.chunks is not None:
-            # use dataset chunk height
-            block_size = dataset.chunks[0]
-        else:
-            # use arbitrary number
-            block_size = 1000
-
-    # iterate block-wise
-    offset = 0
-    for block_start in xrange(0, n_rows_in, block_size):
-        block_stop = min(block_start+block_size, n_rows_in)
-
-        # how many indices to process in this block?
-        i = bisect.bisect_left(row_indices, block_start)
-        j = bisect.bisect_left(row_indices, block_stop)
-        n = j-i
-        ridx = row_indices[i:j]
-
-        # only do anything if there are indices for this block
-        if n:
-
-            # load data for this block
-            a = dataset[block_start:block_stop]
-
-            # take rows
-            b = np.take(a, ridx-block_start, axis=0)
-
-            # take columns
-            if col_indices:
-                b = np.take(b, col_indices, axis=1)
-
-            # store output
-            out[offset:offset+n, ...] = b
-
-            # keep track of offset
-            offset += n
-
-    return out
-
-
-def take2d_points(dataset, row_indices=None, col_indices=None,
-                  block_size=1000):
+def take2d_pointsel(dataset, row_indices=None, col_indices=None,
+                    block_size=1000):
     """
     Load selected rows and optionally columns from an HDF5 dataset with 2 or
     more dimensions, using HDF5 point selections.
@@ -298,16 +197,16 @@ def take2d_points(dataset, row_indices=None, col_indices=None,
     See Also
     --------
 
-    take2d
+    anhima.util.take2d
 
     Notes
     -----
 
-    This function is similar to :func:`take2d` but uses an HDF5 point
-    selection under the hood. Performance characteristics will be different
-    to :func:`take2d`, and may be much better or much worse, depending on the
-    size, shape and configuration of the dataset, and depending on the number of
-    points to be selected.
+    This function is similar to :func:`anhima.util.take2d` but uses an HDF5
+    point selection under the hood. Performance characteristics will be different
+    and may be much better or much worse, depending on the size, shape and
+    configuration of the dataset, and depending on the number of points to be
+    selected.
 
     """
 
@@ -408,7 +307,7 @@ def save_tped(path, callset, chrom,
     if samples is None:
         genotypes = calldata['genotype']
     else:
-        h5_samples = callset['chrom']['samples'][:].tolist()
+        h5_samples = callset[chrom]['samples'][:].tolist()
         genotypes = np.take(
             calldata['genotype'],
             [h5_samples.index(s) for s in samples],

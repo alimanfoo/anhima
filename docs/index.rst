@@ -51,8 +51,9 @@ Install from GitHub::
     mds
     tree
     ped
-    h5
     io
+    h5
+    util
     sim
 
 **Indices and tables**

@@ -8,7 +8,7 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 
-__version__ = '0.9'
+__version__ = '0.10-SNAPSHOT'
 
 
 # make sub-packages available without explicit import
@@ -26,3 +26,4 @@ from . import ped
 from . import sf
 from . import sim
 from . import tree
+from . import util
