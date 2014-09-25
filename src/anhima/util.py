@@ -161,7 +161,7 @@ def block_apply(f, dataset, axis=0, block_size=None, out=None):
     """Apply function `f` to `dataset` split along `axis` into contiguous
     slices of `block_size`. The result should be equivalent to calling
     ``f(dataset)`` directly, however may require less total memory, especially
-    if .`dataset` is an HDF5 dataset.
+    if `dataset` is an HDF5 dataset.
 
     Parameters
     ----------
