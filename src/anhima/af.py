@@ -16,6 +16,10 @@ from __future__ import division, print_function, unicode_literals, \
 import numpy as np
 
 
+# internal dependencies
+import anhima
+
+
 def _check_genotypes(genotypes):
     """
     Internal function to check the genotypes input argument meets
@@ -436,8 +440,10 @@ def allele_frequency(genotypes, allele=1):
     # count alleles
     ac = allele_count(genotypes, allele=allele)
 
-    # calculate allele frequencies
-    af = ac / an
+    # calculate allele frequency, accounting for missingness
+    err = np.seterr(invalid='ignore')
+    af = np.where(an > 0, ac / an, 0)
+    np.seterr(**err)
 
     return an, ac, af
 
@@ -529,13 +535,15 @@ def allele_frequencies(genotypes, alleles=None):
     """
 
     # count non-missing alleles
-    an = allele_number(genotypes)
+    an = allele_number(genotypes)[:, np.newaxis]
 
     # count alleles
     ac = allele_counts(genotypes, alleles=alleles)
 
-    # calculate allele frequencies
-    af = ac / an[..., np.newaxis]
+    # calculate allele frequencies, accounting for missingness
+    err = np.seterr(invalid='ignore')
+    af = np.where(an > 0, ac / an, 0)
+    np.seterr(**err)
 
     return an, ac, af
 
@@ -736,3 +744,133 @@ def count_segregating(genotypes):
     """
 
     return np.count_nonzero(is_segregating(genotypes))
+
+
+def maximum_likelihood_ancestry(genotypes, qa, qb, filter_size=0):
+    """Given alternate allele frequencies in two populations `qa` and `qb`,
+    predict the ancestry for a set of `genotypes`.
+
+    Parameters
+    ----------
+
+    genotypes : array_like
+        An array of diploid genotype calls of shape (n_variants, n_samples,
+        2) where each element of the array is an integer corresponding to an
+        allele index (-1 = missing, 0 = reference allele, 1 = first alternate
+        allele, 2 = second alternate allele, etc.).
+    qa : array_like, float
+        A 1-dimensional array of shape (n_variants, ) containing alternate
+        allele frequencies for population A.
+    qb : array_like, float
+        A 1-dimensional array of shape (n_variants, ) containing alternate
+        allele frequencies for population B.
+    filter_size : int, optional
+        Sum likelihoods in a moving window of size `filter_size`.
+
+    Returns
+    -------
+
+    ancestry : ndarray, int, shape (n_variants, n_samples)
+        An array containing the ancestry predictions, where 0 = AA (both
+        alleles derive from population A), 1 = AB (hybrid ancestry) and 2 =
+        BB (both alleles derive from population B), and -1 = ambiguous (models
+        are equally likely).
+    confidence : ndarray, float, shape (n_variants, n_samples)
+        The confidence in the ancestry prediction (natural logarithm of the
+        likelihood ratio for the two most likely models).
+
+    Notes
+    -----
+
+    Where allele frequencies are similar between populations A and B,
+    ancestry predictions will have low confidence, because different ancestry
+    models will have similar likelihoods. Greater confidence will be obtained by
+    filtering variants to select those where the difference in allele
+    frequencies is greater. E.g.::
+
+        >>> flt = np.abs(qa - qb) > .5
+        >>> genotypes_flt = genotypes[flt]
+        >>> qa_flt = qa[flt]
+        >>> qb_flt = qb[flt]
+        >>> ancestry, confidence = maximum_likelihood_ancestry(genotypes_flt, qa_flt, qb_flt)
+
+    """
+
+    # check inputs
+    genotypes = _check_genotypes(genotypes)
+    # require biallelic genotypes
+    assert np.amax(genotypes) < 2
+    n_variants, n_samples, ploidy = genotypes.shape
+    # require diploid genotypes
+    assert ploidy == 2
+    qa = np.asarray(qa)
+    qb = np.asarray(qb)
+    assert qa.ndim == qb.ndim == 1
+    assert n_variants == qa.shape[0] == qb.shape[0]
+
+    # calculate reference allele frequencies, assuming biallelic variants
+    pa = 1 - qa
+    pb = 1 - qb
+
+    # work around zero frequencies which cause problems when calculating logs
+    pa[pa == 0] = np.exp(-250)
+    qa[qa == 0] = np.exp(-250)
+    pb[pb == 0] = np.exp(-250)
+    qb[qb == 0] = np.exp(-250)
+
+    # calculate likelihoods
+    logpa = np.log(pa)
+    logqa = np.log(qa)
+    logpb = np.log(pb)
+    logqb = np.log(qb)
+
+    # set up likelihoods array
+    n_models = 3
+    n_gn_states = 3
+    log_likelihoods = np.empty((n_variants, n_samples, n_models, n_gn_states),
+                               dtype='f8')
+
+    # probability of genotype (e.g., 0 = hom ref) given model (e.g., 0 = aa)
+    log_likelihoods[:, :, 0, 0] = (2 * logpa)[:, np.newaxis]
+    log_likelihoods[:, :, 1, 0] = (np.log(2) + logpa + logqa)[:, np.newaxis]
+    log_likelihoods[:, :, 2, 0] = (2 * logqa)[:, np.newaxis]
+    log_likelihoods[:, :, 0, 1] = (logpa + logpb)[:, np.newaxis]
+    log_likelihoods[:, :, 1, 1] = (np.logaddexp(logpa + logqb,
+                                                logqa + logpb)[:, np.newaxis])
+    log_likelihoods[:, :, 2, 1] = (logqa + logqb)[:, np.newaxis]
+    log_likelihoods[:, :, 0, 2] = (2 * logpb)[:, np.newaxis]
+    log_likelihoods[:, :, 1, 2] = (np.log(2) + logpb + logqb)[:, np.newaxis]
+    log_likelihoods[:, :, 2, 2] = (2 * logqb)[:, np.newaxis]
+
+    # transform genotypes for convenience
+    gn = anhima.gt.as_012(genotypes)
+
+    # calculate actual model likelihoods for each genotype call
+    model_likelihoods = np.empty((n_variants, n_samples, n_models), dtype='f8')
+    model_likelihoods.fill(-250)
+    for model in 0, 1, 2:
+        for gn_state in 0, 1, 2:
+            model_likelihoods[:, :, model][gn == gn_state] = \
+                log_likelihoods[:, :, model, gn_state][gn == gn_state]
+
+    # optionally combine likelihoods in a moving window
+    if filter_size:
+        model_likelihoods = np.apply_along_axis(np.convolve,
+                                                0,
+                                                model_likelihoods,
+                                                np.ones((filter_size,)))
+        # remove edges
+        model_likelihoods = \
+            model_likelihoods[filter_size//2:-1*(filter_size//2), ...]
+
+    # predict ancestry as model with highest likelihood
+    ancestry = np.argmax(model_likelihoods, axis=2)
+
+    # calculate confidence by comparing first and second most likely models
+    model_likelihoods.sort(axis=2)
+    confidence = model_likelihoods[:, :, 2] - model_likelihoods[:, :, 1]
+
+    # recind prediction where confidence is zero (models are equally likely)
+    ancestry[confidence == 0] = -1
+
+    return ancestry, confidence

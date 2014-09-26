@@ -20,11 +20,4 @@ Allele frequencies
 .. autofunction:: count_non_segregating
 .. autofunction:: count_singletons
 .. autofunction:: count_doubletons
-
-
-
-
-
-
-
-
+.. autofunction:: maximum_likelihood_ancestry
