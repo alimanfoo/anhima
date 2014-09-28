@@ -157,11 +157,11 @@ def block_compress2d(dataset, row_condition, col_condition=None,
                         block_size=block_size)
 
 
-def block_apply(f, dataset, axis=0, block_size=None, out=None):
-    """Apply function `f` to `dataset` split along `axis` into contiguous
-    slices of `block_size`. The result should be equivalent to calling
-    ``f(dataset)`` directly, however may require less total memory, especially
-    if `dataset` is an HDF5 dataset.
+def block_apply(f, dataset, block_size=None, out=None):
+    """Apply function `f` to `dataset` split along the first axis into
+    contiguous slices of `block_size`. The result should be equivalent to
+    calling ``f(dataset)`` directly, however may require less total memory,
+    especially if `dataset` is an HDF5 dataset.
 
     Parameters
     ----------
@@ -170,8 +170,6 @@ def block_apply(f, dataset, axis=0, block_size=None, out=None):
         The function to apply.
     dataset : array_like or HDF5 dataset
         The input dataset.
-    axis ; int, optional
-        The axis along which to split the dataset.
     block_size : int, optional
         The size (in number of items along `axis`) of the blocks passed to `f`.
     out : array_like or HDF5 dataset, optional
@@ -189,27 +187,20 @@ def block_apply(f, dataset, axis=0, block_size=None, out=None):
     if block_size is None:
         if hasattr(dataset, 'chunks') and dataset.chunks is not None:
             # use dataset chunk size along slice axis
-            block_size = dataset.chunks[axis]
+            block_size = dataset.chunks[0]
         else:
             # use arbitrary number
             block_size = 1000
 
     # determine total size along slice axis
-    dim_size = dataset.shape[axis]
+    dim_size = dataset.shape[0]
 
     # iterate over blocks
     for block_start in xrange(0, dim_size, block_size):
         block_stop = min(block_start + block_size, dim_size)
 
         # load input block
-        if axis == 0:
-            x = dataset[block_start:block_stop, ...]
-        elif axis == 1:
-            x = dataset[:, block_start:block_stop, ...]
-        elif axis == 2:
-            x = dataset[:, :, block_start:block_stop, ...]
-        else:
-            raise Exception('only axis 0, 1 or 2 is supported')
+        x = dataset[block_start:block_stop, ...]
 
         # compute output block
         y = f(x)
@@ -217,16 +208,11 @@ def block_apply(f, dataset, axis=0, block_size=None, out=None):
         if out is None:
             # initialise output array
             out_shape = list(y.shape)
-            out_shape[axis] = dim_size
+            out_shape[0] = dim_size
             out = np.empty(out_shape, y.dtype)
 
         # store output block
-        if axis == 0:
-            out[block_start:block_stop, ...] = y
-        elif axis == 1:
-            out[:, block_start:block_stop, ...] = y
-        elif axis == 2:
-            out[:, :, block_start:block_stop, ...] = y
+        out[block_start:block_stop, ...] = y
 
     return out
 
