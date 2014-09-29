@@ -43,7 +43,8 @@ def save_tped(path, genotypes, ref, alt, pos,
         variant.
     identifier : array_like, string, optional
         An array of SNP identifiers. If not provided, identifiers will be
-        created based on the variant index, e.g., 'snp1', 'snp2', etc.
+        created based on the variant position, e.g., 'snp100042', 
+        'snp100081', etc.
     genetic_distance : array_like, float
         An array of genetic distances. If not provided, a zero value ('0') will
         be written for all variants.
@@ -82,7 +83,7 @@ def save_tped(path, genotypes, ref, alt, pos,
 
     # check identifier
     if identifier is None:
-        identifier = np.array(['snp%s' % i for i in xrange(n_variants)])
+        identifier = np.array(['snp%s' % i for i in pos])
     else:
         identifier = np.asarray(identifier)
         assert identifier.shape[0] == n_variants

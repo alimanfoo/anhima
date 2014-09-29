@@ -48,8 +48,9 @@ class TestTped(unittest.TestCase):
         # test that content is good...by taking first line
         line = content[0].split("\t")
         self.assertEquals(self.n_samples + 4, len(line))
-        self.assertEquals('_'.join(line[0:4]), '_'.join(['0', 'snp0', '0.0',
-                                                         str(self.pos[0])]))
+        self.assertEquals('_'.join(line[0:4]),
+                          '_'.join(['0', 'snp' + str(self.pos[0]), 
+                                    '0.0', str(self.pos[0])]))
     # test that we can load from hdf5 and create tped
 
     # test that we can write to hdf5 ok
