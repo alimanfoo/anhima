@@ -55,7 +55,7 @@ def pairwise_genotype_ld(gn):
     assert gn.ndim == 2
 
     # TODO deal with missing genotypes
-    return np.power(np.corrcoef(gn), 2)
+    return np.corrcoef(gn) ** 2
 
 
 def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
