@@ -186,7 +186,7 @@ def plot_windowed_ld(gn, pos, window_size, start_position=None,
         bin_stop = bin_edges[n + 1]
 
         # map genome positions onto variant indices
-        loc = anhima.loc.locate_region(pos, bin_start, bin_stop)
+        loc = anhima.loc.locate_interval(pos, bin_start, bin_stop)
 
         if loc.stop - loc.start > 0:
 

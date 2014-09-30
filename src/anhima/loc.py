@@ -296,7 +296,7 @@ def view_position(a, pos, p):
         return None
 
 
-def locate_region(pos, start_position=0, stop_position=None):
+def locate_interval(pos, start_position=0, stop_position=None):
     """Locate the start and stop indices within the `pos` array that include all
     positions within the `start_position` and `stop_position` range.
 
@@ -307,16 +307,16 @@ def locate_region(pos, start_position=0, stop_position=None):
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
     start_position : int
-        Start position of region.
+        Start position of interval.
     stop_position : int
-        Stop position of region
+        Stop position of interval
 
     Returns
     -------
 
     loc : slice
         A slice object with the start and stop indices that include all
-        positions within the region.
+        positions within the interval.
 
     """
 
@@ -332,9 +332,9 @@ def locate_region(pos, start_position=0, stop_position=None):
     return loc
 
 
-def view_region(a, pos, start_position, stop_position):
+def view_interval(a, pos, start_position, stop_position):
     """View a contiguous slice along the first dimension of `a`
-    corresponding to a genome region defined by `start_position` and
+    corresponding to a genome interval defined by `start_position` and
     `stop_position`.
 
     Parameters
@@ -346,9 +346,9 @@ def view_region(a, pos, start_position, stop_position):
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
     start_position : int
-        Start position of region.
+        Start position of interval.
     stop_position : int
-        Stop position of region
+        Stop position of interval
 
     Returns
     -------
@@ -362,7 +362,7 @@ def view_region(a, pos, start_position, stop_position):
     a = np.asarray(a)
 
     # determine region slice
-    loc = locate_region(pos, start_position, stop_position)
+    loc = locate_interval(pos, start_position, stop_position)
 
     return a[loc, ...]
 
