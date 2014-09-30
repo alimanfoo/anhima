@@ -21,6 +21,7 @@ See also the examples at:
 .. autofunction:: locate_interval
 .. autofunction:: view_interval
 .. autofunction:: locate_positions
+.. autofunction:: locate_intervals
 .. autofunction:: plot_variant_locator
 .. autofunction:: windowed_variant_counts
 .. autofunction:: plot_windowed_variant_counts
