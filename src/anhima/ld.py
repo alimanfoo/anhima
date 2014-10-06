@@ -26,6 +26,7 @@ import scipy.spatial.distance as distance
 
 # internal dependencies
 import anhima.loc
+from anhima.opt.ld import ld_prune_pairwise_uint8 as _ld_prune_pairwise_uint8
 
 
 def pairwise_genotype_ld(gn):
@@ -55,7 +56,7 @@ def pairwise_genotype_ld(gn):
     assert gn.ndim == 2
 
     # TODO deal with missing genotypes
-    return np.power(np.corrcoef(gn), 2)
+    return np.corrcoef(gn) ** 2
 
 
 def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
@@ -186,7 +187,7 @@ def plot_windowed_ld(gn, pos, window_size, start_position=None,
         bin_stop = bin_edges[n + 1]
 
         # map genome positions onto variant indices
-        loc = anhima.loc.locate_region(pos, bin_start, bin_stop)
+        loc = anhima.loc.locate_interval(pos, bin_start, bin_stop)
 
         if loc.stop - loc.start > 0:
 
@@ -278,45 +279,12 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
     """
     
     # check input array
-    gn = np.asarray(gn)
+    gn = np.asarray(gn).astype('u1')
     assert gn.ndim == 2
 
-    # set up output array
-    n_variants = gn.shape[0]
-    included = np.ones((n_variants,), dtype=np.bool)
-
-    # outer loop - iterate over windows
-    for window_start in range(0, n_variants, window_step):
-
-        # determine extent of the current window
-        window_stop = min(window_start + window_size, n_variants)
-
-        # view genotypes for current window
-        gw = gn[window_start:window_stop, :]
-        
-        # calculate pairwise genotype correlation
-        r_squared = pairwise_genotype_ld(gw)
-        
-        # inner loop - iterate over variants within the window
-        for i in range(window_stop - window_start):
-
-            # check to see if the variant was previously excluded
-            if included[window_start + i]:
-
-                # look for linkage with other variants in window
-                for j in range(i+1, window_stop - window_start):
-                    if r_squared[i, j] > max_r_squared:
-                        # threshold exceeded, exclude the variant
-                        included[window_start + j] = False
-                    else:
-                        # below threshold, leave included
-                        pass
-
-            else:
-
-                # don't bother to look at variants previously excluded
-                pass   
-            
+    # use optimised implementation
+    included = _ld_prune_pairwise_uint8(gn, window_size, window_step,
+                                        max_r_squared)
     return included
 
 

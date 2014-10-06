@@ -18,6 +18,9 @@ while getopts "e" o; do
 done
 shift $((OPTIND-1))
 
+echo prepare extensions
+cythonize src/anhima/opt/*.pyx
+
 echo install locally
 python setup.py install
 

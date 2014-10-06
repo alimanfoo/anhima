@@ -138,7 +138,7 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
             raise Exception('list of all samples not found in callset')
 
     # locate region
-    loc = anhima.loc.locate_region(pos, start_position, stop_position)
+    loc = anhima.loc.locate_interval(pos, start_position, stop_position)
 
     # extract variants data
     if variants_fields:

@@ -247,6 +247,11 @@ def locate_position(pos, p):
     index : int or None
         The index of `p` in `pos` if present, else None.
 
+    See Also
+    --------
+
+    locate_positions, locate_interval, locate_intervals
+
     """
 
     # check inputs
@@ -282,6 +287,11 @@ def view_position(a, pos, p):
     b : ndarray
         A view of `a` obtained by slicing along the first dimension.
 
+    See Also
+    --------
+
+    locate_position
+
     """
 
     # normalise inputs
@@ -296,7 +306,7 @@ def view_position(a, pos, p):
         return None
 
 
-def locate_region(pos, start_position=0, stop_position=None):
+def locate_interval(pos, start_position=0, stop_position=None):
     """Locate the start and stop indices within the `pos` array that include all
     positions within the `start_position` and `stop_position` range.
 
@@ -307,16 +317,21 @@ def locate_region(pos, start_position=0, stop_position=None):
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
     start_position : int
-        Start position of region.
+        Start position of interval.
     stop_position : int
-        Stop position of region
+        Stop position of interval
 
     Returns
     -------
 
     loc : slice
         A slice object with the start and stop indices that include all
-        positions within the region.
+        positions within the interval.
+
+    See Also
+    --------
+
+    locate_position, locate_positions, locate_intervals
 
     """
 
@@ -325,16 +340,16 @@ def locate_region(pos, start_position=0, stop_position=None):
 
     # locate start and stop indices
     start_index = np.searchsorted(pos, start_position)
-    stop_index = np.searchsorted(pos, stop_position, side='right') \
+    stop_index = np.searchsorted(pos, stop_position, side=b'right') \
         if stop_position is not None else None
 
     loc = slice(start_index, stop_index)
     return loc
 
 
-def view_region(a, pos, start_position, stop_position):
+def view_interval(a, pos, start_position, stop_position):
     """View a contiguous slice along the first dimension of `a`
-    corresponding to a genome region defined by `start_position` and
+    corresponding to a genome interval defined by `start_position` and
     `stop_position`.
 
     Parameters
@@ -346,9 +361,9 @@ def view_region(a, pos, start_position, stop_position):
         A sorted 1-dimensional array of genomic positions from a single
         chromosome/contig.
     start_position : int
-        Start position of region.
+        Start position of interval.
     stop_position : int
-        Stop position of region
+        Stop position of interval
 
     Returns
     -------
@@ -356,13 +371,18 @@ def view_region(a, pos, start_position, stop_position):
     b : ndarray
         A view of `a` obtained by slicing along the first dimension.
 
+    See Also
+    --------
+
+    locate_interval
+
     """
 
     # normalise inputs
     a = np.asarray(a)
 
     # determine region slice
-    loc = locate_region(pos, start_position, stop_position)
+    loc = locate_interval(pos, start_position, stop_position)
 
     return a[loc, ...]
 
@@ -387,6 +407,11 @@ def locate_positions(pos1, pos2):
         An array of the same length as `pos2` where an element is True if the
         corresponding item in `pos2` is also found in `pos1`.
 
+    See Also
+    --------
+
+    locate_position, locate_interval, locate_intervals
+
     """
 
     # check inputs
@@ -396,6 +421,62 @@ def locate_positions(pos1, pos2):
     # find intersection
     cond1 = np.in1d(pos1, pos2, assume_unique=True)
     cond2 = np.in1d(pos2, pos1, assume_unique=True)
+
+    return cond1, cond2
+
+
+def locate_intervals(pos, start_positions, stop_positions):
+    """Locate items within the `pos` array that fall within any of the
+    intervals given by `start_positions` and `stop_positions`.
+
+    Parameters
+    ----------
+
+    pos : array_like
+        A sorted 1-dimensional array of genomic positions from a single
+        chromosome/contig.
+    start_positions : array_like, int
+        Start positions of intervals.
+    stop_positions : array_like, int
+        Stop positions of intervals
+
+    Returns
+    -------
+
+    cond1 : ndarray, bool
+        An array of the same length as `pos` where an element is True if the
+        corresponding item in `pos` is also found in any of the intervals.
+    cond2 : ndarray, bool
+        An array of the same length as the number of intervals, where an
+        element is True if the corresponding interval contains one or more
+        positions in `pos`.
+
+    See Also
+    --------
+
+    locate_position, locate_positions, locate_interval
+
+    """
+
+    # check inputs
+    pos = np.asarray(pos)
+    assert pos.ndim == 1
+    start_positions = np.asarray(start_positions)
+    stop_positions = np.asarray(stop_positions)
+    assert start_positions.ndim == stop_positions.ndim == 1
+    assert start_positions.shape[0] == stop_positions.shape[0]
+
+    # find indices of start and stop positions in pos
+    start_indices = np.searchsorted(pos, start_positions)
+    stop_indices = np.searchsorted(pos, stop_positions, side=b'right')
+
+    # find intervals overlapping at least one position
+    cond2 = start_indices < stop_indices
+
+    # find positions within at least one interval
+    cond1 = np.zeros_like(pos, dtype=np.bool)
+    for i, j in zip(start_indices[cond2], stop_indices[cond2]):
+        cond1[i:j] = True
 
     return cond1, cond2
 

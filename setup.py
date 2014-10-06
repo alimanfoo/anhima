@@ -1,5 +1,6 @@
 from ast import literal_eval
 from distutils.core import setup
+from distutils.extension import Extension
 
 
 def get_version(source='src/anhima/__init__.py'):
@@ -17,6 +18,7 @@ setup(
     author_email='alimanfoo@googlemail.com',
     package_dir={'': 'src'},
     packages=['anhima'],
+    ext_modules=[Extension('anhima.opt.ld', ['src/anhima/opt/ld.c'])],
     url='https://github.com/alimanfoo/anhima',
     license='MIT License',
     description='Exploration and Analysis of genetic variation data.',
