@@ -153,7 +153,7 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
             calldata_fields = [calldata_fields]
         for f in calldata_fields:
             calldata[f] = grp_chrom['calldata'][f][loc, ...]
-            
+
     # select variants
     if variants_query is not None:
         condition = numexpr.evaluate(variants_query, local_dict=variants)
@@ -166,7 +166,7 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
     if samples is not None:
         sample_indices = [all_samples.index(s) for s in samples]
         for f in calldata:
-            calldata[f] = np.take(calldata[f], sample_indices)
+            calldata[f] = np.take(calldata[f], sample_indices, axis=1)
 
     return variants, calldata
 
