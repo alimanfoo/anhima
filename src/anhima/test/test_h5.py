@@ -9,7 +9,7 @@ import anhima.h5
 import h5py
 
 
-class TestTped(unittest.TestCase):
+class TestLoadRegion(unittest.TestCase):
 
     def setUp(self):
 
