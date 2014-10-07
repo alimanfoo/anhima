@@ -68,3 +68,9 @@ From the root directory of the repo:
 Please fix all errors before submitting a PR, but use your good judgment
 about when not to conform to PEP8. Mark any line you want to be excluded
 from [flake8](http://flake8.readthedocs.org/) checks with the comment '# noqa'.
+
+Developing Cython extensions
+----------------------------
+
+If you add a new Cython extension, ensure that the Cythonized C files are
+added to the Git repository.

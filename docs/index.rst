@@ -4,8 +4,8 @@
 ``anhima`` - Exploration and analysis of genetic variation data
 ===============================================================
 
-This package is intended to provide convenience for those working with
-genetic variation data who need quick access to some simple exploratory
+This package is intended to provide convenience for those working
+with genetic variation data who need quick access to some exploratory
 analysis and plotting functions.
 
 This package is mostly an extremely thin wrapper around :mod:`numpy`,
