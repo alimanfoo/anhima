@@ -165,7 +165,7 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
     if samples is not None:
         sample_indices = [all_samples.index(s) for s in samples]
         for f in calldata:
-            calldata[f] = np.take(calldata[f], sample_indices)
+            calldata[f] = np.take(calldata[f], sample_indices, axis=1)
 
     return variants, calldata
 
