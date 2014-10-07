@@ -28,7 +28,7 @@ Install development dependencies:
 Building Cython extensions
 --------------------------
 
-To build Cython extensions in-place:
+To build Cython extensions in-place (required for running unit tests):
 
     $ python setup.py build_ext --inplace
 
@@ -58,14 +58,13 @@ To run all notebooks:
 Please run all example notebooks and make sure they execute successfully
 before submitting a PR.
 
-Checking code style (PEP8)
---------------------------
+Checking code syntax (PyFlakes) and style (PEP8)
+------------------------------------------------
 
 From the root directory of the repo:
 
     $ flake8 src
 
-Please fix all code style warnings before submitting a PR.
-
-Use your good judgment about when not to conform to PEP8. Mark any line you
-want to be excluded from flake8 checks with the comment '# noqa'.
+Please fix all errors before submitting a PR, but use your good judgment
+about when not to conform to PEP8. Mark any line you want to be excluded
+from [flake8](http://flake8.readthedocs.org/) checks with the comment '# noqa'.
