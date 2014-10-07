@@ -17,7 +17,7 @@ setup(
     author='Alistair Miles',
     author_email='alimanfoo@googlemail.com',
     package_dir={'': 'src'},
-    packages=['anhima'],
+    packages=['anhima', 'anhima.opt'],
     ext_modules=[Extension('anhima.opt.ld', ['src/anhima/opt/ld.c'])],
     url='https://github.com/alimanfoo/anhima',
     license='MIT License',
