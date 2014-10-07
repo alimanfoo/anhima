@@ -43,7 +43,7 @@ MOCK_MODULES = ['numpy', 'scipy', 'scipy.stats', 'scipy.spatial',
                 'matplotlib.image', 'ipython', 'numexpr', 'sklearn',
                 'sklearn.decomposition', 'h5py', 'rpy2', 'rpy2.robjects',
                 'rpy2.robjects.numpy2ri', 'rpy2.robjects.packages',
-                'sklearn.manifold', 'scipy.special']
+                'sklearn.manifold', 'scipy.special', 'anhima.opt.ld']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 

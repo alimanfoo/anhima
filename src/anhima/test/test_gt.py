@@ -86,4 +86,3 @@ class TestPackUnpackDiploid(unittest.TestCase):
         genotypes = np.array([[[0, 0]]], dtype='i1')
         packed = pack_diploid(genotypes)
         self.assertEqual(0, packed[0, 0])
-

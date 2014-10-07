@@ -54,7 +54,7 @@ might be organised as follows::
     /3L/calldata/...
     /...
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -62,7 +62,6 @@ from __future__ import division, print_function, unicode_literals, \
 
 
 # standard library dependencies
-import bisect
 import itertools
 
 
@@ -77,7 +76,7 @@ import anhima.loc
 
 
 def load_region(callset, chrom, start_position=0, stop_position=None,
-                variants_fields=None, 
+                variants_fields=None,
                 calldata_fields=None,
                 variants_query=None,
                 samples=None):
@@ -99,8 +98,8 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
     calldata_fields : sequence of strings, optional
         Names of the calldata datasets to extract.
     variants_query : string, optional
-        A query to filter variants. Note that this query is applied 
-        after data for the region has been loaded, so any fields 
+        A query to filter variants. Note that this query is applied
+        after data for the region has been loaded, so any fields
         referenced in this query need to be included in `variants_fields`.
     samples : sequence of strings, optional
         Selected samples to extract.
@@ -153,7 +152,7 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
             calldata_fields = [calldata_fields]
         for f in calldata_fields:
             calldata[f] = grp_chrom['calldata'][f][loc, ...]
-            
+
     # select variants
     if variants_query is not None:
         condition = numexpr.evaluate(variants_query, local_dict=variants)
@@ -207,10 +206,10 @@ def take2d_pointsel(dataset, row_indices=None, col_indices=None,
     -----
 
     This function is similar to :func:`anhima.util.take2d` but uses an HDF5
-    point selection under the hood. Performance characteristics will be different
-    and may be much better or much worse, depending on the size, shape and
-    configuration of the dataset, and depending on the number of points to be
-    selected.
+    point selection under the hood. Performance characteristics will be
+    different and may be much better or much worse, depending on the size,
+    shape and configuration of the dataset, and depending on the number of
+    points to be selected.
 
     """
 

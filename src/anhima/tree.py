@@ -15,7 +15,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/tree.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -33,6 +33,10 @@ import matplotlib.image as mpimg
 
 
 _r_initialised = False
+r = None
+ro = None
+grdevices = None
+ape = None
 
 
 def _init_r():
@@ -41,23 +45,19 @@ def _init_r():
     """
 
     global _r_initialised
+    global r
+    global ro
+    global grdevices
+    global ape
 
     if not _r_initialised:
 
-        global ro
         import rpy2.robjects as ro
-
-        global r
         from rpy2.robjects import r
-
         from rpy2.robjects.numpy2ri import numpy2ri
         from rpy2.robjects.packages import importr
         ro.conversion.py2ri = numpy2ri
-
-        global grdevices
         grdevices = importr(b'grDevices')
-
-        global ape
         ape = importr(
             b'ape',
             robject_translations={
@@ -146,7 +146,7 @@ assignMajorityGroupColorToEdges <- function(phylotree, edge_group_counts, groupc
   })
   return(edge_colors)
 }
-""")
+""")  # noqa
 
         _r_initialised = True
 
@@ -271,8 +271,8 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
         `ape` function ``add.scale.bar()``. See the documentation for the
         `ape` package for a full list of supported arguments.
     filename : string, optional
-        File path for the generated PNG image. If None, a temporary file will be
-        used.
+        File path for the generated PNG image. If None, a temporary file will
+        be used.
     width : int or float, optional
         Width of the plot in `units`.
     height : int or float, optional
@@ -363,8 +363,8 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
 
 def write_tree(tree, filename=None, **kwargs):
     """
-    Wrapper for the `ape` ``write.tree`` function, which writes in a file a tree
-    in parenthetic format using the Newick (also known as New Hampshire)
+    Wrapper for the `ape` ``write.tree`` function, which writes in a file a
+    tree in parenthetic format using the Newick (also known as New Hampshire)
     format.
 
     Parameters
@@ -448,8 +448,8 @@ def color_edges_by_group_majority(tree, labels, groups,
     labels : sequence of strings
         The tip labels.
     groups : sequence of strings
-        A sequence of strings of the same length as `labels`, where each item is
-        an identifier for the group to which the corresponding tip belongs.
+        A sequence of strings of the same length as `labels`, where each item
+        is an identifier for the group to which the corresponding tip belongs.
     colors : dict-like
         A dictionary mapping groups to colors.
     equality_color : string, optional

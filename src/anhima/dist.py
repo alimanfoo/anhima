@@ -5,7 +5,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/dist.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \

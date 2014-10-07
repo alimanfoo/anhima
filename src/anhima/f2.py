@@ -5,7 +5,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/f2.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -109,7 +109,8 @@ def normalise_doubleton_counts(counts, n_samples, ploidy=2):
 
     This function corrects for the fact that there are fewer pairs of
     haplotypes when looking for doubletons within a single subpopulation of
-    size n than there are when comparing two different subpopulations of size n.
+    size n than there are when comparing two different subpopulations of size
+    n.
 
     This function may also help to correct for the case where the number of
     samples from each subpopulation is not equal. However, note that if this
@@ -380,7 +381,7 @@ def plot_f2_fig(counts, subpop_labels=None, subpop_colors='bgrcmyk', fig=None,
     relative : bool, optional
         If True, plot counts relative to the sum along each row.
     normed : bool, optional
-        If True, normalise counts by dividing by the number of possible 
+        If True, normalise counts by dividing by the number of possible
         pairs of haplotypes.
     n_samples : int or sequence of ints
         The number of samples in each sub-population.
@@ -417,8 +418,8 @@ def plot_f2_fig(counts, subpop_labels=None, subpop_colors='bgrcmyk', fig=None,
                                  colspan=n_subpops)
                 for i in range(n_subpops)]
     if normed:
-        main_counts = normalise_doubleton_counts(counts, 
-                                                 n_samples=n_samples, 
+        main_counts = normalise_doubleton_counts(counts,
+                                                 n_samples=n_samples,
                                                  ploidy=ploidy)
     else:
         main_counts = counts

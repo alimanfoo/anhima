@@ -10,7 +10,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/mds.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -24,6 +24,8 @@ import sklearn.manifold
 
 
 _r_initialised = False
+ro = None
+r = None
 
 
 def _init_r():
@@ -32,18 +34,14 @@ def _init_r():
     """
 
     global _r_initialised
+    global ro
+    global r
 
     if not _r_initialised:
-
-        global ro
         import rpy2.robjects as ro
-
-        global r
-        from rpy2.robjects import r
-
+        from rpy2.robjects import r  # noqa
         from rpy2.robjects.numpy2ri import numpy2ri
         ro.conversion.py2ri = numpy2ri
-
         _r_initialised = True
 
 

@@ -1,16 +1,7 @@
-.. module:: anhima.loc
-.. moduleauthor:: Alistair Miles <alimanfoo@googlemail.com>
+Locating samples and variants
+=============================
 
-Locating samples, variants and genome positions
-===============================================
-
-Utility functions for extracting data on samples, variants and genome
-positions.
-
-See also the examples at:
-
-- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/loc.ipynb
-
+.. automodule:: anhima.loc
 .. autofunction:: view_sample
 .. autofunction:: take_samples
 .. autofunction:: query_variants

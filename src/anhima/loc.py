@@ -1,7 +1,11 @@
 """
-Utilities for locating samples, variants and genome positions.
+Utilities for locating samples and variants.
 
-"""
+See also the examples at:
+
+- http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/loc.ipynb
+
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -202,7 +206,7 @@ def take_variants(a, indices, mode='raise'):
     indices : sequence of integers
         The variant indices to extract.
     mode : {'raise', 'wrap', 'clip'}, optional
-        Specifies how out-of-bounds indices will behave. 
+        Specifies how out-of-bounds indices will behave.
 
     Returns
     -------
@@ -597,8 +601,9 @@ def windowed_variant_counts(pos, window_size, start_position=None,
         stop_position = np.max(pos)
     if start_position is None:
         start_position = np.min(pos)
-    bin_edges = np.append(np.arange(start_position, stop_position, window_size),
-                          stop_position)
+    bin_edges = np.append(
+        np.arange(start_position, stop_position, window_size), stop_position
+    )
 
     # make a histogram of positions
     counts, _ = np.histogram(pos, bins=bin_edges)
@@ -652,8 +657,8 @@ def plot_windowed_variant_counts(pos, window_size, start_position=None,
 
     # count variants
     y, bin_edges = windowed_variant_counts(pos, window_size,
-                                   start_position=start_position,
-                                   stop_position=stop_position)
+                                           start_position=start_position,
+                                           stop_position=stop_position)
 
     # calculate bin centers
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -716,11 +721,11 @@ def windowed_variant_density(pos, window_size, start_position=None,
 
     # count variants in windows
     counts, bin_edges = windowed_variant_counts(pos, window_size,
-                                                  start_position=start_position,
-                                                  stop_position=stop_position)
+                                                start_position=start_position,
+                                                stop_position=stop_position)
 
     bin_widths = np.diff(bin_edges)
-    
+
     # convert to per-base-pair density
     density = counts / bin_widths
 
@@ -773,8 +778,8 @@ def plot_windowed_variant_density(pos, window_size, start_position=None,
 
     # count variants
     y, bin_edges = windowed_variant_density(pos, window_size,
-                                    start_position=start_position,
-                                    stop_position=stop_position)
+                                            start_position=start_position,
+                                            stop_position=stop_position)
 
     # calculate bin centers
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -841,8 +846,9 @@ def windowed_statistic(pos, values, window_size,
         stop_position = np.max(pos)
     if start_position is None:
         start_position = np.min(pos)
-    bin_edges = np.append(np.arange(start_position, stop_position, window_size),
-                          stop_position)
+    bin_edges = np.append(
+        np.arange(start_position, stop_position, window_size), stop_position
+    )
 
     # compute binned statistic
     stats, _, _ = scipy.stats.binned_statistic(pos, values=values,
@@ -853,8 +859,8 @@ def windowed_statistic(pos, values, window_size,
 
 
 def evenly_downsample_variants(a, k):
-    """Evenly downsample an array along the first dimension to length `k` (or as
-    near as possible), assuming the first dimension corresponds to variants.
+    """Evenly downsample an array along the first dimension to length `k` (or
+    as near as possible), assuming the first dimension corresponds to variants.
 
     Parameters
     ----------

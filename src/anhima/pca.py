@@ -6,7 +6,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/pca.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -38,8 +38,8 @@ def pca(gn, n_components=10, whiten=False):
         percentage specified by `n_components`.
     whiten : bool
         When True (False by default) the components vectors are divided by
-        n_samples times singular values to ensure uncorrelated outputs with unit
-        component-wise variances.
+        n_samples times singular values to ensure uncorrelated outputs with
+        unit component-wise variances.
 
     Returns
     -------

@@ -190,4 +190,3 @@ def simulate_relatedness(genotypes, relatedness=.5, n_iter=1000, copy=True):
         recip[variant_indices] = donor[variant_indices]
 
     return genotypes
-

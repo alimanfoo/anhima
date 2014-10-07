@@ -5,7 +5,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/af.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -495,7 +495,7 @@ def allele_counts(genotypes, alleles=None):
         np.sum(genotypes == allele, axis=(1, 2), out=ac[:, i])
 
     return ac
-    
+
 
 def allele_frequencies(genotypes, alleles=None):
     """Calculate allele frequencies per variant.
@@ -509,7 +509,7 @@ def allele_frequencies(genotypes, alleles=None):
         (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     alleles : sequence of ints, optional
-        The alleles to calculate the frequency of. If not specified, all 
+        The alleles to calculate the frequency of. If not specified, all
         alleles will be counted.
 
     Returns
@@ -564,7 +564,7 @@ def allelism(genotypes):
     -------
 
     n : ndarray, int
-        An array of shape (n_variants,) where an element holds the allelism 
+        An array of shape (n_variants,) where an element holds the allelism
         of the corresponding variant.
 
     See Also
@@ -580,7 +580,7 @@ def allelism(genotypes):
     Applicable to multiallelic variants.
 
     """
-    
+
     # check inputs
     genotypes = _check_genotypes(genotypes)
 
@@ -692,7 +692,7 @@ def is_segregating(genotypes):
     -------
 
     is_segregating : ndarray, bool
-        An array of shape (n_variants,) where an element is True if more 
+        An array of shape (n_variants,) where an element is True if more
         than one allele is found for the given variant.
 
     Notes
@@ -794,7 +794,7 @@ def maximum_likelihood_ancestry(genotypes, qa, qb, filter_size=0):
         >>> qb_flt = qb[flt]
         >>> ancestry, confidence = maximum_likelihood_ancestry(genotypes_flt, qa_flt, qb_flt)
 
-    """
+    """  # noqa
 
     # check inputs
     genotypes = _check_genotypes(genotypes)

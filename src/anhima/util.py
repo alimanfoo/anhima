@@ -215,5 +215,3 @@ def block_apply(f, dataset, block_size=None, out=None):
         out[block_start:block_stop, ...] = y
 
     return out
-
-

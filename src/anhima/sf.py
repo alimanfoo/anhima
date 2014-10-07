@@ -5,7 +5,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/sf.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -174,8 +174,8 @@ def site_frequency_spectrum_folded_scaled(biallelic_ac, m=None):
     is expected to be constant across the spectrum, and to approximate
     the value of the population-scaled mutation rate theta.
 
-    This function is useful where the ancestral and derived status of alleles is
-    unknown.
+    This function is useful where the ancestral and derived status of alleles
+    is unknown.
 
     See Also
     --------

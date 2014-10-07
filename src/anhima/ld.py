@@ -5,15 +5,11 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/ld.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
-
-
-# standard library dependencies
-import random
 
 
 # third party dependencies
@@ -33,22 +29,22 @@ def pairwise_genotype_ld(gn):
     """Given a set of genotypes at biallelic variants, calculate the
     square of the correlation coefficient between all distinct pairs
     of variants.
-    
+
     Parameters
     ----------
-    
+
     gn : array_like
         A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
         element is a genotype call coded as a single integer counting the
         number of non-reference alleles.
-        
+
     Returns
     -------
 
     r_squared : ndarray, float
         A 2-dimensional array of squared correlation coefficients between
         each pair of variants.
-    
+
     """
 
     # check input array
@@ -62,13 +58,13 @@ def pairwise_genotype_ld(gn):
 def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
     """Make a classic triangular linkage disequilibrium plot, given an
     array of pairwise correlation coefficients between variants.
-    
+
     Parameters
     ----------
-    
+
     r_squared : array_like
-        A square 2-dimensional array of squared correlation coefficients between 
-        pairs of variants.
+        A square 2-dimensional array of squared correlation coefficients
+        between pairs of variants.
     cmap : color map, optional
         The color map to use when plotting. Defaults to 'Greys' (0=white,
         1=black).
@@ -77,13 +73,13 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
     ax : axes, optional
         The axes on which to draw. If not provided, a new figure will be
         created.
-        
+
     Returns
     -------
 
     ax : axes
         The axes on which the plot was drawn
-    
+
     """
 
     # check inputs
@@ -96,31 +92,31 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
         x = plt.rcParams['figure.figsize'][0]
         fig = plt.figure(figsize=(x, x//2))
         ax = fig.add_axes((0, 0, 1, 1))
-        
+
     # define transformation to rotate the colormesh
     trans = mpl.transforms.Affine2D().rotate_deg_around(0, 0, -45)
-    trans = trans + ax.transData 
-    
+    trans = trans + ax.transData
+
     # plot the data as a colormesh
     ax.pcolormesh(r_squared, cmap=cmap, vmin=0, vmax=1, transform=trans)
-    
+
     # cut the plot in half so we see a triangle
     ax.set_ylim(bottom=0)
 
     # turn the triangle upside down
     if flip:
         ax.invert_yaxis()
-        
+
     # remove axis lines
     ax.set_axis_off()
-    
+
     return ax
 
 
 def plot_windowed_ld(gn, pos, window_size, start_position=None,
                      stop_position=None, percentiles=(5, 95), ax=None,
-                     median_plot_kwargs=dict(),
-                     percentiles_plot_kwargs=dict()):
+                     median_plot_kwargs=None,
+                     percentiles_plot_kwargs=None):
     """Plot average LD within non-overlapping genome windows.
 
     Parameters
@@ -213,6 +209,8 @@ def plot_windowed_ld(gn, pos, window_size, start_position=None,
     x = (bin_edges[1:] + bin_edges[:-1]) / 2
 
     # plot median
+    if median_plot_kwargs is None:
+        median_plot_kwargs = dict()
     median_plot_kwargs.setdefault('linestyle', '-')
     median_plot_kwargs.setdefault('color', 'k')
     median_plot_kwargs.setdefault('linewidth', 2)
@@ -220,6 +218,8 @@ def plot_windowed_ld(gn, pos, window_size, start_position=None,
 
     # plot percentiles
     if percentiles:
+        if percentiles_plot_kwargs is None:
+            percentiles_plot_kwargs = dict()
         percentiles_plot_kwargs.setdefault('linestyle', '--')
         percentiles_plot_kwargs.setdefault('color', 'k')
         percentiles_plot_kwargs.setdefault('linewidth', 1)
@@ -238,10 +238,10 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
     """Given a set of genotypes at biallelic variants, find a subset
     of the variants which are in approximate linkage equilibrium with
     each other.
-    
+
     Parameters
     ----------
-    
+
     gn : array_like
         A 2-dimensional array of shape (`n_variants`, `n_samples`) where each
         element is a genotype call coded as a single integer counting the
@@ -253,7 +253,7 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
     max_r_squared : float, optional
         The maximum value of the genotype correlation coefficient, above which
         variants will be excluded.
-        
+
     Returns
     -------
 
@@ -265,7 +265,7 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
 
     Notes
     -----
-        
+
     The algorithm is as follows. A window of `window_size` variants is
     taken from the beginning of the genotypes array. The genotype
     correlation coefficient is calculated between each pair of
@@ -277,7 +277,7 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
     `window_step` variants, and the process is repeated.
 
     """
-    
+
     # check input array
     gn = np.asarray(gn).astype('u1')
     assert gn.ndim == 2
@@ -291,13 +291,13 @@ def ld_prune_pairwise(gn, window_size=100, window_step=10, max_r_squared=.2):
 def pairwise_ld_decay(r_squared, pos, step=1):
     """Compile data on linkage disequilibrium, separation (in number
     of variants), and physical distance between pairs of variants.
-    
+
     Parameters
     ----------
-    
+
     r_squared : array_like
-        A square 2-dimensional array of squared correlation coefficients between 
-        pairs of variants.
+        A square 2-dimensional array of squared correlation coefficients
+        between pairs of variants.
     pos : array_like
         A 1-dimensional array of genomic positions of variants.
     step : int, optional
@@ -322,7 +322,7 @@ def pairwise_ld_decay(r_squared, pos, step=1):
     windowed_ld_decay
 
     """
-    
+
     # check inputs
     r_squared = np.asarray(r_squared)
     assert r_squared.ndim == 2
@@ -330,12 +330,12 @@ def pairwise_ld_decay(r_squared, pos, step=1):
 
     # determine the number of variants
     n_variants = r_squared.shape[0]
-    
+
     # determine pairs of variants to use
     pairs = [(i, j)
              for i in range(0, n_variants, step)
              for j in range(i+1, n_variants)]
-    
+
     # initialise output arrays
     cor = np.zeros((len(pairs),), dtype=np.float)
     sep = np.zeros((len(pairs),), dtype=np.int)
@@ -438,11 +438,11 @@ def plot_ld_decay_by_separation(cor, sep,
                                 max_separation=100,
                                 percentiles=(5, 95),
                                 ax=None,
-                                median_plot_kwargs=dict(),
-                                percentiles_plot_kwargs=dict()):
+                                median_plot_kwargs=None,
+                                percentiles_plot_kwargs=None):
     """Plot the decay of linkage disequilibrium with separation
     between variants.
-    
+
     Parameters
     ----------
 
@@ -463,13 +463,13 @@ def plot_ld_decay_by_separation(cor, sep,
         Keyword arguments to pass through when plotting the median line.
     percentiles_plot_kwargs : dict, optional
         Keyword arguments to pass through when plotting the percentiles.
-        
+
     Returns
     -------
 
     ax : axes
         The axes on which the plot was drawn.
-    
+
     """
 
     # check inputs
@@ -482,7 +482,7 @@ def plot_ld_decay_by_separation(cor, sep,
     # set up axes
     if ax is None:
         fig, ax = plt.subplots()
-        
+
     # set up arrays for plotting
     cor_median = np.zeros((max_separation,), dtype='f4')
     if percentiles:
@@ -491,10 +491,10 @@ def plot_ld_decay_by_separation(cor, sep,
 
     # iterate over separations, compiling data
     for i in range(max_separation):
-        
+
         # view correlations at the given separation
         c = cor[sep == i]
-        
+
         # calculate median and percentiles
         if len(c) > 0:
             cor_median[i] = np.median(c)
@@ -505,6 +505,8 @@ def plot_ld_decay_by_separation(cor, sep,
     # plot the median
     x = range(max_separation)
     y = cor_median
+    if median_plot_kwargs is None:
+        median_plot_kwargs = dict()
     median_plot_kwargs.setdefault('linestyle', '-')
     median_plot_kwargs.setdefault('color', 'k')
     median_plot_kwargs.setdefault('linewidth', 2)
@@ -512,13 +514,15 @@ def plot_ld_decay_by_separation(cor, sep,
 
     # plot percentiles
     if percentiles:
+        if percentiles_plot_kwargs is None:
+            percentiles_plot_kwargs = dict()
         percentiles_plot_kwargs.setdefault('linestyle', '--')
         percentiles_plot_kwargs.setdefault('color', 'k')
         percentiles_plot_kwargs.setdefault('linewidth', 1)
         for n, p in enumerate(percentiles):
             y = cor_percentiles[:, n]
             plt.plot(x, y, label='%s%%' % p, **percentiles_plot_kwargs)
-    
+
     # tidy up
     ax.set_xlim(left=1, right=max_separation)
     ax.set_ylim(0, 1)
@@ -532,8 +536,8 @@ def plot_ld_decay_by_separation(cor, sep,
 def plot_ld_decay_by_distance(cor, dist, bins,
                               percentiles=(5, 95),
                               ax=None,
-                              median_plot_kwargs=dict(),
-                              percentiles_plot_kwargs=dict()):
+                              median_plot_kwargs=None,
+                              percentiles_plot_kwargs=None):
     """Plot the decay of linkage disequilibrium with physical distance
     between variants.
 
@@ -584,6 +588,8 @@ def plot_ld_decay_by_distance(cor, dist, bins,
     x = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     # plot median
+    if median_plot_kwargs is None:
+        median_plot_kwargs = dict()
     median_plot_kwargs.setdefault('linestyle', '-')
     median_plot_kwargs.setdefault('color', 'k')
     median_plot_kwargs.setdefault('linewidth', 2)
@@ -591,6 +597,8 @@ def plot_ld_decay_by_distance(cor, dist, bins,
 
     # calculate and plot percentiles
     if percentiles:
+        if percentiles_plot_kwargs is None:
+            percentiles_plot_kwargs = dict()
         percentiles_plot_kwargs.setdefault('linestyle', '--')
         percentiles_plot_kwargs.setdefault('color', 'k')
         percentiles_plot_kwargs.setdefault('linewidth', 1)
@@ -611,4 +619,3 @@ def plot_ld_decay_by_distance(cor, dist, bins,
     ax.grid(axis='y')
 
     return ax
-

@@ -5,7 +5,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/gt.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -67,8 +67,8 @@ def is_called(genotypes):
 
     # optimisation for diploid case
     if ploidy == 2:
-        allele1 = genotypes[..., 0]
-        allele2 = genotypes[..., 1]
+        allele1 = genotypes[..., 0]  # noqa
+        allele2 = genotypes[..., 1]  # noqa
         ex = '(allele1 >= 0) & (allele2 >= 0)'
         out = ne.evaluate(ex)
 
@@ -158,8 +158,8 @@ def is_missing(genotypes):
 
     # optimisation for diploid case
     if ploidy == 2:
-        allele1 = genotypes[..., 0]
-        allele2 = genotypes[..., 1]
+        allele1 = genotypes[..., 0]  # noqa
+        allele2 = genotypes[..., 1]  # noqa
         ex = '(allele1 < 0) | (allele2 < 0)'
         out = ne.evaluate(ex)
 
@@ -248,15 +248,15 @@ def is_hom(genotypes):
 
     # optimisation for diploid case
     if ploidy == 2:
-        allele1 = genotypes[..., 0]
-        allele2 = genotypes[..., 1]
+        allele1 = genotypes[..., 0]  # noqa
+        allele2 = genotypes[..., 1]  # noqa
         ex = '(allele1 >= 0) & (allele1 == allele2)'
         out = ne.evaluate(ex)
 
     # general ploidy case
     else:
-        allele1 = genotypes[..., 0, np.newaxis]
-        other_alleles = genotypes[..., 1:]
+        allele1 = genotypes[..., 0, np.newaxis]  # noqa
+        other_alleles = genotypes[..., 1:]  # noqa
         ex = '(allele1 >= 0) & (allele1 == other_alleles)'
         out = np.all(ne.evaluate(ex), axis=dim_ploidy)
 
@@ -436,8 +436,8 @@ def is_hom_ref(genotypes):
 
     # optimisation for diploid case
     if ploidy == 2:
-        allele1 = genotypes[..., 0]
-        allele2 = genotypes[..., 1]
+        allele1 = genotypes[..., 0]  # noqa
+        allele2 = genotypes[..., 1]  # noqa
         ex = '(allele1 == 0) & (allele2 == 0)'
         out = ne.evaluate(ex)
 
@@ -528,15 +528,15 @@ def is_hom_alt(genotypes):
 
     # optimisation for diploid case
     if ploidy == 2:
-        allele1 = genotypes[..., 0]
-        allele2 = genotypes[..., 1]
+        allele1 = genotypes[..., 0]  # noqa
+        allele2 = genotypes[..., 1]  # noqa
         ex = '(allele1 > 0) & (allele1 == allele2)'
         out = ne.evaluate(ex)
 
     # general ploidy case
     else:
-        allele1 = genotypes[..., 0, np.newaxis]
-        other_alleles = genotypes[..., 1:]
+        allele1 = genotypes[..., 0, np.newaxis]  # noqa
+        other_alleles = genotypes[..., 1:]  # noqa
         ex = '(allele1 > 0) & (allele1 == other_alleles)'
         out = np.all(ne.evaluate(ex), axis=dim_ploidy)
 
@@ -1541,9 +1541,11 @@ def plot_genotype_counts_by_sample(gn, states=(-1, 0, 1, 2),
 
         # plot as bar
         if orientation == 'vertical':
-            ax.bar(x, y, width=width, bottom=yc, color=c, label=t, **bar_kwargs)
+            ax.bar(x, y, width=width, bottom=yc, color=c, label=t,
+                   **bar_kwargs)
         else:
-            ax.barh(x, y, height=width, left=yc, color=c, label=t, **bar_kwargs)
+            ax.barh(x, y, height=width, left=yc, color=c, label=t,
+                    **bar_kwargs)
 
         # keep cumulative count
         if yc is None:
@@ -1642,9 +1644,11 @@ def plot_genotype_counts_by_variant(gn, states=(-1, 0, 1, 2),
 
         # plot as bar
         if orientation == 'vertical':
-            ax.bar(x, y, width=width, bottom=yc, color=c, label=t, **bar_kwargs)
+            ax.bar(x, y, width=width, bottom=yc, color=c, label=t,
+                   **bar_kwargs)
         else:
-            ax.barh(x, y, height=width, left=yc, color=c, label=t, **bar_kwargs)
+            ax.barh(x, y, height=width, left=yc, color=c, label=t,
+                    **bar_kwargs)
 
         # keep cumulative count
         if yc is None:

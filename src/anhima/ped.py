@@ -5,7 +5,7 @@ See also the examples at:
 
 - http://nbviewer.ipython.org/github/alimanfoo/anhima/blob/master/examples/ped.ipynb
 
-"""
+"""  # noqa
 
 
 from __future__ import division, print_function, unicode_literals, \
@@ -38,27 +38,27 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     ----------
 
     parent_diplotype : array_like, shape (n_variants, 2)
-        An array of phased genotypes for a single diploid individual, where each
-        element of the array is an integer corresponding to an allele index
-        (-1 = missing, 0 = reference allele, 1 = first alternate allele,
+        An array of phased genotypes for a single diploid individual, where
+        each element of the array is an integer corresponding to an allele
+        index (-1 = missing, 0 = reference allele, 1 = first alternate allele,
         2 = second alternate allele, etc.).
     gamete_haplotypes : array_like, shape (n_variants, n_gametes)
-        An array of haplotypes for a set of gametes derived from the given 
+        An array of haplotypes for a set of gametes derived from the given
         parent, where each element of the array is an integer corresponding
         to an allele index (-1 = missing, 0 = reference allele, 1 = first
         alternate allele, 2 = second alternate allele, etc.).
-        
+
     Returns
     -------
-    
+
     inheritance : ndarray, uint8, shape (n_variants, n_gametes)
-        An array of integers coding the allelic inheritance, where 1 = 
-        inheritance from first parental haplotype, 2 = inheritance from second 
-        parental haplotype, 3 = inheritance of reference allele from parent 
-        that is homozygous for the reference allele, 4 = inheritance of 
-        alternate allele from parent that is homozygous for the alternate 
-        allele, 5 = non-parental allele, 6 = parental genotype is missing, 
-        7 = gamete allele is missing. 
+        An array of integers coding the allelic inheritance, where 1 =
+        inheritance from first parental haplotype, 2 = inheritance from second
+        parental haplotype, 3 = inheritance of reference allele from parent
+        that is homozygous for the reference allele, 4 = inheritance of
+        alternate allele from parent that is homozygous for the alternate
+        allele, 5 = non-parental allele, 6 = parental genotype is missing,
+        7 = gamete allele is missing.
 
     """
 
@@ -70,23 +70,23 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     assert gamete_haplotypes.ndim == 2
 
     # convenience variables
-    parent1 = parent_diplotype[:, 0, np.newaxis]
-    parent2 = parent_diplotype[:, 1, np.newaxis]
+    parent1 = parent_diplotype[:, 0, np.newaxis]  # noqa
+    parent2 = parent_diplotype[:, 1, np.newaxis]  # noqa
     gamete_is_missing = gamete_haplotypes < 0
     parent_is_missing = np.any(parent_diplotype < 0, axis=1)
-    parent_is_hom_ref = anhima.gt.is_hom_ref(parent_diplotype)[:, np.newaxis]
-    parent_is_het = anhima.gt.is_het(parent_diplotype)[:, np.newaxis]
-    parent_is_hom_alt = anhima.gt.is_hom_alt(parent_diplotype)[:, np.newaxis]
+    parent_is_hom_ref = anhima.gt.is_hom_ref(parent_diplotype)[:, np.newaxis]  # noqa
+    parent_is_het = anhima.gt.is_het(parent_diplotype)[:, np.newaxis]  # noqa
+    parent_is_hom_alt = anhima.gt.is_hom_alt(parent_diplotype)[:, np.newaxis]  # noqa
 
     # need this for broadcasting, but also need to retain original for later
-    parent_is_missing_bc = parent_is_missing[:, np.newaxis]
-    
+    parent_is_missing_bc = parent_is_missing[:, np.newaxis]  # noqa
+
     # N.B., use numexpr below where possible to avoid temporary arrays
 
     # utility variable, identify allele calls where inheritance can be
     # determined
-    callable = ne.evaluate('~gamete_is_missing & ~parent_is_missing_bc')
-    callable_seg = ne.evaluate('callable & parent_is_het')
+    callable = ne.evaluate('~gamete_is_missing & ~parent_is_missing_bc')  # noqa
+    callable_seg = ne.evaluate('callable & parent_is_het')  # noqa
 
     # main inheritance states
     inherit_parent1 = ne.evaluate(
@@ -131,9 +131,9 @@ def _diploid_mendelian_error_biallelic(parental_genotypes, progeny_genotypes):
     progeny_genotypes_012 = anhima.gt.as_012(progeny_genotypes)
 
     # convenience variables
-    p1 = parental_genotypes_012[:, 0, np.newaxis]  # parent 1
-    p2 = parental_genotypes_012[:, 1, np.newaxis]  # parent 2
-    o = progeny_genotypes_012  # offspring
+    p1 = parental_genotypes_012[:, 0, np.newaxis]  # noqa
+    p2 = parental_genotypes_012[:, 1, np.newaxis]  # noqa
+    o = progeny_genotypes_012  # noqa
 
     # enumerate all possible combinations of Mendel error genotypes
     ex = '((p1 == 0) & (p2 == 0) & (o == 1))' \
