@@ -1,4 +1,4 @@
-`anhima` - Instructions for developers
+`anhima` - Information for developers
 ======================================
 
 Setting up the development environment
