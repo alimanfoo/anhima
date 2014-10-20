@@ -43,7 +43,7 @@ def save_tped(path, genotypes, ref, alt, pos,
         variant.
     identifier : array_like, string, optional
         An array of SNP identifiers. If not provided, identifiers will be
-        created based on the variant position, e.g., 'snp100042', 
+        created based on the variant position, e.g., 'snp100042',
         'snp100081', etc.
     genetic_distance : array_like, float
         An array of genetic distances. If not provided, a zero value ('0') will
