@@ -11,7 +11,7 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 
-__version__ = '0.10'
+__version__ = '0.11-SNAPSHOT'
 
 
 # make sub-packages available without explicit import

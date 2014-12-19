@@ -507,7 +507,7 @@ def inheritance_block_masks(inheritance, pos):
     --------
 
     tabulate_inheritance_blocks
-    
+
     """
 
     # check inputs
