@@ -6,4 +6,5 @@ numexpr
 scikit-learn
 h5py
 rpy2
+pandas
 

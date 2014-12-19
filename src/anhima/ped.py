@@ -15,6 +15,7 @@ from __future__ import division, print_function, unicode_literals, \
 # third party dependencies
 import numpy as np
 import numexpr as ne
+import pandas
 
 # internal dependencies
 import anhima.gt
@@ -28,6 +29,10 @@ INHERIT_NONSEG_ALT = 4
 INHERIT_NONPARENTAL = 5
 INHERIT_PARENT_MISSING = 6
 INHERIT_MISSING = 7
+INHERITANCE_STATES = range(8)
+INHERITANCE_LABELS = ('undetermined', 'parent1', 'parent2', 'non-seg ref',
+                      'non-seg alt', 'non-parental', 'parent missing',
+                      'missing')
 
 
 def diploid_inheritance(parent_diplotype, gamete_haplotypes):
@@ -369,3 +374,165 @@ def impute_inheritance_nearest(inheritance, pos, pos_impute):
     # out[override_right] = inh_left[override_right]
 
     return out
+
+
+def tabulate_inheritance_switches(inheritance, pos, gametes=None):
+    """Tabulate switches in inheritance.
+
+    Parameters
+    ----------
+
+    inheritance : array_like, int, shape (n_variants, n_gametes)
+        An array of integers coding the allelic inheritance state at the
+        known positions.
+    pos : array_like, int, shape (n_variants,)
+        Array of genomic positions at which `inheritance` was determined.
+    gametes : sequence, length (n_gametes), optional
+
+    Returns
+    -------
+
+    df : DataFrame
+        A table of all inheritance switches observed in the gametes,
+        where each row corresponds to a switch from one parental allele to
+        another. The table has a hierarchical index, where the first level
+        corresponds to the gamete.
+
+    See Also
+    --------
+
+    tabulate_inheritance_blocks
+
+    """
+
+    # check inputs
+    inheritance = np.asarray(inheritance)
+    assert inheritance.ndim == 2
+    n_variants, n_gametes = inheritance.shape
+    pos = np.asarray(pos)
+    assert pos.ndim == 1
+    assert pos.size == n_variants
+    if gametes is None:
+        gametes = np.arange(n_gametes)
+    else:
+        gametes = np.asarray(gametes)
+        assert gametes.ndim == 1
+        assert gametes.size == n_gametes
+
+    states = INHERIT_PARENT1, INHERIT_PARENT2
+    dfs = [anhima.util.tabulate_state_transitions(inheritance[:, i],
+                                                  states,
+                                                  pos)
+           for i in range(n_gametes)]
+    df = pandas.concat(dfs, keys=gametes)
+    return df
+
+
+def tabulate_inheritance_blocks(inheritance, pos, gametes=None):
+    """Tabulate inheritance blocks.
+
+    Parameters
+    ----------
+
+    inheritance : array_like, int, shape (n_variants, n_gametes)
+        An array of integers coding the allelic inheritance state at the
+        known positions.
+    pos : array_like, int, shape (n_variants,)
+        Array of genomic positions at which `inheritance` was determined.
+    gametes : sequence, length (n_gametes), optional
+
+    Returns
+    -------
+
+    df : DataFrame
+        A table of all inheritance blocks observed in the gametes,
+        where each row corresponds to a block of inheritance from a single
+        parent. The table has a hierarchical index, where the first level
+        corresponds to the gamete.
+
+    See Also
+    --------
+
+    tabulate_inheritance_switches
+
+    """
+
+    # check inputs
+    inheritance = np.asarray(inheritance)
+    assert inheritance.ndim == 2
+    n_variants, n_gametes = inheritance.shape
+    pos = np.asarray(pos)
+    assert pos.ndim == 1
+    assert pos.size == n_variants
+    if gametes is None:
+        gametes = np.arange(n_gametes)
+    else:
+        gametes = np.asarray(gametes)
+        assert gametes.ndim == 1
+        assert gametes.size == n_gametes
+
+    states = INHERIT_PARENT1, INHERIT_PARENT2
+    dfs = [anhima.util.tabulate_state_blocks(inheritance[:, i],
+                                             states,
+                                             pos)
+           for i in range(n_gametes)]
+    df = pandas.concat(dfs, keys=gametes)
+    return df
+
+
+def inheritance_block_masks(inheritance, pos):
+    """Construct arrays suitable for masking the original inheritance array
+    using the attributes of the inheritance blocks.
+
+    Parameters
+    ----------
+
+    inheritance : array_like, int, shape (n_variants, n_gametes)
+        An array of integers coding the allelic inheritance state at the
+        known positions.
+    pos : array_like, int, shape (n_variants,)
+        Array of genomic positions at which `inheritance` was determined.
+
+    Returns
+    -------
+
+    block_support : ndarray, int, shape (n_variants, n_gametes)
+        An array where each item has the number of variants supporting the
+        containing inheritance block.
+    block_length_min : ndarray, int, shape (n_variants, n_gametes)
+        An array where each item has the minimal length of the containing
+        inheritance block.
+
+    See Also
+    --------
+
+    tabulate_inheritance_blocks
+    
+    """
+
+    # check inputs
+    inheritance = np.asarray(inheritance)
+    assert inheritance.ndim == 2
+    n_variants, n_gametes = inheritance.shape
+    pos = np.asarray(pos)
+    assert pos.ndim == 1
+    assert pos.size == n_variants
+
+    df_all_blocks = tabulate_inheritance_blocks(inheritance, pos)
+    block_support = np.empty(inheritance.shape, dtype=int)
+    block_support.fill(-1)
+    block_length_min = np.empty(inheritance.shape, dtype=pos.dtype)
+    block_support.fill(-1)
+
+    for ig in range(n_gametes):
+
+        df_blocks = df_all_blocks.loc[ig]
+
+        for ib, block in df_blocks.iterrows():
+
+            block_support[block.start_max_idx:block.stop_max_idx, ig] = \
+                block.support
+            block_length_min[block.start_max_idx:block.stop_max_idx, ig] = \
+                block.length_min
+
+    return block_support, block_length_min
