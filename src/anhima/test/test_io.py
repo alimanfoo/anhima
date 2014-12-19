@@ -49,7 +49,7 @@ class TestTped(unittest.TestCase):
         line = content[0].split("\t")
         self.assertEquals(self.n_samples + 4, len(line))
         self.assertEquals('_'.join(line[0:4]),
-                          '_'.join(['0', 'snp' + str(self.pos[0]), 
+                          '_'.join(['0', 'snp' + str(self.pos[0]),
                                     '0.0', str(self.pos[0])]))
     # test that we can load from hdf5 and create tped
 
