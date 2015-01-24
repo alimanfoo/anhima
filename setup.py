@@ -3,6 +3,19 @@ from distutils.core import setup
 from distutils.extension import Extension
 
 
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    cythonize = None
+
+
+if cythonize:
+    ext_modules = cythonize([Extension('anhima.opt.ld',
+                                       ['anhima/opt/ld.pyx'])])
+else:
+    ext_modules = [Extension('anhima.opt.ld', ['anhima/opt/ld.c'])]
+
+
 def get_version(source='anhima/__init__.py'):
     with open(source) as f:
         for line in f:
@@ -18,7 +31,7 @@ setup(
     author_email='alimanfoo@googlemail.com',
     package_dir={'': '.'},
     packages=['anhima', 'anhima.opt'],
-    ext_modules=[Extension('anhima.opt.ld', ['anhima/opt/ld.c'])],
+    ext_modules=ext_modules,
     url='https://github.com/alimanfoo/anhima',
     license='MIT License',
     description='Exploration and Analysis of genetic variation data.',

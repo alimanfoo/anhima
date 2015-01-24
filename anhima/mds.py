@@ -40,8 +40,8 @@ def _init_r():
     global r
 
     if not _r_initialised:
-        import rpy2
-        import rpy2.robjects as ro
+        import rpy2  # noqa
+        import rpy2.robjects as ro  # noqa
         from rpy2.robjects import r  # noqa
         import rpy2.robjects.numpy2ri as numpy2ri
         numpy2ri.activate()

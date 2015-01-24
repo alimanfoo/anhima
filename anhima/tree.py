@@ -57,9 +57,8 @@ def _init_r():
 
     if not _r_initialised:
 
-        import rpy2.robjects as ro
+        import rpy2.robjects as ro  # noqa
         from rpy2.robjects import r
-        from rpy2.robjects.numpy2ri import numpy2ri
         from rpy2.robjects.packages import importr
         import rpy2.robjects.numpy2ri as numpy2ri
         numpy2ri.activate()

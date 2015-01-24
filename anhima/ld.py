@@ -15,7 +15,6 @@ from __future__ import division, print_function, absolute_import
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import matplotlib.transforms as mpl_transforms
 import scipy.stats as stats
 import scipy.spatial.distance as distance

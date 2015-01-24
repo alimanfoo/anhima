@@ -100,7 +100,8 @@ class TestMendelianErrorMultiallelic(unittest.TestCase):
 
         # swap alleles, should have no effect
         actual = diploid_mendelian_error_multiallelic(genotypes[:, 0:2, ::-1],
-                                                      genotypes[:, 2:, ::-1], 4)
+                                                      genotypes[:, 2:, ::-1],
+                                                      4)
         assert np.array_equal(expect, actual)
 
     def test_consistent(self):

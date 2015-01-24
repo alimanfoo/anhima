@@ -158,9 +158,8 @@ def diploid_mendelian_error_biallelic(parental_genotypes, progeny_genotypes):
     return errors
 
 
-def diploid_mendelian_error_multiallelic(parental_genotypes,
-                                          progeny_genotypes,
-                                          max_allele):
+def diploid_mendelian_error_multiallelic(parental_genotypes, progeny_genotypes,
+                                         max_allele):
     """Implementation of function to find Mendelian errors generalised for
     multiallelic variants.
 
@@ -260,11 +259,11 @@ def diploid_mendelian_error(parental_genotypes, progeny_genotypes):
     max_allele = max(np.amax(parental_genotypes), np.amax(progeny_genotypes))
     if max_allele < 2:
         errors = diploid_mendelian_error_biallelic(parental_genotypes,
-                                                    progeny_genotypes)
+                                                   progeny_genotypes)
     else:
         errors = diploid_mendelian_error_multiallelic(parental_genotypes,
-                                                       progeny_genotypes,
-                                                       max_allele)
+                                                      progeny_genotypes,
+                                                      max_allele)
 
     return errors
 
