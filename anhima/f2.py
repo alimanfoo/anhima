@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Doubleton sharing, a.k.a., analysis of f2 variants.
 
@@ -8,8 +9,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # standard library dependencies

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utility functions for working with data stored in HDF5 files.
 
@@ -57,12 +58,12 @@ might be organised as follows::
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # standard library dependencies
 import itertools
+from anhima.compat import string_types, range, force_bytes
 
 
 # third party dependencies
@@ -141,14 +142,14 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
 
     # extract variants data
     if variants_fields:
-        if isinstance(variants_fields, basestring):
+        if isinstance(variants_fields, string_types):
             variants_fields = [variants_fields]
         for f in variants_fields:
             variants[f] = grp_chrom['variants'][f][loc, ...]
 
     # extract calldata
     if calldata_fields:
-        if isinstance(calldata_fields, basestring):
+        if isinstance(calldata_fields, string_types):
             calldata_fields = [calldata_fields]
         for f in calldata_fields:
             calldata[f] = grp_chrom['calldata'][f][loc, ...]
@@ -163,6 +164,8 @@ def load_region(callset, chrom, start_position=0, stop_position=None,
 
     # select samples
     if samples is not None:
+        # TODO check dtype of all_samples
+        samples = force_bytes(samples)
         sample_indices = [all_samples.index(s) for s in samples]
         for f in calldata:
             calldata[f] = np.take(calldata[f], sample_indices, axis=1)
@@ -219,7 +222,7 @@ def take2d_pointsel(dataset, row_indices=None, col_indices=None,
         n_rows_out = len(row_indices)
     else:
         # select all rows
-        row_indices = xrange(n_rows_in)
+        row_indices = range(n_rows_in)
         n_rows_out = n_rows_in
 
     n_cols_in = dataset.shape[1]
@@ -228,7 +231,7 @@ def take2d_pointsel(dataset, row_indices=None, col_indices=None,
         col_indices = sorted(col_indices)
         n_cols_out = len(col_indices)
     else:
-        col_indices = xrange(n_cols_in)
+        col_indices = range(n_cols_in)
         n_cols_out = n_cols_in
 
     n_items_out = n_rows_out * n_cols_out
@@ -244,7 +247,7 @@ def take2d_pointsel(dataset, row_indices=None, col_indices=None,
     typ = h5py.h5t.py_create(dataset.dtype)
 
     # process blocks at a time
-    for block_start in xrange(0, n_items_out, block_size):
+    for block_start in range(0, n_items_out, block_size):
 
         # materialise a block of coordinates
         selection = np.asarray(list(itertools.islice(coords, block_size)))
@@ -310,6 +313,7 @@ def save_tped(path, callset, chrom,
     if samples is None:
         genotypes = calldata['genotype']
     else:
+        samples = force_bytes(samples)
         h5_samples = callset[chrom]['samples'][:].tolist()
         genotypes = np.take(
             calldata['genotype'],

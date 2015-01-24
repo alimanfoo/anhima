@@ -1,11 +1,11 @@
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+# -*- coding: utf-8 -*-
+from __future__ import division, print_function, absolute_import
 
 
 import unittest
 import numpy as np
-from anhima.ped import _diploid_mendelian_error_biallelic, \
-    _diploid_mendelian_error_multiallelic
+from anhima.ped import diploid_mendelian_error_biallelic, \
+    diploid_mendelian_error_multiallelic
 
 
 class TestMendelianErrorBiallelic(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 
     def test_homref_homref(self):
         parents = np.hstack([self.href_parent, self.href_parent])
-        non_mendelian = _diploid_mendelian_error_biallelic(
+        non_mendelian = diploid_mendelian_error_biallelic(
             parental_genotypes=parents,
             progeny_genotypes=self.progeny
         )
@@ -32,7 +32,7 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 
     def test_homref_het(self):
         parents = np.hstack([self.href_parent, self.het_parent])
-        non_mendelian = _diploid_mendelian_error_biallelic(
+        non_mendelian = diploid_mendelian_error_biallelic(
             parental_genotypes=parents,
             progeny_genotypes=self.progeny
         )
@@ -40,7 +40,7 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 
     def test_homref_homalt(self):
         parents = np.hstack([self.halt_parent, self.href_parent])
-        non_mendelian = _diploid_mendelian_error_biallelic(
+        non_mendelian = diploid_mendelian_error_biallelic(
             parental_genotypes=parents,
             progeny_genotypes=self.progeny,
         )
@@ -48,7 +48,7 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 
     def test_homalt_het(self):
         parents = np.hstack([self.halt_parent, self.het_parent])
-        non_mendelian = _diploid_mendelian_error_biallelic(
+        non_mendelian = diploid_mendelian_error_biallelic(
             parental_genotypes=parents,
             progeny_genotypes=self.progeny,
         )
@@ -56,7 +56,7 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 
     def test_homalt_homalt(self):
         parents = np.hstack([self.halt_parent, self.halt_parent])
-        non_mendelian = _diploid_mendelian_error_biallelic(
+        non_mendelian = diploid_mendelian_error_biallelic(
             parental_genotypes=parents,
             progeny_genotypes=self.progeny
         )
@@ -70,7 +70,7 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 
         multiv_progeny = np.repeat(self.progeny, 4, axis=0)
 
-        non_mendelian = _diploid_mendelian_error_biallelic(
+        non_mendelian = diploid_mendelian_error_biallelic(
             parental_genotypes=parents,
             progeny_genotypes=multiv_progeny
         )
@@ -89,22 +89,18 @@ class TestMendelianErrorBiallelic(unittest.TestCase):
 class TestMendelianErrorMultiallelic(unittest.TestCase):
 
     def _test(self, genotypes, expect):
-
-        actual = _diploid_mendelian_error_multiallelic(genotypes[:, 0:2],
-                                                       genotypes[:, 2:],
-                                                       4)
+        actual = diploid_mendelian_error_multiallelic(genotypes[:, 0:2],
+                                                      genotypes[:, 2:], 4)
         assert np.array_equal(expect, actual)
 
         # swap parents, should have no affect
-        actual = _diploid_mendelian_error_multiallelic(genotypes[:, [1, 0]],
-                                                       genotypes[:, 2:],
-                                                       4)
+        actual = diploid_mendelian_error_multiallelic(genotypes[:, [1, 0]],
+                                                      genotypes[:, 2:], 4)
         assert np.array_equal(expect, actual)
 
         # swap alleles, should have no effect
-        actual = _diploid_mendelian_error_multiallelic(genotypes[:, 0:2, ::-1],
-                                                       genotypes[:, 2:, ::-1],
-                                                       4)
+        actual = diploid_mendelian_error_multiallelic(genotypes[:, 0:2, ::-1],
+                                                      genotypes[:, 2:, ::-1], 4)
         assert np.array_equal(expect, actual)
 
     def test_consistent(self):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utilities for calculating and plotting linkage disequilbrium.
 
@@ -8,14 +9,14 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.transforms as mpl_transforms
 import scipy.stats as stats
 import scipy.spatial.distance as distance
 
@@ -94,7 +95,7 @@ def plot_pairwise_ld(r_squared, cmap='Greys', flip=True, ax=None):
         ax = fig.add_axes((0, 0, 1, 1))
 
     # define transformation to rotate the colormesh
-    trans = mpl.transforms.Affine2D().rotate_deg_around(0, 0, -45)
+    trans = mpl_transforms.Affine2D().rotate_deg_around(0, 0, -45)
     trans = trans + ax.transData
 
     # plot the data as a colormesh

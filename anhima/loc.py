@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utilities for locating samples and variants.
 
@@ -8,8 +9,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # standard library dependencies
@@ -344,7 +344,7 @@ def locate_interval(pos, start_position=0, stop_position=None):
 
     # locate start and stop indices
     start_index = np.searchsorted(pos, start_position)
-    stop_index = np.searchsorted(pos, stop_position, side=b'right') \
+    stop_index = np.searchsorted(pos, stop_position, side='right') \
         if stop_position is not None else None
 
     loc = slice(start_index, stop_index)
@@ -472,7 +472,7 @@ def locate_intervals(pos, start_positions, stop_positions):
 
     # find indices of start and stop positions in pos
     start_indices = np.searchsorted(pos, start_positions)
-    stop_indices = np.searchsorted(pos, stop_positions, side=b'right')
+    stop_indices = np.searchsorted(pos, stop_positions, side='right')
 
     # find intervals overlapping at least one position
     cond2 = start_indices < stop_indices

@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 """
 Miscellaneous utilities.
 
 """
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+
+from __future__ import division, print_function, absolute_import
+from anhima.compat import range
 
 
 # third party dependencies
@@ -81,7 +83,7 @@ def block_take2d(dataset, row_indices, col_indices=None, block_size=None):
 
     # iterate block-wise
     offset = 0
-    for block_start in xrange(0, n_rows_in, block_size):
+    for block_start in range(0, n_rows_in, block_size):
         block_stop = min(block_start+block_size, n_rows_in)
 
         # how many indices to process in this block?
@@ -197,7 +199,7 @@ def block_apply(f, dataset, block_size=None, out=None):
     dim_size = dataset.shape[0]
 
     # iterate over blocks
-    for block_start in xrange(0, dim_size, block_size):
+    for block_start in range(0, dim_size, block_size):
         block_stop = min(block_start + block_size, dim_size)
 
         # load input block

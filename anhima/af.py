@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Allele frequency calculations.
 
@@ -8,8 +9,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # third party dependencies

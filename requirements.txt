@@ -1,7 +1,7 @@
 numpy
 scipy
 matplotlib
-ipython
+ipython[all]
 numexpr
 scikit-learn
 h5py

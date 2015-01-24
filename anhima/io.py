@@ -1,16 +1,19 @@
+# -*- coding: utf-8 -*-
 """
 Input/output utilities.
 
 """
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
+
+
+# standard library dependencies
+from anhima.compat import string_types, zip
 
 
 # third party dependencies
 import numpy as np
-import itertools
 
 
 def save_tped(path, genotypes, ref, alt, pos,
@@ -74,7 +77,7 @@ def save_tped(path, genotypes, ref, alt, pos,
     assert pos.shape[0] == n_variants
 
     # check chromosome
-    if isinstance(chromosome, basestring):
+    if isinstance(chromosome, string_types):
         chromosome = np.array([chromosome] * n_variants)
     else:
         chromosome = np.asarray(chromosome)
@@ -97,7 +100,7 @@ def save_tped(path, genotypes, ref, alt, pos,
 
     # setup output file
     tped_needs_closing = False
-    if isinstance(path, basestring):
+    if isinstance(path, string_types):
         tped_file = open(path, 'w')
         tped_needs_closing = True
     else:
@@ -105,8 +108,8 @@ def save_tped(path, genotypes, ref, alt, pos,
         tped_file = path
 
     try:
-        for row_data in itertools.izip(genotypes, ref, alt, pos, chromosome,
-                                       identifier, genetic_distance):
+        for row_data in zip(genotypes, ref, alt, pos, chromosome, identifier,
+                            genetic_distance):
             out_string = _get_tped_row(*row_data)
             tped_file.write(out_string + '\n')
 

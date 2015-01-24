@@ -1,12 +1,16 @@
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+# -*- coding: utf-8 -*-
+from __future__ import division, print_function, absolute_import
 
-__author__ = 'Alistair Miles'
 
 import unittest
 import os
 import anhima.h5
 import h5py
+import logging
+
+
+logger = logging.getLogger(__name__)
+debug = logger.debug
 
 
 class TestLoadRegion(unittest.TestCase):
@@ -29,7 +33,7 @@ class TestLoadRegion(unittest.TestCase):
             calldata_fields=['genotype', 'AD', 'DP', 'GQ'],
             samples=self.samples)
 
-        self.assertItemsEqual(self.var['POS'].shape, self.var['QD'].shape)
+        self.assertTupleEqual(self.var['POS'].shape, self.var['QD'].shape)
 
     def test_load_samples(self):
 
@@ -40,7 +44,7 @@ class TestLoadRegion(unittest.TestCase):
             calldata_fields=['genotype', 'AD', 'DP', 'GQ'],
             samples=self.samples)
 
-        self.assertItemsEqual(self.var['POS'].shape, self.var['QD'].shape)
+        self.assertTupleEqual(self.var['POS'].shape, self.var['QD'].shape)
         self.assertEqual(self.var['POS'].size, 11)
 
-        self.assertItemsEqual(self.gt['genotype'].shape, (11, 3, 2))
+        self.assertTupleEqual(self.gt['genotype'].shape, (11, 3, 2))

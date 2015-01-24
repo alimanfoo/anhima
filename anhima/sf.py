@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Site frequency spectra.
 
@@ -8,8 +9,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # third party dependencies
@@ -260,12 +260,12 @@ def plot_site_frequency_spectrum(sfs, bins=None, m=None,
             y, b, _ = scipy.stats.binned_statistic(np.arange(1, sfs.size-1),
                                                    values=sfs[1:-1],
                                                    bins=bins,
-                                                   statistic=b'mean')
+                                                   statistic='mean')
         else:
             y, b, _ = scipy.stats.binned_statistic(np.arange(sfs.size),
                                                    values=sfs,
                                                    bins=bins,
-                                                   statistic=b'mean')
+                                                   statistic='mean')
         # use bin midpoints for plotting
         x = (b[:-1] + b[1:]) / 2
 

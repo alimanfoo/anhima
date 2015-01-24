@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module provides some facilities for constructing and plotting trees. It
 is mostly a wrapper around a very limited subset of functions from the R
@@ -18,18 +19,22 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # standard library dependencies
 import tempfile
+import logging
 
 
 # third party dependencies
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+
+
+logger = logging.getLogger(__name__)
+debug = logging.debug
 
 
 _r_initialised = False
@@ -56,10 +61,11 @@ def _init_r():
         from rpy2.robjects import r
         from rpy2.robjects.numpy2ri import numpy2ri
         from rpy2.robjects.packages import importr
-        ro.conversion.py2ri = numpy2ri
-        grdevices = importr(b'grDevices')
+        import rpy2.robjects.numpy2ri as numpy2ri
+        numpy2ri.activate()
+        grdevices = importr('grDevices')
         ape = importr(
-            b'ape',
+            'ape',
             robject_translations={
                 'delta.plot': 'delta_dot_plot',
                 'dist.dna': 'dist_dot_dna',
@@ -318,6 +324,8 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
         v = locals()[n]
         if v is not None:
             png_args[n] = v
+    debug(filename)
+    debug(png_args)
     grdevices.png(filename, **png_args)
 
     # plot
@@ -329,6 +337,7 @@ def plot_phylo(tree, plot_kwargs=None, add_scale_bar=None,
             v = plot_kwargs[k]
             if isinstance(v, (list, tuple, np.ndarray)):
                 plot_kwargs[k] = ro.StrVector(v)
+    debug(plot_kwargs)
     ape.plot_phylo(tree, **plot_kwargs)
 
     # add scale bar
@@ -391,7 +400,7 @@ def write_tree(tree, filename=None, **kwargs):
 
     # write the file
     if filename is None:
-        kwargs['file'] = b''
+        kwargs['file'] = ''
     else:
         kwargs['file'] = filename
     result = ape.write_tree(tree, **kwargs)
@@ -435,7 +444,7 @@ def read_tree(filename, **kwargs):
 
 def color_edges_by_group_majority(tree, labels, groups,
                                   colors,
-                                  equality_color=b'gray'):
+                                  equality_color='gray'):
     """
     Color the edges of a tree according to the majority group membership of
     the descendant tips.

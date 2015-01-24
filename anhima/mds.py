@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utility functions for multidimensional scaling.
 
@@ -13,8 +14,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # third party dependencies
@@ -24,6 +24,7 @@ import sklearn.manifold
 
 
 _r_initialised = False
+rpy2 = None
 ro = None
 r = None
 
@@ -34,14 +35,16 @@ def _init_r():
     """
 
     global _r_initialised
+    global rpy2
     global ro
     global r
 
     if not _r_initialised:
+        import rpy2
         import rpy2.robjects as ro
         from rpy2.robjects import r  # noqa
-        from rpy2.robjects.numpy2ri import numpy2ri
-        ro.conversion.py2ri = numpy2ri
+        import rpy2.robjects.numpy2ri as numpy2ri
+        numpy2ri.activate()
         _r_initialised = True
 
 
@@ -80,7 +83,7 @@ def smacof(dist_square, **kwargs):
     assert dist_square.shape[0] == dist_square.shape[1]
 
     # setup model
-    model = sklearn.manifold.MDS(dissimilarity=b'precomputed',
+    model = sklearn.manifold.MDS(dissimilarity='precomputed',
                                  **kwargs)
 
     # fit model and get transformed coordinates

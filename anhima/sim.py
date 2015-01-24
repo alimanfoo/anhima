@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Extremely naive simulation functions to generate genotype data for
 illustration of other features in the ``anhima`` package.
@@ -5,12 +6,12 @@ illustration of other features in the ``anhima`` package.
 """
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # python standard library dependencies
 import random
+from anhima.compat import range
 
 
 # third party dependencies
@@ -175,7 +176,7 @@ def simulate_relatedness(genotypes, relatedness=.5, n_iter=1000, copy=True):
     n_copy = int(relatedness * n_variants)
 
     # iteratively introduce relatedness
-    for i in xrange(n_iter):
+    for i in range(n_iter):
 
         # randomly choose donor and recipient
         donor_index = random.randint(0, n_samples-1)

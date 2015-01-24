@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utility functions for working with genotype data.
 
@@ -8,8 +9,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # third party dependencies
@@ -996,7 +996,7 @@ def windowed_genotype_counts(pos, gn, t, window_size, start_position=None,
 
     # computed binned statistic
     counts, bin_edges = anhima.loc.windowed_statistic(
-        pos, values=values, statistic=b'sum', window_size=window_size,
+        pos, values=values, statistic='sum', window_size=window_size,
         start_position=start_position, stop_position=stop_position
     )
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utilities for working with related individuals (crosses, families, etc.).
 
@@ -8,8 +9,7 @@ See also the examples at:
 """  # noqa
 
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
+from __future__ import division, print_function, absolute_import
 
 
 # third party dependencies
@@ -125,7 +125,7 @@ def diploid_inheritance(parent_diplotype, gamete_haplotypes):
     return inheritance
 
 
-def _diploid_mendelian_error_biallelic(parental_genotypes, progeny_genotypes):
+def diploid_mendelian_error_biallelic(parental_genotypes, progeny_genotypes):
     """Implementation of function to find Mendelian errors optimised for
     biallelic variants.
 
@@ -158,7 +158,7 @@ def _diploid_mendelian_error_biallelic(parental_genotypes, progeny_genotypes):
     return errors
 
 
-def _diploid_mendelian_error_multiallelic(parental_genotypes,
+def diploid_mendelian_error_multiallelic(parental_genotypes,
                                           progeny_genotypes,
                                           max_allele):
     """Implementation of function to find Mendelian errors generalised for
@@ -259,10 +259,10 @@ def diploid_mendelian_error(parental_genotypes, progeny_genotypes):
     # determine which implementation to use
     max_allele = max(np.amax(parental_genotypes), np.amax(progeny_genotypes))
     if max_allele < 2:
-        errors = _diploid_mendelian_error_biallelic(parental_genotypes,
+        errors = diploid_mendelian_error_biallelic(parental_genotypes,
                                                     progeny_genotypes)
     else:
-        errors = _diploid_mendelian_error_multiallelic(parental_genotypes,
+        errors = diploid_mendelian_error_multiallelic(parental_genotypes,
                                                        progeny_genotypes,
                                                        max_allele)
 
