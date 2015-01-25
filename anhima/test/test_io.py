@@ -9,6 +9,11 @@ import anhima.sim
 import anhima.io
 import scipy.stats
 import tempfile
+import logging
+
+
+logger = logging.getLogger(__name__)
+debug = logger.debug
 
 
 class TestTped(unittest.TestCase):
@@ -34,7 +39,7 @@ class TestTped(unittest.TestCase):
     def test_file_created(self):
 
         path = tempfile.NamedTemporaryFile(delete=False)
-        print(path.name)
+        debug(path.name)
         anhima.io.save_tped(path.name, self.genotypes, self.ref, self.alt,
                             self.pos)
         self.assertTrue(os.path.isfile(path.name))

@@ -263,7 +263,6 @@ def locate_position(pos, p):
 
     # find position
     index = np.searchsorted(pos, p)
-    print(p, index)
     if index < pos.size and pos[index] == p:
         return index
     else:
