@@ -60,8 +60,8 @@ if [ $run_release -eq  1 ] ; then
 
     echo execute release
 
-    echo remove -SNAPSHOT from src/petl/__init__.py
-    sed -i -e 's/-SNAPSHOT//' src/anhima/__init__.py
+    echo remove .dev0 from src/petl/__init__.py
+    sed -i -e 's/.dev0//' src/anhima/__init__.py
     version=`grep __version__ src/anhima/__init__.py | sed -e "s/.*__version__[ ]=[ ]'\(.*\)'/\1/"`
     echo $version
 
