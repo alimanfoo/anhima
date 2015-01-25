@@ -5,23 +5,6 @@ set -o pipefail
 set -e
 set -u
 
-run_examples=0
-run_release=0
-while getopts "er" o; do
-    case $o in
-        e)
-            run_examples=1
-            ;;
-        r)
-            run_release=1
-            ;;
-        *)
-            exit
-            ;;
-    esac
-done
-shift $((OPTIND-1))
-
 echo prepare extensions
 cythonize src/anhima/opt/*.pyx
 
@@ -29,55 +12,33 @@ echo build locally
 python setup.py build_ext --inplace
 
 echo run syntax checks
-flake8 src
+tox -e flake8
 
 echo run unit tests
-nosetests -v
-
-echo install locally
-python setup.py install
+tox -e py27
+tox -e py34
+# TODO tox -e doctests
 
 echo build documentation
-cd docs
-make clean
-make html
-cd ..
+tox -e docs
 
-if [ $run_examples -eq  1 ] ; then
+echo run examples
+tox -e examples
 
-    echo run examples
-    cd examples
-    ./runall.sh
-    cd ..
+echo execute release
 
-else
+echo remove .dev0 from anhima/__init__.py
+sed -i -e 's/.dev0//' anhima/__init__.py
+version=`grep __version__ anhima/__init__.py | sed -e "s/.*__version__[ ]=[ ]'\(.*\)'/\1/"`
+echo $version
 
-    echo skip running examples
+echo git commit and push
+git commit -a -m v$version
+git push
 
-fi
+echo git tag and push
+git tag -a v$version -m v$version
+git push --tags
 
-if [ $run_release -eq  1 ] ; then
-
-    echo execute release
-
-    echo remove .dev0 from src/petl/__init__.py
-    sed -i -e 's/.dev0//' src/anhima/__init__.py
-    version=`grep __version__ src/anhima/__init__.py | sed -e "s/.*__version__[ ]=[ ]'\(.*\)'/\1/"`
-    echo $version
-
-    echo git commit and push
-    git commit -a -m v$version
-    git push
-
-    echo git tag and push
-    git tag -a v$version -m v$version
-    git push --tags
-
-    echo update pypi
-    python setup.py register sdist upload
-
-else
-
-    echo skip release
-
-fi
+echo update pypi
+python setup.py register sdist upload
