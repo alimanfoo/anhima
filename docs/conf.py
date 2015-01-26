@@ -40,8 +40,8 @@ class Mock(object):
 
 MOCK_MODULES = ['numpy', 'scipy', 'scipy.stats', 'scipy.spatial',
                 'scipy.spatial.distance', 'matplotlib', 'matplotlib.pyplot',
-                'matplotlib.image', 'ipython', 'numexpr', 'sklearn',
-                'sklearn.decomposition', 'h5py', 'rpy2', 'rpy2.robjects',
+                'matplotlib.image', 'matplotlib.transforms', 'ipython', 'numexpr', 
+                'sklearn', 'sklearn.decomposition', 'h5py', 'rpy2', 'rpy2.robjects',
                 'rpy2.robjects.numpy2ri', 'rpy2.robjects.packages',
                 'sklearn.manifold', 'scipy.special', 'anhima.opt.ld', 'pandas']
 for mod_name in MOCK_MODULES:
@@ -51,7 +51,7 @@ for mod_name in MOCK_MODULES:
 from ast import literal_eval
 
 
-def get_version(source=os.path.abspath('../src/anhima/__init__.py')):
+def get_version(source=os.path.abspath('../anhima/__init__.py')):
     with open(source) as f:
         for line in f:
             if line.startswith('__version__'):
@@ -62,7 +62,7 @@ def get_version(source=os.path.abspath('../src/anhima/__init__.py')):
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration -----------------------------------------------------
 
