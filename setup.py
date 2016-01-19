@@ -8,12 +8,16 @@ try:
 except ImportError:
     cythonize = None
 
+# numpy required for setup
+import numpy as np
 
 if cythonize:
     ext_modules = cythonize([Extension('anhima.opt.ld',
-                                       ['anhima/opt/ld.pyx'])])
+                                       ['anhima/opt/ld.pyx'],
+                                       include_dirs=[np.get_include()])])
 else:
-    ext_modules = [Extension('anhima.opt.ld', ['anhima/opt/ld.c'])]
+    ext_modules = [Extension('anhima.opt.ld', ['anhima/opt/ld.c'],
+                             include_dirs=[np.get_include()])]
 
 
 def get_version(source='anhima/__init__.py'):

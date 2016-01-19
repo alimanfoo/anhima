@@ -3,7 +3,7 @@
 from __future__ import division, print_function, absolute_import
 
 
-__version__ = '0.11.1'
+__version__ = '0.11.2'
 
 
 # make sub-packages available without explicit import
